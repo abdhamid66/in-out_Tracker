@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:out_tracker/screens/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,14 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-
-
-      home: const Scaffold(
-        body: Center(
-          child: Text('Fondasi Aplikasi Siap!'),
-
-        ),
-      ),
-    );
+        home: const LoginScreen(),
+      );
   }
 }
