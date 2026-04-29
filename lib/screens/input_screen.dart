@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/transaksi.dart';
+import '../models/transaksi.dart'; //memanggil model transaksi yang sudah dibuat untuk menyimpan data transaksi baru yang di inputkan di halaman ini
 
 class InputScreen extends StatefulWidget {
   const InputScreen({super.key});
@@ -11,24 +11,28 @@ class InputScreen extends StatefulWidget {
 class _InputScreenState extends State<InputScreen> {
   final TextEditingController _judulController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
-
+  // variabel untuk menyimpan jenis transaksi, defaultnya adalah pemasukan (true)
   bool _isPemasukan = true;
 
+  // fungsi untuk menyimpan data transaksi baru yang di inputkan, jika judul atau nominal
   void _simpanData() {
+    // cek dullu apakh kolomnya kosong
     if (_judulController.text.isEmpty || _nominalController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Judul dan Nominal Harus Diisi!')),
       );
-      return;
+      return; // hentikan jika koosong
     }
+
+    // memmbungkus data yang di ketikk ke dalam cetakan trnsksi
     final transaksiBaru = Transaksi(
-      id : DateTime.now().toString(),
+      id : DateTime.now().toString(), // bikinm id acak pakai waktu saat ini
       judul: _judulController.text,
-      nominal: double.parse(_nominalController.text),
+      nominal: double.parse(_nominalController.text), // konversi string ke double
       isPemasukan: _isPemasukan,
       tanggal: DateTime.now(),
     );
-
+// kembali ke halaman home dengan membawa data transaksi baru yang sudah di buat, data ini akan di tangkap oleh halaman home untuk di tambahkan ke daftar transaksi
     Navigator.pop(context, transaksiBaru);
   }
 
@@ -52,17 +56,17 @@ class _InputScreenState extends State<InputScreen> {
               ),
             ),
             const SizedBox(height: 15),
-
+// kolom nominal uangg
             TextField(
               controller: _nominalController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.number, //supaya keyboard yang muncul hanya angkaa
               decoration: const InputDecoration(
                 labelText: 'Nominal (Rp)',
                 border: OutlineInputBorder(),
               )
             ),
             const SizedBox(height: 15),
-            
+            // widget untuk memilih jenis transaksi, menggunakan switch untuk mengganti antara pemasukan dan pengeluaran
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -75,11 +79,11 @@ class _InputScreenState extends State<InputScreen> {
                     fontWeight: FontWeight.bold)),
                     Switch(
                       value: _isPemasukan,
-                      activeColor: Colors.green,
-                      inactiveThumbColor: Colors.red,
+                      activeColor: Colors.green, // warna saat on(pemasukan)
+                      inactiveThumbColor: Colors.red,// warna saaat off(pengeluaran)
                       onChanged: (nilaiBaru) {
                         setState(() {
-                          _isPemasukan = nilaiBaru;
+                          _isPemasukan = nilaiBaru;//mrengubah satatus tombol
                         });
                       },
                     ),
@@ -88,7 +92,7 @@ class _InputScreenState extends State<InputScreen> {
               ],
             ),
             const SizedBox(height: 30),
-
+//tombvol simpan
             SizedBox(
               width: double.infinity,
               height: 50,
