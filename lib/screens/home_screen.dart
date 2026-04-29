@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/transaksi.dart';
 import 'input_screen.dart'; // untuk mengimporr model transakssii yang sudahh dibuat
+import 'hystory_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -126,7 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ElevatedButton.icon(
                 onPressed: () {
 
-                  print('Ke Hlaman Riwayat');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HistoryScreen(riwayat: daftarTransaksi), )
+                  );
                 },
                 icon: const Icon(Icons.history),
                 label: const Text('Lihat Riwayat Transaksi'),
