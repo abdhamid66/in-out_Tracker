@@ -101,9 +101,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // tombol tombol menu utama untuk mencatat transaksi baru dan melihat riwayat transaksi
             ElevatedButton.icon(
-              onPressed: () {
-                // ketiak tombol dii tekan akan mencetak pesan ke konsol, nanti akan dihubungkan ke halaman input transaksi baru
-                print('Ke Halaman Input');
+              onPressed: () async {
+                final hasil = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const InputScreen()),
+                );
+
+                if (hasil != null && hasil is Transaksi){
+                  setState(() {
+                    daftarTransaksi.add(hasil);
+                  });
+                }
               },
               icon: const Icon(Icons.add_circle_outline),
               label: const Text('Catat Transaksi Baru'),
@@ -113,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 15),
               ElevatedButton.icon(
-                onPressed: () async {
+                onPressed: () {
 
                   print('Ke Hlaman Riwayat');
                 },
