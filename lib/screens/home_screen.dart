@@ -102,14 +102,17 @@ class _HomeScreenState extends State<HomeScreen> {
             // tombol tombol menu utama untuk mencatat transaksi baru dan melihat riwayat transaksi
             ElevatedButton.icon(
               onPressed: () async {
+                // kita menunggu (await) layar inputscreen di tutup dan membawa hasil
                 final hasil = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const InputScreen()),
                 );
 
+                // jika hasilnya ada (tidak null) dan bentuknya adalah transaksi 
                 if (hasil != null && hasil is Transaksi){
+                  // setState() memberi tahu layar home untuk mengmbar ulangg tampilannya
                   setState(() {
-                    daftarTransaksi.add(hasil);
+                    daftarTransaksi.add(hasil); // masukan data baru ke dalam list yang ad di home
                   });
                 }
               },
