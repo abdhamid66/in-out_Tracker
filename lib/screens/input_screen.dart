@@ -19,7 +19,7 @@ class _InputScreenState extends State<InputScreen> {
     // cek dullu apakh kolomnya kosong
     if (_judulController.text.isEmpty || _nominalController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Judul dan Nominal Harus Diisi!')),
+        const SnackBar(content: Text('Keterangan dan Nominal Harus Diisi!')),
       );
       return; // hentikan jika koosong
     }
