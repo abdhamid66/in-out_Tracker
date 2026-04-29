@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/transaksi.dart'; // untuk mengimporr model transakssii yang sudahh dibuat
+import '../models/transaksi.dart';
+import 'input_screen.dart'; // untuk mengimporr model transakssii yang sudahh dibuat
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
