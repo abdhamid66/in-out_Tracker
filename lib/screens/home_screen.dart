@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 15),
               ElevatedButton.icon(
-                onPressed: () {
+                onPressed: () async {
 
                   print('Ke Hlaman Riwayat');
                 },
