@@ -86,7 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         // kolom untuk pengeluaran
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             const Text('Pengeluaran', style: TextStyle(color: Colors.red)),
                             Text('Rp $_totalPengeluaran', style: const TextStyle(fontWeight: FontWeight.bold)),
