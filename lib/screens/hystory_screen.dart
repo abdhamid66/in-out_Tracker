@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '..models/transaksi.dart'; // untuk mengimpor model transaksi yang sudah dibuat untuk menampilkan daftar transaksi yang sudah di inputkan di halaman ini
+import '../models/transaksi.dart'; // untuk mengimpor model transaksi yang sudah dibuat untuk menampilkan daftar transaksi yang sudah di inputkan di halaman ini
 
 class HistoryScreen extends StatelessWidget {
   final List<Transaksi> riwayat;
