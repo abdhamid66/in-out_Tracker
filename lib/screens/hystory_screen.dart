@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/transaksi.dart'; // untuk mengimpor model transaksi yang sudah dibuat untuk menampilkan daftar transaksi yang sudah di inputkan di halaman ini
 
 class HistoryScreen extends StatelessWidget {
+  // membuat variabel untuk menampung daftar transaksi yang akan di tampilkan di halaman ini, data ini akan di bawa dari halaman home
   final List<Transaksi> riwayat;
 
   const HistoryScreen({super.key, required this.riwayat});
@@ -14,13 +15,15 @@ class HistoryScreen extends StatelessWidget {
         backgroundColor: Colors.blue,
       ),
       body: riwayat.isEmpty
-          ? const Center(child: Text('Belum ada transaksi.'))
+          ? const Center(child: Text('Belum ada transaksi.'))// tampilan jika kosogn tidk ADA trnsakksi
           : ListView.builder(
               itemCount: riwayat.length,
               itemBuilder: (context, index) {
+                // membalik urutan daftar transaksi agar yang terbaru tampil di atas, dengan menggunakan reversed dan toList untuk mengubahnya menjadi list kembali
                 final item = riwayat.reversed.toList()[index];
 
                 return ListTile(
+                  //icon panah (hijau untuk pemasukan dan merah untuk pengeluaran) yang di tampilkan di sebelah kiri setiap item transaksi, dengan menggunakan CircleAvatar untuk memberikan latar belakang warna sesuai jenis transaksi
                   leading: CircleAvatar(
                     backgroundColor: item.isPemasukan ? Colors.green[100] : Colors.red[100],
                     child: Icon(
