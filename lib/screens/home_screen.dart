@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 15),
               ElevatedButton.icon(
                 onPressed: () {
-
+                  // berpindah dari halaman home ke halaman history dengan membawa data daftar transaksi yang sudah di inputkan, dengan menggunakan Navigator.push untuk membuka halaman baru dan MaterialPageRoute untuk menentukan halaman yang akan di tuju, serta mengirimkan data daftarTransaksi ke halaman history melalui konstruktor HistoryScreen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
