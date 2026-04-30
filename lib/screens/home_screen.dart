@@ -15,134 +15,138 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Transaksi> daftarTransaksi = [];
 
   // fungsii otomatis untuk menghitung total uang masuk
-  double get _totalPemasukan {
-    double total = 0;
-    for (var item in daftarTransaksi) {
-      if (item.isPemasukan) {
-        total += item.nominal;
-      }
-    }
-    return total;
-  }
-
-  // fungsii otomatis untuk menghitung total uang keluar
-  double get _totalPengeluaran {
-    double total = 0;
-    for (var item in daftarTransaksi) {
-      if (!item.isPemasukan) {
-        total += item.nominal;
-      }
-    }
-    return total;
-  }
-
-  // fungsii otomatis untuk menghitungg sisa saldo berdasarkan total pemasukan dan pengeluaran
+  double get _totalPemasukan => daftarTransaksi.where((t) => t.isPemasukan).fold(0, (sum, item) => sum + item.nominal);
+  double get _totalPengeluaran => daftarTransaksi.where((t) => !t.isPemasukan).fold(0, (sum, item) => sum + item.nominal);
   double get _saldo => _totalPemasukan - _totalPengeluaran;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Dashboard In-Out Tracker'),
-        backgroundColor: Colors.blue,
-        // tomboll logout di pojok kanan atass
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // ketika tomboll di tekanm maka akan kemabali ke ahlaman login dna hapus riwayat sebvelumnya
-              Navigator.pushReplacementNamed(context, '/');
-            },
-          )
-        ],
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          // kotak ringkasann keuangan (card)
-          Card(
-            color: Colors.blue[50],
-            elevation: 4, //bayagan
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  const Text('Total Saldo', style: TextStyle(fontSize: 16)),
-                  Text(
-                    'Rp $_saldo',
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.blue),
+        title: const Text('In-Out Tracker', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Ringkasan Keuangan',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87,),
+              ),
+              const SizedBox(height: 15),
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Colors.teal, Color(0xff004D40)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.teal.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Total Saldo Saat ini', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Rp $_saldo',
+                      style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // kolom utk pmasukan
-                        Column(
+                        Row(
                           children: [
-                            const Text('pemasukan', style: TextStyle(color: Colors.green)),
-                            Text('Rp $_totalPemasukan', style: const TextStyle(fontWeight: FontWeight.bold)),
-                          ]
-                        ),
-                        // kolom untuk pengeluaran
-                        Column(
-                          children: [
-                            const Text('Pengeluaran', style: TextStyle(color: Colors.red)),
-                            Text('Rp $_totalPengeluaran', style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const Icon(Icons.arrow_circle_down, color: Colors.greenAccent, size: 24),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                                Text('RP $_totalPemasukan', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
                           ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_circle_up, color: Colors.redAccent, size: 24),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 12 )),
+                                Text('Rp $_totalPengeluaran', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ],                        
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 40),
+              const SizedBox(height: 30),
 
-            // tombol tombol menu utama untuk mencatat transaksi baru dan melihat riwayat transaksi
-            ElevatedButton.icon(
-              onPressed: () async {
-                // kita menunggu (await) layar inputscreen di tutup dan membawa hasil
-                final hasil = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const InputScreen()),
-                );
-
-                // jika hasilnya ada (tidak null) dan bentuknya adalah transaksi 
-                if (hasil != null && hasil is Transaksi){
-                  // setState() memberi tahu layar home untuk mengmbar ulangg tampilannya
-                  setState(() {
-                    daftarTransaksi.add(hasil); // masukan data baru ke dalam list yang ad di home
-                  });
-                }
-              },
-              icon: const Icon(Icons.add_circle_outline),
-              label: const Text('Catat Transaksi Baru'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),// membuat tombol memenuhi lebar layar
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final hasil = await Navigator.push(context, MaterialPageRoute(builder: (context) => const InputScreen()));
+                        if (hasil != null && hasil is Transaksi) {
+                          setState(() { daftarTransaksi.add(hasil); });
+                        }
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Catat\nTransaksi', textAlign: TextAlign.center),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 15,),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen(riwayat: daftarTransaksi)));
+                      },
+                      icon: const Icon(Icons.history),
+                      label: const Text('Lihat\nRiwayat', textAlign: TextAlign.center),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.teal,
+                        side: const BorderSide(color: Colors.teal, width: 2),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 15),
-              ElevatedButton.icon(
-                onPressed: () {
-                  // berpindah dari halaman home ke halaman history dengan membawa data daftar transaksi yang sudah di inputkan, dengan menggunakan Navigator.push untuk membuka halaman baru dan MaterialPageRoute untuk menentukan halaman yang akan di tuju, serta mengirimkan data daftarTransaksi ke halaman history melalui konstruktor HistoryScreen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HistoryScreen(riwayat: daftarTransaksi), )
-                  );
-                },
-                icon: const Icon(Icons.history),
-                label: const Text('Lihat Riwayat Transaksi'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Colors.grey[200],
-                  foregroundColor: Colors.black,
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
+      ),
     );
   }
 }
