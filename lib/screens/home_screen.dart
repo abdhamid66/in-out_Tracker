@@ -32,30 +32,30 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,//tulisan rata kiri
           children: [
             const Text(
               'Ringkasan Keuangan',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87,),
               ),
               const SizedBox(height: 15),
-
+              // Container untuk menampilkan total saldo, pemasukan, dan pengeluaran dengan desain yang lebih menarik menggunakan gradient, border radius, dan shadow untuk memberikan efek kedalaman pada tampilan ringkasan keuangan di halaman home.
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Colors.teal, Color(0xff004D40)],
+                    colors: [Colors.teal, Color(0xff004D40)],// menggunakan warna teal yang lebih gelap untuk memberikan kesan yang lebih elegan dan profesional pada tampilan ringkasan keuangan, dengan menggunakan LinearGradient untuk menciptakan efek gradasi warna yang halus dari warna teal ke warna yang lebih gelap, memberikan tampilan yang lebih menarik dan dinamis pada bagian ringkasan keuangan di halaman home.
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20),// sudut membulat pada container untuk memberikan tampilan yang lebih modern dan ramah pengguna, dengan menggunakan BorderRadius.circular untuk membuat sudut yang halus dan estetis pada bagian ringkasan keuangan di halaman home.
                   boxShadow: [
                     BoxShadow(
                       color: Colors.teal.withOpacity(0.3),
                       spreadRadius: 2,
                       blurRadius: 8,
-                      offset: const Offset(0, 4),
+                      offset: const Offset(0, 4),// memberikan efek bayangan yang lembut di bawah container untuk memberikan kesan kedalam
                     ),
                   ],
                 ),
@@ -69,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
+                    // info pemasukan 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -85,6 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
+                        // info pengeluaran
                         Row(
                           children: [
                             const Icon(Icons.arrow_circle_up, color: Colors.redAccent, size: 24),
@@ -104,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-
+              // dua tombol utama untuk mencatat transaksi baru dan melihat riwayat transaksi, dengan desain yang lebih menarik menggunakan ElevatedButton.icon untuk memberikan ikon yang jelas pada setiap tombol, serta menggunakan
               Row(
                 children: [
                   Expanded(
@@ -125,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 15,),
+                  const SizedBox(width: 15),// memberikan jarak antar tombol
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
