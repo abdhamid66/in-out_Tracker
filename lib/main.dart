@@ -14,8 +14,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'In-Out Tracker',
       theme: ThemeData(
+        // menggunakan warna teal sebagai warna utama aplikasi dengan menggunakan ColorScheme.fromSeed untuk menghasilkan skema warna yang konsisten berdasarkan warna utama yang dipilih, serta mengaktifkan penggunaan Material3 untuk mendapatkan tampilan yang lebih modern dan sesuai dengan desain terbaru dari Google.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
+        useMaterial3: true,// menggunakan Material3 untuk mendapatkan tampilan yang lebih modern dan sesuai dengan desain terbaru dari Google.
       ),
         home: const LoginScreen(),
       );
