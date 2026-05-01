@@ -42,7 +42,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login In-Out Tracker'),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),// memberikan jarak dari tepi layarr
