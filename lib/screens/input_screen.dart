@@ -39,71 +39,117 @@ class _InputScreenState extends State<InputScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Catat Transaksi'),
-        backgroundColor: Colors.blue,
+        title: const Text('Catat Transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _judulController,
-              decoration: const InputDecoration(
-                labelText: 'Keterangan (contoh: jual pop ice/ beli gula)',
-                border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.teal.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
-            ),
-            const SizedBox(height: 15),
-// kolom nominal uangg
-            TextField(
-              controller: _nominalController,
-              keyboardType: TextInputType.number, //supaya keyboard yang muncul hanya angkaa
-              decoration: const InputDecoration(
-                labelText: 'Nominal (Rp)',
-                border: OutlineInputBorder(),
-              )
-            ),
-            const SizedBox(height: 15),
-            // widget untuk memilih jenis transaksi, menggunakan switch untuk mengganti antara pemasukan dan pengeluaran
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Jenis Transaksi:', style: TextStyle(fontSize: 16)),
-                Row(
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Detail Transaksi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: _judulController,
+                decoration: InputDecoration(
+                  labelText: 'Keterangan',
+                  hintText: 'Contoh: Gaji Bulan Ini, Beli Makan, dll',
+                  prefixIcon: Icon(Icons.description,color: Colors.teal),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: _nominalController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Nominal (Rp)',
+                  hintText: 'Contoh: 15000',
+                  prefixIcon: Icon(Icons.attach_money,color: Colors.teal),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]!),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(_isPemasukan ? 'Pemasukan (Masuk)' : 'Pengeluaran (Keluar)',
-                    style: TextStyle
-                    (color: _isPemasukan ? Colors.green : Colors.red,
-                    fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: _isPemasukan ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.bold,
+                    )),
                     Switch(
                       value: _isPemasukan,
-                      activeColor: Colors.green, // warna saat on(pemasukan)
-                      inactiveThumbColor: Colors.red,// warna saaat off(pengeluaran)
+                      activeColor: Colors.green,
+                      inactiveThumbColor: Colors.red,
                       onChanged: (nilaiBaru) {
                         setState(() {
-                          _isPemasukan = nilaiBaru;//mrengubah satatus tombol
+                          _isPemasukan = nilaiBaru;
                         });
                       },
                     ),
                   ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 30),
-//tombvol simpan
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _simpanData,
-                child: const Text('SIMPAN TRANSAKSI', style: TextStyle(fontSize: 18)),
               ),
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: 30),
+
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _simpanData,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 2,
+                  ),
+                  child: const Text('SIMPAN', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        )
+      )
     );
   }
 }
+        
