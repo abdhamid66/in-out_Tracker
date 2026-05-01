@@ -18,9 +18,9 @@ class HistoryScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: riwayat.isEmpty
-          ? _buildEmptyState()
+          ? _buildEmptyState() // memanggil widget untuk menampilkan tampilan kosong jika tidak ada transaksi
           : ListView.builder(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(15.0),// memberikan padding di sekitar daftar transaksi agar tidak menempel ke tepi layar
               itemCount: riwayat.length,
               itemBuilder: (context, index) {
                 // membalik urutan daftar transaksi agar yang terbaru tampil di atas, dengan menggunakan reversed dan toList untuk mengubahnya menjadi list kembali
@@ -28,9 +28,9 @@ class HistoryScreen extends StatelessWidget {
 
                 return Card(
                   elevation: 1,
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: const EdgeInsets.only(bottom: 12),// memberikan jarak antar kartu transaksi dengan margin bawah
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(15),// sudut kartu transaksi dibuat bulat dengan borderRadius
                   ),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -68,6 +68,7 @@ class HistoryScreen extends StatelessWidget {
     );
   }
 
+// widget untuk menampilkan tampilan kosong jika tidak ada transaksi, dengan ikon dan teks yang informatif agar pengguna tahu bahwa belum ada transaksi yang di catat
   Widget _buildEmptyState() {
     return Center(
       child: Column(
