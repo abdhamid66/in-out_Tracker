@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/transaksi.dart'; //memanggil model transaksi yang sudah dibuat untuk menyimpan data transaksi baru yang di inputkan di halaman ini
+import '../database/db_helper.dart'; // untuk menyimpan data transaksi baru ke database setelah di inputkan di halaman ini
 
 class InputScreen extends StatefulWidget {
   const InputScreen({super.key});
@@ -15,7 +16,7 @@ class _InputScreenState extends State<InputScreen> {
   bool _isPemasukan = true;
 
   // fungsi untuk menyimpan data transaksi baru yang di inputkan, jika judul atau nominal
-  void _simpanData() {
+  void _simpanData() async {
     // cek dullu apakh kolomnya kosong
     if (_judulController.text.isEmpty || _nominalController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -32,6 +33,10 @@ class _InputScreenState extends State<InputScreen> {
       isPemasukan: _isPemasukan,
       tanggal: DateTime.now(),
     );
+    await DBHelper().insertTransaksi(transaksiBaru); // simpan data transaksi baru ke database menggunakan fungsi insertTransaksi dari DBHelper
+
+    if (!mounted) return; // cek apakah widget masih aktif sebelum menampilkan pesan sukses
+    Navigator.pop(context);
 // kembali ke halaman home dengan membawa data transaksi baru yang sudah di buat, data ini akan di tangkap oleh halaman home untuk di tambahkan ke daftar transaksi
     Navigator.pop(context, transaksiBaru);
   }

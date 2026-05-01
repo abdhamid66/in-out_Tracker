@@ -1,5 +1,3 @@
-// File: lib/models/transaksi.dart
-
 class Transaksi {
   final String id;
   final String judul;
