@@ -46,13 +46,14 @@ class _InputScreenState extends State<InputScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
+      // SingleChildScrollView berguna agar layar bisa di geser (scroll) saat keyboard muncul
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20),// form bersudut bulatt
             boxShadow: [
               BoxShadow(
                 color: Colors.teal.withOpacity(0.1),
@@ -67,7 +68,7 @@ class _InputScreenState extends State<InputScreen> {
             children: [
               const Text('Detail Transaksi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
-
+              // KOlom judull dengan desain baru
               TextField(
                 controller: _judulController,
                 decoration: InputDecoration(
@@ -75,14 +76,14 @@ class _InputScreenState extends State<InputScreen> {
                   hintText: 'Contoh: Gaji Bulan Ini, Beli Makan, dll',
                   prefixIcon: Icon(Icons.description,color: Colors.teal),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(15),// kolom input bersudut bulattt
                   ),
                   filled: true,
                   fillColor: Colors.grey[50],
                 ),
               ),
               const SizedBox(height: 20),
-
+                    // kolom nominaml dnbgn desain terbru dengan ikon uang dan warna yang lebih menarik
               TextField(
                 controller: _nominalController,
                 keyboardType: TextInputType.number,
@@ -98,7 +99,7 @@ class _InputScreenState extends State<InputScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
+              // tombol pilihsn pemasukan/pengeluaran dalam kotakk
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                 decoration: BoxDecoration(
@@ -128,7 +129,7 @@ class _InputScreenState extends State<InputScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-
+              // tombol simpan dengan desain baru yang lebih lebar dab warna yang lebih menarik
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -138,7 +139,7 @@ class _InputScreenState extends State<InputScreen> {
                     backgroundColor: Colors.teal,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(15),// tombol simpan bersudut bulattt
                     ),
                     elevation: 2,
                   ),
