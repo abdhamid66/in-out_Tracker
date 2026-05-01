@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/transaksi.dart';
 import 'input_screen.dart'; // untuk mengimporr model transakssii yang sudahh dibuat
 import 'hystory_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,6 +29,18 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: () {
+              Navigator.pushReplacement(
+                context, 
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+            }
+          )
+        ]
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

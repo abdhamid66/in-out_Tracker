@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,// pposisi widget di tengah layar
           children: [
-            const Icon(Icons.account_balance_wallet, size: 80, color: Colors.blue),
+            const Icon(Icons.account_balance_wallet, size: 80, color: Colors.teal),
             const SizedBox(height: 15),// spasii antar widget
             TextField(
               controller: _usernameController,
