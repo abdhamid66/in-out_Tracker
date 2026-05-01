@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import '../models/transaksi.dart';
 
 class DBHelper {
   static final DBHelper _instance = DBHelper._internal();
@@ -35,5 +36,24 @@ class DBHelper {
         tanggal TEXT
       )
     ''');
+  }
+  // --- FUNGSI UNTUK MENYIMPAN DATA TRANSAKSI ---
+  Future<int> insertTransaksi(Transaksi transaksi) async {
+    // Panggil database-nya
+    Database db = await database;
+    // Masukkan data ke tabel 'transaksi', dengan menggunakan fungsi penerjemah toMap()
+    return await db.insert('transaksi', transaksi.toMap());
+  }
+
+  // --- FUNGSI UNTUK MEMBACA SEMUA DATA TRANSAKSI ---
+  Future<List<Transaksi>> getSemuaTransaksi() async {
+    Database db = await database;
+    // Minta semua data dari tabel 'transaksi', urutkan dari tanggal terbaru ke terlama (DESC)
+    List<Map<String, dynamic>> dataDariDb = await db.query('transaksi', orderBy: 'tanggal DESC');
+
+    // Ubah hasil dari database menjadi bentuk List aplikasi menggunakan fungsi penerjemah fromMap()
+    return List.generate(dataDariDb.length, (index) {
+      return Transaksi.fromMap(dataDariDb[index]);
+    });
   }
 }
