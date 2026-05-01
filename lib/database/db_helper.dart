@@ -3,30 +3,32 @@ import 'package:path/path.dart';
 import '../models/transaksi.dart';
 
 class DBHelper {
+  // Membuat singleton untuk memastikan hanya ada satu instance DBHelper yang digunakan di seluruh aplikasi
   static final DBHelper _instance = DBHelper._internal();
   factory DBHelper() => _instance;
   DBHelper._internal();
-
+  // Variabel untuk menyimpan instance database, awalnya null, nanti akan diinisialisasi saat pertama kali dipanggil
   static Database? _database;
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
+    if (_database != null) return _database!; // Jika database sudah diinisialisasi, langsung kembalikan instance-nya
+    // Jika belum, inisialisasi database terlebih dahulu
     _database = await _initDB();
     return _database!;
   }
-
+  // fungsii utk mbmbuat filee database di dalam hp
   Future<Database> _initDB() async {
     String path = join(await getDatabasesPath(), 'in_out_tracker.db');
-
+    // mmbuka dtabase, dan jika belum ada filenya jalankan fungsi _onCreate
     return await openDatabase(
       path,
-      version: 1,
+      version: 1, // versi database, bisa diubah jika ada perubahan struktur tabel
       onCreate: _onCreate,
     );
   }
-
+  // fungsi untuk membuat tabel transaksi di dalam database, dengan kolom id, judul, nominal, isPemasukan, dan tanggal
   Future<void> _onCreate(Database db, int version) async {
-
+  // mengunakan bahasa sql sederhana untuk mbuat kolomnya
     await db.execute('''
       CREATE TABLE transaksi (
         id TEXT PRIMARY KEY,
@@ -45,7 +47,7 @@ class DBHelper {
     return await db.insert('transaksi', transaksi.toMap());
   }
 
-  // --- FUNGSI UNTUK MEMBACA SEMUA DATA TRANSAKSI ---
+  // fungsi untuk mnyimpan dat atransaksi
   Future<List<Transaksi>> getSemuaTransaksi() async {
     Database db = await database;
     // Minta semua data dari tabel 'transaksi', urutkan dari tanggal terbaru ke terlama (DESC)
