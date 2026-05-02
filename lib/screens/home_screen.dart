@@ -13,19 +13,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // daftar transaksi yang akan di tammpilkann di halamann home, ini masih kosong karena belum ada input transaksi baru
+  // daftar transaksi yang akan di tammpilkann di halamann home,sekarang di isi dari database
   List<Transaksi> daftarTransaksi = [];
 
   @override
   void initState() {
     super.initState();
-    _refreshData();
+    _refreshData();// panggil fungsi ambil data
   }
 
+  //fungsi utk mngmbil data dari SQLIte dan mnmpilkan nya
   void _refreshData() async {
     final data = await DBHelper().getSemuaTransaksi();
     setState(() {
-      daftarTransaksi = data;
+      daftarTransaksi = data;// mmperbarui layar dng data dari database
     });
   }
 
@@ -139,8 +140,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () async {
+                        // buka halaman input dan tunggu sampai selesai (di tutup)
                         await Navigator.push(context, MaterialPageRoute(builder: (context) => const InputScreen()));
-
+                        // setelah kmbali dari layr input ,panggil ulang dari databse,supaya saldonya lngsung terupdate
                         _refreshData();
                       },
                       icon: const Icon(Icons.add),

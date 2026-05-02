@@ -15,7 +15,7 @@ class _InputScreenState extends State<InputScreen> {
   // variabel untuk menyimpan jenis transaksi, defaultnya adalah pemasukan (true)
   bool _isPemasukan = true;
 
-  // fungsi untuk menyimpan data transaksi baru yang di inputkan, jika judul atau nominal
+  // menbhkan asyncronos karena proses menyimpan ke brngks buth sedikit waktu
   void _simpanData() async {
     // cek dullu apakh kolomnya kosong
     if (_judulController.text.isEmpty || _nominalController.text.isEmpty) {
@@ -33,9 +33,11 @@ class _InputScreenState extends State<InputScreen> {
       isPemasukan: _isPemasukan,
       tanggal: DateTime.now(),
     );
+    // menyuruh mandor mnyimpan data ke SQLite
     await DBHelper().insertTransaksi(transaksiBaru); // simpan data transaksi baru ke database menggunakan fungsi insertTransaksi dari DBHelper
 
-    if (!mounted) return; // cek apakah widget masih aktif sebelum menampilkan pesan sukses
+    // setelah tersimpan tutup halaman ini(kembali ke home)
+    if (!mounted) return;  // di gunakan agar flutter tidk eror saat menutup halman
     Navigator.pop(context);
 // kembali ke halaman home dengan membawa data transaksi baru yang sudah di buat, data ini akan di tangkap oleh halaman home untuk di tambahkan ke daftar transaksi
     Navigator.pop(context, transaksiBaru);
