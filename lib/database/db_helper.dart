@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/transaksi.dart';
+import 'package:intl/intl.dart';
 
 class DBHelper {
   // Membuat singleton untuk memastikan hanya ada satu instance DBHelper yang digunakan di seluruh aplikasi
@@ -58,4 +59,12 @@ class DBHelper {
       return Transaksi.fromMap(dataDariDb[index]);
     });
   }
+}
+String formatRupiah(double angka) {
+  final formatBaru = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
+  return formatBaru.format(angka);
 }
