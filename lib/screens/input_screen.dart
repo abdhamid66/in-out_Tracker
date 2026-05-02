@@ -17,6 +17,8 @@ class _InputScreenState extends State<InputScreen> {
 
   // menbhkan asyncronos karena proses menyimpan ke brngks buth sedikit waktu
   void _simpanData() async {
+
+    FocusScope.of(context).unfocus();
     // cek dullu apakh kolomnya kosong
     if (_judulController.text.isEmpty || _nominalController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -38,6 +40,11 @@ class _InputScreenState extends State<InputScreen> {
 
     // setelah tersimpan tutup halaman ini(kembali ke home)
     if (!mounted) return;  // di gunakan agar flutter tidk eror saat menutup halman
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Data Berhasil Disimpan!'),
+      ),
+    );
     Navigator.pop(context);
 // kembali ke halaman home dengan membawa data transaksi baru yang sudah di buat, data ini akan di tangkap oleh halaman home untuk di tambahkan ke daftar transaksi
     Navigator.pop(context, transaksiBaru);
