@@ -45,7 +45,6 @@ class _InputScreenState extends State<InputScreen> {
         content: Text('Data Berhasil Disimpan!'),
       ),
     );
-    Navigator.pop(context);
 // kembali ke halaman home dengan membawa data transaksi baru yang sudah di buat, data ini akan di tangkap oleh halaman home untuk di tambahkan ke daftar transaksi
     Navigator.pop(context, transaksiBaru);
   }
