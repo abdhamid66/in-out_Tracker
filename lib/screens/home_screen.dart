@@ -3,6 +3,7 @@ import '../models/transaksi.dart';
 import 'input_screen.dart'; // untuk mengimporr model transakssii yang sudahh dibuat
 import 'hystory_screen.dart';
 import 'login_screen.dart';
+import '../database/db_helper.dart'; // untuk mengimpor fungsi-fungsi database yang sudah dibuat untuk menyimpan dan mengambil data transaksi dari database di halaman home
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +15,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // daftar transaksi yang akan di tammpilkann di halamann home, ini masih kosong karena belum ada input transaksi baru
   List<Transaksi> daftarTransaksi = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshData();
+  }
+
+  void _refreshData() async {
+    final data = await DBHelper().getSemuaTransaksi();
+    setState(() {
+      daftarTransaksi = data;
+    });
+  }
 
   // fungsii otomatis untuk menghitung total uang masuk
   double get _totalPemasukan => daftarTransaksi.where((t) => t.isPemasukan).fold(0, (sum, item) => sum + item.nominal);
@@ -125,10 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        final hasil = await Navigator.push(context, MaterialPageRoute(builder: (context) => const InputScreen()));
-                        if (hasil != null && hasil is Transaksi) {
-                          setState(() { daftarTransaksi.add(hasil); });
-                        }
+                        await Navigator.push(context, MaterialPageRoute(builder: (context) => const InputScreen()));
+
+                        _refreshData();
                       },
                       icon: const Icon(Icons.add),
                       label: const Text('Catat\nTransaksi', textAlign: TextAlign.center),
