@@ -31,7 +31,7 @@ class Transaksi {
     return Transaksi(
       id: map['id'],
       judul: map['judul'],
-      nominal: map['nominal'],
+      nominal: (map['nominal'] as num).toDouble(),
       // Jika angka di database adalah 1, maka kembalikan jadi true.
       isPemasukan: map['isPemasukan'] == 1, 
       // Ubah kembali Teks menjadi format Waktu (DateTime)
