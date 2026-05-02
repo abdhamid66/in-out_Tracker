@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text('Total Saldo Saat ini', style: TextStyle(color: Colors.white70, fontSize: 14)),
                     const SizedBox(height: 5),
                     Text(
-                      'Rp $_saldo',
+                      formatRupiah(_saldo),
                       style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                Text('RP $_totalPemasukan', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(formatRupiah(_totalPemasukan), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ],
@@ -123,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 12 )),
-                                Text('Rp $_totalPengeluaran', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(formatRupiah(_totalPengeluaran), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ],                        
