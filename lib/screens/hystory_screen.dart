@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:out_tracker/database/db_helper.dart';
 import '../models/transaksi.dart'; // untuk mengimpor model transaksi yang sudah dibuat untuk menampilkan daftar transaksi yang sudah di inputkan di halaman ini
 
 class HistoryScreen extends StatelessWidget {
@@ -54,7 +55,7 @@ class HistoryScreen extends StatelessWidget {
                       style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     ),
                     trailing: Text(
-                      "${item.isPemasukan ? '+' : '-'} Rp ${item.nominal.toStringAsFixed(0)}",
+                      "${item.isPemasukan ? '+' : '-'} ${formatRupiah(item.nominal)}",
                       style: TextStyle(
                         color: item.isPemasukan ? Colors.green : Colors.red,
                         fontWeight: FontWeight.bold,
