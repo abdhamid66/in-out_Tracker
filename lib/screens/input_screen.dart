@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/transaksi.dart'; //memanggil model transaksi yang sudah dibuat untuk menyimpan data transaksi baru yang di inputkan di halaman ini
 import '../database/db_helper.dart'; // untuk menyimpan data transaksi baru ke database setelah di inputkan di halaman ini
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class InputScreen extends StatefulWidget {
   const InputScreen({super.key});
@@ -31,7 +33,7 @@ class _InputScreenState extends State<InputScreen> {
     final transaksiBaru = Transaksi(
       id : DateTime.now().toString(), // bikinm id acak pakai waktu saat ini
       judul: _judulController.text,
-      nominal: double.parse(_nominalController.text), // konversi string ke double
+      nominal: double.parse(_nominalController.text.replaceAll('.', '')), // konversi ke double
       isPemasukan: _isPemasukan,
       tanggal: DateTime.now(),
     );
@@ -100,9 +102,12 @@ class _InputScreenState extends State<InputScreen> {
               TextField(
                 controller: _nominalController,
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  CurrencyFormat(),
+                ],
                 decoration: InputDecoration(
                   labelText: 'Nominal (Rp)',
-                  hintText: 'Contoh: 15000',
+                  hintText: 'Contoh: 15.000',
                   prefixIcon: Icon(Icons.attach_money,color: Colors.teal),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
@@ -166,4 +171,25 @@ class _InputScreenState extends State<InputScreen> {
     );
   }
 }
-        
+// Class khusus untuk mencegat ketikan dan menambahkan titik otomatis
+class CurrencyFormat extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    String angkaMurni = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    
+    int value = int.parse(angkaMurni);
+
+    final formatter = NumberFormat('#,###', 'id_ID');
+    String teksBaru = formatter.format(value);
+
+    return newValue.copyWith(
+      text: teksBaru,
+      selection: TextSelection.collapsed(offset: teksBaru.length),
+    );
+  }
+}
