@@ -59,6 +59,25 @@ class DBHelper {
       return Transaksi.fromMap(dataDariDb[index]);
     });
   }
+
+  Future<int> deleteTransaksi(String id) async {
+    Database db = await database;
+    return await db.delete(
+      'transaksi',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> updateTransaksi(Transaksi transaksi) async {
+    Database db = await database;
+    return await db.update(
+      'transaksi',
+      transaksi.toMap(), 
+      where: 'id = ?',
+      whereArgs: [transaksi.id],
+    );
+  }
 }
 String formatRupiah(double angka) {
   final formatBaru = NumberFormat.currency(
