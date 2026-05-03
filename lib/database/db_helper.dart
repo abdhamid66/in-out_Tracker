@@ -69,8 +69,10 @@ class DBHelper {
     );
   }
 
+// fungsi untuk menghapus data
   Future<int> updateTransaksi(Transaksi transaksi) async {
     Database db = await database;
+    // menghapus data dari table trnsakksi yng id ny cocook dg yg d pilih
     return await db.update(
       'transaksi',
       transaksi.toMap(), 
@@ -79,8 +81,10 @@ class DBHelper {
     );
   }
 }
+// fungsi utkk mengedit or mmperbarui data
 String formatRupiah(double angka) {
   final formatBaru = NumberFormat.currency(
+    // mmperbarui data di tble trnskasii brdsrkan id nya
     locale: 'id_ID',
     symbol: 'Rp ',
     decimalDigits: 0,
