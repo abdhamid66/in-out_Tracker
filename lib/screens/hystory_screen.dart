@@ -2,92 +2,114 @@ import 'package:flutter/material.dart';
 import 'package:out_tracker/database/db_helper.dart';
 import '../models/transaksi.dart'; // untuk mengimpor model transaksi yang sudah dibuat untuk menampilkan daftar transaksi yang sudah di inputkan di halaman ini
 
-class HistoryScreen extends StatelessWidget {
-  // membuat variabel untuk menampung daftar transaksi yang akan di tampilkan di halaman ini, data ini akan di bawa dari halaman home
-  final List<Transaksi> riwayat;
+class HistoryScreen extends StatefulWidget {
 
-  const HistoryScreen({super.key, required this.riwayat});
+    const HistoryScreen({super.key});
+
+    @override
+    State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen>{
+  List<Transaksi> riwayat = [];
 
   @override
-  Widget build(BuildContext context){
+  void initState() {
+    super.initState();
+    _refreshRiwayat();
+  }
+
+  void _refreshRiwayat() async{
+    final data = await DBHelper().getSemuaTransaksi();
+    setState((){
+      riwayat = data;
+    });
+  }
+
+  void _konfirmasiHapus(String id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Transaksi?'),
+        content: const Text('Data yang dihapus tidak bisa di kembalikan Lho.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await DBHelper().deleteTransaksi(id);
+              if(!mounted) return;
+              Navigator.pop(context);
+              _refreshRiwayat();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
+      appBar: AppBar (
         title: const Text('Riwayat Transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: riwayat.isEmpty
-          ? _buildEmptyState() // memanggil widget untuk menampilkan tampilan kosong jika tidak ada transaksi
+          ? const Center(child: Text('Belum ada Transaksi'))
           : ListView.builder(
-              padding: const EdgeInsets.all(15.0),// memberikan padding di sekitar daftar transaksi agar tidak menempel ke tepi layar
-              itemCount: riwayat.length,
-              itemBuilder: (context, index) {
-                // membalik urutan daftar transaksi agar yang terbaru tampil di atas, dengan menggunakan reversed dan toList untuk mengubahnya menjadi list kembali
-                final item = riwayat.reversed.toList()[index];
+            padding: const EdgeInsets.all(15.0),
+            itemCount: riwayat.length,
+            itemBuilder: (context, index) {
 
-                return Card(
-                  elevation: 1,
-                  margin: const EdgeInsets.only(bottom: 12),// memberikan jarak antar kartu transaksi dengan margin bawah
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),// sudut kartu transaksi dibuat bulat dengan borderRadius
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    leading: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: item.isPemasukan ? Colors.green[50] : Colors.red[50],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        item.isPemasukan ? Icons.arrow_downward : Icons.arrow_upward,
-                        color: item.isPemasukan ? Colors.green : Colors.red,
-                      ),
-                    ),
-                    title: Text(
-                      item.judul, 
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
-                    ),
-                    subtitle: Text(
-                      "${item.tanggal.day}/${item.tanggal.month}/${item.tanggal.year}",
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                    ),
-                    trailing: Text(
-                      "${item.isPemasukan ? '+' : '-'} ${formatRupiah(item.nominal)}",
-                      style: TextStyle(
-                        color: item.isPemasukan ? Colors.green : Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),             
-    );
-  }
+              final item = riwayat[index];
 
-// widget untuk menampilkan tampilan kosong jika tidak ada transaksi, dengan ikon dan teks yang informatif agar pengguna tahu bahwa belum ada transaksi yang di catat
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.receipt_long, size: 80, color: Colors.grey[400]),
-          const SizedBox(height: 20),
-          Text(
-            'Belum ada transaksi',
-            style: TextStyle(fontSize: 18, color: Colors.grey[600], fontWeight: FontWeight.w500),
+              return Card(
+                elevation: 1,
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: ListTile(
+                  onLongPress: () {
+                    _konfirmasiHapus(item.id);
+                  },
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: item.isPemasukan ? Colors.green[50]:Colors.red [50],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    item.isPemasukan ? Icons.arrow_downward : Icons.arrow_upward,
+                    color: item.isPemasukan ? Colors.green : Colors.red,
+                  ),
+                ),
+                title: Text(
+                  item.judul,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                ),
+                subtitle: Text(
+                  "${item.isPemasukan ? '+' : '-'} ${formatRupiah(item.nominal)}",
+                  style: TextStyle(
+                    color: item.isPemasukan ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                ),
+              );
+            },
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Catat pemasukan atau pengeluaran pertamamu!',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-          ),
-        ],
-      ),
-    );
+      );
   }
 }
