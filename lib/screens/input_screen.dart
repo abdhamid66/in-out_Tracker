@@ -5,7 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class InputScreen extends StatefulWidget {
-  const InputScreen({super.key});
+  final Transaksi? transaksiLama;
+  const InputScreen({super.key, this.transaksiLama});
 
   @override
   State<InputScreen> createState() => _InputScreenState();
@@ -17,40 +18,73 @@ class _InputScreenState extends State<InputScreen> {
   // variabel untuk menyimpan jenis transaksi, defaultnya adalah pemasukan (true)
   bool _isPemasukan = true;
 
-  // menbhkan asyncronos karena proses menyimpan ke brngks buth sedikit waktu
-  void _simpanData() async {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.transaksiLama != null) {
+      _judulController.text = widget.transaksiLama!.judul;
 
+      final formatter = NumberFormat('#,###', 'id_ID');
+      _nominalController.text = formatter.format(widget.transaksiLama!.nominal);
+
+      _isPemasukan = widget.transaksiLama!.isPemasukan;
+    }
+  }
+
+  // menbhkan asyncronos karena proses menyimpan ke brngks buth sedikit waktu
+void _simpanData() async {
+  try {
     FocusScope.of(context).unfocus();
-    // cek dullu apakh kolomnya kosong
+
     if (_judulController.text.isEmpty || _nominalController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Keterangan dan Nominal Harus Diisi!')),
       );
-      return; // hentikan jika koosong
+      return;
     }
 
-    // memmbungkus data yang di ketikk ke dalam cetakan trnsksi
-    final transaksiBaru = Transaksi(
-      id : DateTime.now().toString(), // bikinm id acak pakai waktu saat ini
-      judul: _judulController.text,
-      nominal: double.parse(_nominalController.text.replaceAll('.', '')), // konversi ke double
-      isPemasukan: _isPemasukan,
-      tanggal: DateTime.now(),
-    );
-    // menyuruh mandor mnyimpan data ke SQLite
-    await DBHelper().insertTransaksi(transaksiBaru); // simpan data transaksi baru ke database menggunakan fungsi insertTransaksi dari DBHelper
+    if (widget.transaksiLama == null) {
+      final transaksiBaru = Transaksi(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        judul: _judulController.text,
+        nominal: double.parse(_nominalController.text.replaceAll('.', '')),
+        isPemasukan: _isPemasukan,
+        tanggal: DateTime.now(),
+      );
 
-    // setelah tersimpan tutup halaman ini(kembali ke home)
-    if (!mounted) return;  // di gunakan agar flutter tidk eror saat menutup halman
+      await DBHelper().insertTransaksi(transaksiBaru);
+
+    } else {
+      final transaksiUpdate = Transaksi(
+        id: widget.transaksiLama!.id,
+        judul: _judulController.text,
+        nominal: double.parse(_nominalController.text.replaceAll('.', '')),
+        isPemasukan: _isPemasukan,
+        tanggal: widget.transaksiLama!.tanggal,
+      );
+
+      await DBHelper().updateTransaksi(transaksiUpdate);
+    }
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Data Berhasil Disimpan!'),
+      SnackBar(
+        content: Text(widget.transaksiLama == null
+            ? 'Data Berhasil Disimpan!!'
+            : 'Data Berhasil Diperbarui'),
+        backgroundColor: Colors.teal,
       ),
     );
-// kembali ke halaman home dengan membawa data transaksi baru yang sudah di buat, data ini akan di tangkap oleh halaman home untuk di tambahkan ke daftar transaksi
-    Navigator.pop(context, transaksiBaru);
-  }
 
+    Navigator.pop(context, true);
+
+  } catch (e) {
+    print("Error simpan: $e");
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,6 +205,7 @@ class _InputScreenState extends State<InputScreen> {
     );
   }
 }
+
 // Class khusus untuk mencegat ketikan dan menambahkan titik otomatis
 class CurrencyFormat extends TextInputFormatter {
   @override
