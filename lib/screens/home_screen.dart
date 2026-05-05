@@ -159,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen(riwayat: daftarTransaksi)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen()));
                       },
                       icon: const Icon(Icons.history),
                       label: const Text('Lihat\nRiwayat', textAlign: TextAlign.center),
