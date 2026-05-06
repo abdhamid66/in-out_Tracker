@@ -52,7 +52,10 @@ class DBHelper {
   Future<List<Transaksi>> getSemuaTransaksi() async {
     Database db = await database;
     // Minta semua data dari tabel 'transaksi', urutkan dari tanggal terbaru ke terlama (DESC)
-    List<Map<String, dynamic>> dataDariDb = await db.query('transaksi', orderBy: 'tanggal DESC');
+    final List<Map<String, dynamic>> dataDariDb = await db.query(
+      'transaksi',
+      orderBy: 'id DESC',
+    );
 
     // Ubah hasil dari database menjadi bentuk List aplikasi menggunakan fungsi penerjemah fromMap()
     return List.generate(dataDariDb.length, (index) {
