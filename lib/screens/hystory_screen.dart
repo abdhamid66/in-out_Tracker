@@ -30,7 +30,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Hapus Transaksi?'),
-        content: const Text('Data yang dihapus tidak bisa di kembalikan Lho.'),
+        content: const Text('Data yang dihapus tidak bisa di kembalikan Lho!!.'),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         actions: [
           TextButton(
