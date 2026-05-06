@@ -158,8 +158,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 15),// memberikan jarak antar tombol
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen()));
+                      onPressed: () async {
+                        await Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen()));
+                        _refreshData();
                       },
                       icon: const Icon(Icons.history),
                       label: const Text('Lihat\nRiwayat', textAlign: TextAlign.center),
