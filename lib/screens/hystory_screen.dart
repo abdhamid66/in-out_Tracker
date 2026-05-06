@@ -19,7 +19,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _refreshRiwayat() async {
-    final data = await DBHelper().getSemuaTransaksi();
+    final data = await DBHelper().getTransaksiBulanIni();
     setState(() {
       riwayat = data;
     });

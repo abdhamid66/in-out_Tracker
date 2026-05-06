@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //fungsi utk mngmbil data dari SQLIte dan mnmpilkan nya
   void _refreshData() async {
-    final data = await DBHelper().getSemuaTransaksi();
+    final data = await DBHelper().getTransaksiBulanIni();
     setState(() {
       daftarTransaksi = data;// mmperbarui layar dng data dari database
     });

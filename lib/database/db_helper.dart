@@ -63,6 +63,19 @@ class DBHelper {
     });
   }
 
+  Future<List<Transaksi>> getTransaksiBulanIni() async{
+    final semuaData = await getTransaksiBulanIni();
+
+    final sekarang = DateTime.now();
+
+    final dataBulanIni = semuaData.where((transaksi) {
+      return transaksi.tanggal.month == sekarang.month &&
+              transaksi.tanggal.year == sekarang.year;
+    }).toList();
+
+    return dataBulanIni;
+  }
+
   Future<int> deleteTransaksi(String id) async {
     Database db = await database;
     return await db.delete(
