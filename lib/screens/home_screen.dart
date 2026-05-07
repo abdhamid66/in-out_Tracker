@@ -58,6 +58,41 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Widget _buildGrafik() {
+    if (totalPemasukan == 0 && totalPengeluaran == 0) {
+      return const SizedBox(
+        height: 200,
+        child: Center(child: Text("Belum ada data untuk grafik", style: TextStyle(color : Colors.grey))),
+      );
+    }
+
+    return SizedBox(
+      height: 220,
+      child: PieChart(
+        PieChartData(
+          sectionsSpace: 5,
+          centerSpaceRadius: 40,
+          sections: [
+            PieChartSectionData(
+              color: Colors.teal,
+              value: totalPemasukan,
+              title: 'Masuk',
+              radius: 50,
+              titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            PieChartSectionData(
+              color: Colors.redAccent,
+              value: totalPengeluaran,
+              title: 'Keluar',
+              radius: 50,
+              titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,6 +192,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 30),
+              const Text(
+                'Visualisasi Arus Kas',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              const SizedBox(height: 10),
+              _buildGrafik(),
+              const SizedBox(height: 20),
               // dua tombol utama untuk mencatat transaksi baru dan melihat riwayat transaksi, dengan desain yang lebih menarik menggunakan ElevatedButton.icon untuk memberikan ikon yang jelas pada setiap tombol, serta menggunakan
               Row(
                 children: [
