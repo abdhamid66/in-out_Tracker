@@ -64,7 +64,7 @@ class DBHelper {
   }
 
   Future<List<Transaksi>> getTransaksiBulanIni() async{
-    final semuaData = await getTransaksiBulanIni();
+    final semuaData = await getSemuaTransaksi();
 
     final sekarang = DateTime.now();
 
