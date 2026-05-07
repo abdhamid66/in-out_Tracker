@@ -67,24 +67,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return SizedBox(
-      height: 220,
+      height: 160,
       child: PieChart(
         PieChartData(
-          sectionsSpace: 5,
-          centerSpaceRadius: 40,
+          sectionsSpace: 2,
+          centerSpaceRadius: 30,
           sections: [
             PieChartSectionData(
               color: Colors.greenAccent,
               value: totalPemasukan,
               title: 'Masuk',
-              radius: 50,
+              radius: 35,
               titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             PieChartSectionData(
               color: Colors.redAccent,
               value: totalPengeluaran,
               title: 'Keluar',
-              radius: 50,
+              radius: 35,
               titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ],
