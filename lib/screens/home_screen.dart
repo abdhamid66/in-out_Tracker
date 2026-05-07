@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
           centerSpaceRadius: 40,
           sections: [
             PieChartSectionData(
-              color: Colors.teal,
+              color: Colors.greenAccent,
               value: totalPemasukan,
               title: 'Masuk',
               radius: 50,
