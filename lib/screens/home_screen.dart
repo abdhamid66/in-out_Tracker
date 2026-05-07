@@ -13,27 +13,49 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // daftar transaksi yang akan di tammpilkann di halamann home,sekarang di isi dari database
+  // daftar transaksi yang akan ditampilkan di halaman home
   List<Transaksi> daftarTransaksi = [];
+
+  // Tambahkan variabel ini untuk menyimpan hasil hitungan secara statis
+  double totalPemasukan = 0;
+  double totalPengeluaran = 0;
+  double saldo = 0;
 
   @override
   void initState() {
     super.initState();
-    _refreshData();// panggil fungsi ambil data
+    _refreshData(); // panggil fungsi ambil data saat layar pertama dibuka
   }
 
-  //fungsi utk mngmbil data dari SQLIte dan mnmpilkan nya
+  // fungsi untuk mengambil data dari SQLite dan menghitung saldo
   void _refreshData() async {
-    final data = await DBHelper().getSemuaTransaksi();
+    // PANGGIL FUNGSI getTransaksiBulanIni() UNTUK PILIHAN B (RESET TIAP BULAN)
+    final data = await DBHelper().getTransaksiBulanIni(); 
+
+    // Variabel penampung sementara
+    double hitungMasuk = 0;
+    double hitungKeluar = 0;
+
+    // Hitung manual satu per satu dari data yang baru diambil
+    for (var item in data) {
+      if (item.isPemasukan) {
+        hitungMasuk += item.nominal;
+      } else {
+        hitungKeluar += item.nominal;
+      }
+    }
+
+    // Pastikan layar belum tertutup sebelum memperbarui UI
+    if (!mounted) return;
+
+    // Perbarui layar dengan data terbaru
     setState(() {
-      daftarTransaksi = data;// mmperbarui layar dng data dari database
+      daftarTransaksi = data;
+      totalPemasukan = hitungMasuk;
+      totalPengeluaran = hitungKeluar;
+      saldo = hitungMasuk - hitungKeluar;
     });
   }
-
-  // fungsii otomatis untuk menghitung total uang masuk
-  double get _totalPemasukan => daftarTransaksi.where((t) => t.isPemasukan).fold(0, (sum, item) => sum + item.nominal);
-  double get _totalPengeluaran => daftarTransaksi.where((t) => !t.isPemasukan).fold(0, (sum, item) => sum + item.nominal);
-  double get _saldo => _totalPemasukan - _totalPengeluaran;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text('Total Saldo Saat ini', style: TextStyle(color: Colors.white70, fontSize: 14)),
                     const SizedBox(height: 5),
                     Text(
-                      formatRupiah(_saldo),
+                      formatRupiah(saldo),
                       style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
@@ -109,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                Text(formatRupiah(_totalPemasukan), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(formatRupiah(totalPemasukan), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ],
@@ -123,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 12 )),
-                                Text(formatRupiah(_totalPengeluaran), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                Text(formatRupiah(totalPengeluaran), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ],                        
