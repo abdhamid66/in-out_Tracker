@@ -96,15 +96,48 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF8F9FA), 
+      
+      // 2. Rombak total AppBar-nya
       appBar: AppBar(
-        title: const Text('In-Out Tracker', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: const Color(0xFFF8F9FA), 
+        elevation: 0, 
+        toolbarHeight: 70,
+        
+        // Ikon menu di kiri (sekarang cuma hiasan dulu)
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: Color(0xFF006D5B), size: 28),
+          onPressed: () {
+          },
+        ),
+        
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'In-Out Tracker', 
+              style: TextStyle(
+                fontWeight: FontWeight.bold, 
+                color: Color(0xFF006D5B),
+                fontSize: 22,
+              )
+            ),
+            SizedBox(height: 2),
+            Text(
+              'Kelola keuanganmu dengan cerdas', 
+              style: TextStyle(
+                color: Colors.grey, 
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+              )
+            ),
+          ],
+        ),
+        
+        // Ikon Logout 
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout_outlined, color: Color(0xFF006D5B), size: 26),
             tooltip: 'Logout',
             onPressed: () {
               Navigator.pushReplacement(
@@ -112,7 +145,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             }
-          )
+          ),
+          const SizedBox(width: 8), 
         ]
       ),
       body: Padding(
