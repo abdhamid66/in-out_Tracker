@@ -154,77 +154,162 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,//tulisan rata kiri
           children: [
-            const Text(
-              'Ringkasan Keuangan',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87,),
-              ),
-              const SizedBox(height: 15),
-              // Container untuk menampilkan total saldo, pemasukan, dan pengeluaran dengan desain yang lebih menarik menggunakan gradient, border radius, dan shadow untuk memberikan efek kedalaman pada tampilan ringkasan keuangan di halaman home.
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Colors.teal, Color(0xff004D40)],// menggunakan warna teal yang lebih gelap untuk memberikan kesan yang lebih elegan dan profesional pada tampilan ringkasan keuangan, dengan menggunakan LinearGradient untuk menciptakan efek gradasi warna yang halus dari warna teal ke warna yang lebih gelap, memberikan tampilan yang lebih menarik dan dinamis pada bagian ringkasan keuangan di halaman home.
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight
-                  ),
-                  borderRadius: BorderRadius.circular(20),// sudut membulat pada container untuk memberikan tampilan yang lebih modern dan ramah pengguna, dengan menggunakan BorderRadius.circular untuk membuat sudut yang halus dan estetis pada bagian ringkasan keuangan di halaman home.
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.teal.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),// memberikan efek bayangan yang lembut di bawah container untuk memberikan kesan kedalam
+            //HEADER RINGKASAN KEUANGAN
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F5E9), // Hijau sangat muda
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.bar_chart, color: Color(0xFF006D5B), size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Ringkasan Keuangan',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Total Saldo Saat ini', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                    const SizedBox(height: 5),
-                    Text(
-                      formatRupiah(saldo),
-                      style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                // Tombol "Bulan Ini" 
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
+                      const SizedBox(width: 5),
+                      const Text('Bulan Ini', style: TextStyle(fontSize: 12, color: Colors.black87)),
+                      const SizedBox(width: 2),
+                      const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+
+            // KARTU SALDO UTAMA
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF138D75), Color(0xFF045C4A)], 
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF045C4A).withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Total Saldo Saat Ini', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  const SizedBox(height: 5),
+                  Text(
+                    formatRupiah(saldo), 
+                    style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Label "Update terakhir"
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    const SizedBox(height: 20),
-                    // info pemasukan 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.access_time, color: Colors.white70, size: 12),
+                        SizedBox(width: 4),
+                        Text('Update terakhir: Hari ini', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 25),
+                  
+                  //BARIS PEMASUKAN & PENGELUARAN
+                  Row(
+                    children: [
+                      // Kolom Pemasukan
+                      Expanded(
+                        child: Row(
                           children: [
-                            const Icon(Icons.arrow_circle_down, color: Colors.greenAccent, size: 24),
-                            const SizedBox(width: 8),
+                            CircleAvatar(
+                              backgroundColor: Colors.white.withOpacity(0.2),
+                              radius: 18,
+                              child: const Icon(Icons.arrow_downward, color: Colors.greenAccent, size: 20),
+                            ),
+                            const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                                Text(formatRupiah(totalPemasukan), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                Text(
+                                  formatRupiah(totalPemasukan),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
                               ],
                             ),
                           ],
                         ),
-                        // info pengeluaran
-                        Row(
+                      ),
+                      
+                      // Garis Vertikal Pemisah
+                      Container(
+                        height: 35,
+                        width: 1,
+                        color: Colors.white.withOpacity(0.3),
+                      ),
+                      const SizedBox(width: 15),
+                      
+                      // Kolom Pengeluaran
+                      Expanded(
+                        child: Row(
                           children: [
-                            const Icon(Icons.arrow_circle_up, color: Colors.redAccent, size: 24),
-                            const SizedBox(width: 8),
+                            CircleAvatar(
+                              backgroundColor: Colors.white.withOpacity(0.2),
+                              radius: 18,
+                              child: const Icon(Icons.arrow_upward, color: Colors.redAccent, size: 20),
+                            ),
+                            const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 12 )),
-                                Text(formatRupiah(totalPengeluaran), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                Text(
+                                  formatRupiah(totalPengeluaran),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
                               ],
                             ),
-                          ],                        
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
+            ),
               const SizedBox(height: 30),
               const Text(
                 'Visualisasi Arus Kas',
