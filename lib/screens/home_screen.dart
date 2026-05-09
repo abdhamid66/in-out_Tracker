@@ -565,61 +565,92 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 30), // Jarak sebelum tombol bawah
             const SizedBox(height: 20),
             // dua tombol utama untuk mencatat transaksi baru dan melihat riwayat transaksi, dengan desain yang lebih menarik menggunakan ElevatedButton.icon untuk memberikan ikon yang jelas pada setiap tombol, serta menggunakan
+            // --- TOMBOL NAVIGASI BAWAH MODERN ---
             Row(
               children: [
+                // Tombol Catat Transaksi
                 Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      // buka halaman input dan tunggu sampai selesai (di tutup)
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const InputScreen(),
-                        ),
-                      );
-                      // setelah kmbali dari layr input ,panggil ulang dari databse,supaya saldonya lngsung terupdate
+                  child: InkWell(
+                    onTap: () async {
+                      await Navigator.push(context, MaterialPageRoute(builder: (context) => const InputScreen()));
                       _refreshData();
                     },
-                    icon: const Icon(Icons.add),
-                    label: const Text(
-                      'Catat\nTransaksi',
-                      textAlign: TextAlign.center,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF138D75), // Hijau senada kartu saldo
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF138D75).withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      backgroundColor: Colors.teal,
-                      foregroundColor: Colors.white,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.add_box_rounded, color: Colors.white, size: 30),
+                          const SizedBox(height: 15),
+                          const Text(
+                            'Catat Transaksi',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Tambah pemasukan atau pengeluaran',
+                            style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 10),
+                          ),
+                          const SizedBox(height: 10),
+                          const Icon(Icons.arrow_forward, color: Colors.white70, size: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 15), // memberikan jarak antar tombol
+                const SizedBox(width: 15),
+                // Tombol Lihat Riwayat
                 Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HistoryScreen(),
-                        ),
-                      );
+                  child: InkWell(
+                    onTap: () async {
+                      await Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen()));
                       _refreshData();
                     },
-                    icon: const Icon(Icons.history),
-                    label: const Text(
-                      'Lihat\nRiwayat',
-                      textAlign: TextAlign.center,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.teal,
-                      side: const BorderSide(color: Colors.teal, width: 2),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.history_rounded, color: Color(0xFF138D75), size: 30),
+                          const SizedBox(height: 15),
+                          const Text(
+                            'Lihat Riwayat',
+                            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 15),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Lihat semua transaksi sebelumnya',
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+                          ),
+                          const SizedBox(height: 10),
+                          const Icon(Icons.arrow_forward, color: Colors.grey, size: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),
