@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double persenKeluar = total == 0 ? 0 : (totalPengeluaran / total) * 100;
 
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -112,12 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
               const Icon(Icons.more_horiz, color: Colors.grey),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 25),
 
           // --- KONTEN GRAFIK & PERSENTASE ---
           if (total == 0)
             const SizedBox(
-              height: 130,
+              height: 150,
               child: Center(
                 child: Text(
                   "Belum ada transaksi",
@@ -330,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, //tulisan rata kiri
           children: [
@@ -464,7 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 25),
 
                   //BARIS PEMASUKAN & PENGELUARAN
                   Row(
@@ -562,7 +562,7 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 25,
             ), // Jarak dari kartu saldo ke kartu grafik
             _buildGrafikCard(), // Memanggil desain UI yang baru
-            const SizedBox(height: 15), // Jarak sebelum tombol bawah
+            const SizedBox(height: 30), // Jarak sebelum tombol bawah
             const SizedBox(height: 20),
             // dua tombol utama untuk mencatat transaksi baru dan melihat riwayat transaksi, dengan desain yang lebih menarik menggunakan ElevatedButton.icon untuk memberikan ikon yang jelas pada setiap tombol, serta menggunakan
             // --- TOMBOL NAVIGASI BAWAH MODERN ---
@@ -620,7 +620,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
-                      padding: const EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -637,7 +637,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Icon(Icons.history_rounded, color: Color(0xFF138D75), size: 30),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 15),
                           const Text(
                             'Lihat Riwayat',
                             style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 15),
@@ -647,7 +647,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Lihat semua transaksi sebelumnya',
                             style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 10),
                           const Icon(Icons.arrow_forward, color: Colors.grey, size: 16),
                         ],
                       ),
