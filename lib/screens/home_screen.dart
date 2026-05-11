@@ -329,11 +329,12 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, //tulisan rata kiri
-          children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             //HEADER RINGKASAN KEUANGAN
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -658,6 +659,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
