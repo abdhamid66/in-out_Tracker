@@ -23,6 +23,11 @@ class _HomeScreenState extends State<HomeScreen> {
   double saldo = 0;
 
   String waktuUpdate = "Memuat...";
+  String bulanTerpilih = 'Bulan Ini';
+  final List<String> daftarBulan = [
+    'Bulan Ini', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
 
   @override
   void initState() {
@@ -324,15 +329,47 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text('Bulan Ini', style: TextStyle(fontSize: 11, color: Colors.black87)),
-                      Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.grey),
-                    ],
+                  height: 30, // Biar tingginya pas dan rapi
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: bulanTerpilih,
+                      icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
+                      style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.bold),
+                      onChanged: (String? nilaiBaru) {
+                        if (nilaiBaru != null) {
+                          setState(() {
+                            bulanTerpilih = nilaiBaru; // Ubah teks di layar
+                          });
+                          // Memunculkan notifikasi kecil saat bulan diganti
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Menyiapkan data bulan: $nilaiBaru...'), 
+                              duration: const Duration(seconds: 1),
+                              backgroundColor: const Color(0xFF138D75),
+                            ),
+                          );
+                          // NANTI KITA MASUKKAN LOGIKA FILTER DATABASE DI SINI
+                        }
+                      },
+                      items: daftarBulan.map<DropdownMenuItem<String>>((String namaBulan) {
+                        return DropdownMenuItem<String>(
+                          value: namaBulan,
+                          child: Row(
+                            children: [
+                              if (namaBulan == 'Bulan Ini') const Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey),
+                              if (namaBulan == 'Bulan Ini') const SizedBox(width: 4),
+                              Text(namaBulan),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               ],
