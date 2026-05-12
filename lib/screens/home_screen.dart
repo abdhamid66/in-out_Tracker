@@ -37,14 +37,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // fungsi untuk mengambil data dari SQLite dan menghitung saldo
   void _refreshData() async {
-    // PANGGIL FUNGSI getTransaksiBulanIni() UNTUK PILIHAN B (RESET TIAP BULAN)
-    final data = await DBHelper().getTransaksiBulanIni();
+    List<Transaksi> data = [];
 
-    // Variabel penampung sementara
+    // CEK BULAN APA YANG SEDANG DIPILIH DI DROPDOWN
+    if (bulanTerpilih == 'Bulan Ini') {
+      // Kalau pilihannya 'Bulan Ini', pakai fungsi default
+      data = await DBHelper().getTransaksiBulanIni();
+    } else {
+      // Kalau pilihannya nama bulan, kita ubah namanya jadi angka
+      // Karena 'Bulan Ini' ada di index 0, 'Januari' otomatis index 1, 'Februari' index 2, dst.
+      int angkaBulan = daftarBulan.indexOf(bulanTerpilih); 
+      int tahunSekarang = DateTime.now().year; // Kita asumsikan pakai tahun saat ini
+      
+      // Panggil fungsi buatanmu di DBHelper
+      data = await DBHelper().getTransaksiBulan(angkaBulan, tahunSekarang);
+    }
+
     double hitungMasuk = 0;
     double hitungKeluar = 0;
 
-    // Hitung manual satu per satu dari data yang baru diambil
     for (var item in data) {
       if (item.isPemasukan) {
         hitungMasuk += item.nominal;
@@ -53,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    // Pastikan layar belum tertutup sebelum memperbarui UI
     if (!mounted) return;
 
     DateTime sekarang = DateTime.now();
@@ -61,12 +71,12 @@ class _HomeScreenState extends State<HomeScreen> {
     String menit = sekarang.minute.toString().padLeft(2, '0');
     String formatWaktu = "Hari ini, $jam:$menit";
 
-    // Perbarui layar dengan data terbaru
     setState(() {
       daftarTransaksi = data;
       totalPemasukan = hitungMasuk;
       totalPengeluaran = hitungKeluar;
       saldo = hitungMasuk - hitungKeluar;
+      waktuUpdate = formatWaktu;
     });
   }
 
@@ -346,6 +356,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           setState(() {
                             bulanTerpilih = nilaiBaru; // Ubah teks di layar
                           });
+
+                          _refreshData();
                           // Memunculkan notifikasi kecil saat bulan diganti
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
