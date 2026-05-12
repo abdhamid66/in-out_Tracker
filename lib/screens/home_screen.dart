@@ -22,6 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
   double totalPengeluaran = 0;
   double saldo = 0;
 
+  String waktuUpdate = "Memuat...";
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Pastikan layar belum tertutup sebelum memperbarui UI
     if (!mounted) return;
+
+    DateTime sekarang = DateTime.now();
+    String jam = sekarang.hour.toString().padLeft(2, '0');
+    String menit = sekarang.minute.toString().padLeft(2, '0');
+    String formatWaktu = "Hari ini, $jam:$menit";
 
     // Perbarui layar dengan data terbaru
     setState(() {
@@ -283,10 +290,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.access_time, color: Colors.white70, size: 10),
-                        SizedBox(width: 4),
-                        Text('Update terakhir: Hari ini', style: TextStyle(color: Colors.white70, fontSize: 9)),
+                      children: [
+                        const Icon(Icons.access_time, color: Colors.white70, size: 10),
+                        const SizedBox(width: 4),
+                        Text('Update terakhir: $waktuUpdate', style: const TextStyle(color: Colors.white70, fontSize: 9)),
                       ],
                     ),
                   ),
