@@ -209,7 +209,16 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFFF8F9FA),
         elevation: 0,
         toolbarHeight: 60, // Diperkecil sedikit dari 70
-        leading: IconButton(icon: const Icon(Icons.menu, color: Color(0xFF006D5B), size: 24), onPressed: () {}),
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu, color: Color(0xFF006D5B), size: 24),
+              onPressed: () {
+                Scaffold.of(context).openDrawer(); // Perintah untuk membuka laci
+              },
+            );
+          }
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
@@ -228,7 +237,71 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      
+      // --- TAMBAHKAN KODE DRAWER INI ---
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            // Bagian Header (Atas)
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF138D75), // Warna hijau khas aplikasi kamu
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(Icons.account_balance_wallet, color: Colors.white, size: 40),
+                  SizedBox(height: 10),
+                  Text(
+                    'In-Out Tracker', 
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)
+                  ),
+                  Text(
+                    'Catatan Keuangan Pribadi', 
+                    style: TextStyle(color: Colors.white70, fontSize: 12)
+                  ),
+                ],
+              ),
+            ),
+            
+            // Menu 1: Gembok
+            ListTile(
+              leading: const Icon(Icons.security, color: Color(0xFF006D5B)),
+              title: const Text('Keamanan (Gembok)'),
+              subtitle: const Text('Aktifkan PIN / Sidik Jari'),
+              onTap: () {
+                Navigator.pop(context); // Tutup drawer saat dipencet
+                // Nanti kita tambahkan logika navigasi ke layar pengaturan gembok di sini
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur Gembok segera hadir!')));
+              },
+            ),
+            
+            // Menu 2: Ekspor Data
+            ListTile(
+              leading: const Icon(Icons.insert_drive_file, color: Color(0xFF006D5B)),
+              title: const Text('Ekspor Laporan'),
+              subtitle: const Text('Simpan ke Excel / PDF'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur Ekspor segera hadir!')));
+              },
+            ),
+            
+            const Divider(), // Garis pemisah
+            
+            // Menu 3: Tentang
+            ListTile(
+              leading: const Icon(Icons.info_outline, color: Colors.grey),
+              title: const Text('Tentang Aplikasi'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+
       // SCROLL DIHILANGKAN, GANTI PADDING BIASA
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0), // Padding atas-bawah ditipiskan
