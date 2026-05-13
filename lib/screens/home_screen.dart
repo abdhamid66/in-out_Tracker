@@ -10,6 +10,8 @@ import 'package:excel/excel.dart' hide Border;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login_screen.dart'; // Pastikan path-nya sesuai kalau ada di dalam folder /screens
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -147,6 +149,48 @@ class _HomeScreenState extends State<HomeScreen> {
         SnackBar(content: Text('Gagal mengekspor: $e'), backgroundColor: Colors.redAccent),
       );
     }
+  }
+
+  void _tampilkanDialogUbahPin() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ubah PIN Keamanan'),
+        content: const Text('Apakah kamu yakin ingin mengatur ulang (mengubah) PIN aplikasi? Kamu akan diminta membuat 4 digit PIN baru.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              // 1. Buka lemari penyimpanan HP
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              
+              // 2. Hapus memori PIN lama
+              await prefs.remove('user_pin'); 
+
+              if (!mounted) return;
+              Navigator.pop(context); // Tutup dialog pop-up
+              
+              // 3. Lempar paksa ke layar PIN untuk bikin PIN baru
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+              
+              // 4. Kasih notifikasi kecil
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Silakan buat PIN baru kamu'), backgroundColor: Color(0xFF138D75)),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF006D5B)),
+            child: const Text('Ya, Ubah PIN', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildGrafikCard() {
@@ -353,11 +397,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               leading: const Icon(Icons.security, color: Color(0xFF006D5B)),
               title: const Text('Keamanan (Gembok)'),
-              subtitle: const Text('Aktifkan PIN / Sidik Jari'),
+              subtitle: const Text('Ubah PIN Aplikasi'), // <-- Teksnya kita sesuaikan
               onTap: () {
-                Navigator.pop(context); // Tutup drawer saat dipencet
-                // Nanti kita tambahkan logika navigasi ke layar pengaturan gembok di sini
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur Gembok segera hadir!')));
+                Navigator.pop(context); // Tutup drawer dulu
+                _tampilkanDialogUbahPin(); // Panggil dialog konfirmasi
               },
             ),
             
