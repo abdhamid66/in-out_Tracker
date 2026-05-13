@@ -6,7 +6,7 @@ import 'login_screen.dart';
 import '../database/db_helper.dart'; // untuk mengimpor fungsi-fungsi database yang sudah dibuat untuk menyimpan dan mengambil data transaksi dari database di halaman home
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:io';
-import 'package:excel/excel.dart';
+import 'package:excel/excel.dart' hide Border;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
@@ -83,6 +83,70 @@ class _HomeScreenState extends State<HomeScreen> {
       saldo = hitungMasuk - hitungKeluar;
       waktuUpdate = formatWaktu;
     });
+  }
+  Future<void> _eksporKeExcel() async {
+    // 1. Munculkan pesan loading
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Sedang membuat file Excel...'), backgroundColor: Color(0xFF138D75)),
+    );
+
+    try {
+      // 2. Ambil semua data dari database
+      final data = await DBHelper().getSemuaTransaksi();
+      
+      if (data.isEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Belum ada transaksi untuk diekspor!'), backgroundColor: Colors.redAccent),
+        );
+        return;
+      }
+
+      // 3. Buat file Excel baru
+      var excel = Excel.createExcel();
+      Sheet sheet = excel['Laporan Keuangan'];
+      excel.setDefaultSheet('Laporan Keuangan');
+
+      // 4. Buat Baris Header (Judul Kolom)
+      sheet.appendRow([
+        TextCellValue('Tanggal'),
+        TextCellValue('Judul Transaksi'),
+        TextCellValue('Jenis'),
+        TextCellValue('Nominal (Rp)'),
+      ]);
+
+      // 5. Masukkan data dari database satu per satu ke dalam baris Excel
+      for (var item in data) {
+        String tanggalFormat = DateFormat('dd-MM-yyyy').format(item.tanggal);
+        String jenis = item.isPemasukan ? 'Pemasukan' : 'Pengeluaran';
+        
+        sheet.appendRow([
+          TextCellValue(tanggalFormat),
+          TextCellValue(item.judul),
+          TextCellValue(jenis),
+          IntCellValue(item.nominal.toInt()), // Angka murni biar bisa dijumlah pakai rumus di Excel
+        ]);
+      }
+
+      // 6. Simpan file ke penyimpanan sementara di HP
+      var fileBytes = excel.save();
+      var directory = await getTemporaryDirectory();
+      File file = File('${directory.path}/Laporan_InOutTracker.xlsx');
+      await file.writeAsBytes(fileBytes!);
+
+      // 7. Munculkan menu Share bawaan HP
+      if (!mounted) return;
+      await Share.shareXFiles(
+        [XFile(file.path)], 
+        text: 'Ini laporan keuanganku dari aplikasi In-Out Tracker!',
+      );
+
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengekspor: $e'), backgroundColor: Colors.redAccent),
+      );
+    }
   }
 
   Widget _buildGrafikCard() {
@@ -298,13 +362,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             
             // Menu 2: Ekspor Data
+            // Menu 2: Ekspor Data
             ListTile(
               leading: const Icon(Icons.insert_drive_file, color: Color(0xFF006D5B)),
               title: const Text('Ekspor Laporan'),
-              subtitle: const Text('Simpan ke Excel / PDF'),
+              subtitle: const Text('Simpan ke Excel (.xlsx)'),
               onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur Ekspor segera hadir!')));
+                Navigator.pop(context); // Tutup drawer dulu
+                _eksporKeExcel();       // Panggil fungsi pembuat Excel
               },
             ),
             
