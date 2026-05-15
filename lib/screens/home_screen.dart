@@ -517,8 +517,25 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Total Saldo Saat Ini', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                  Text(formatRupiah(saldo), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Bagian Kiri (Teks Saldo yang dibungkus Column)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Total Saldo Saat Ini', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          Text(formatRupiah(saldo), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      Image.asset(
+                        'assets/images/dompet3d.png',
+                        height: 70, 
+                        fit: BoxFit.contain,
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 5),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
