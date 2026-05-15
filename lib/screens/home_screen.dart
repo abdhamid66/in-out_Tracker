@@ -529,13 +529,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(formatRupiah(saldo), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
                         ],
                       ),
-                      Image.asset(
-                        'assets/images/dompet3d.png',
-                        height: 70, 
-                        fit: BoxFit.contain,
-                      ),
-                    ],
-                  ),
+                      
+
+                        Image.asset(
+                          'assets/images/dompet3d.png',
+                          height: 70, 
+                          fit: BoxFit.contain,
+                        ),
+                      ],
+                    ),
                   const SizedBox(height: 5),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
