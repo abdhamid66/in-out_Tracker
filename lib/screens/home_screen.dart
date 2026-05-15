@@ -533,7 +533,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         Image.asset(
                           'assets/images/dompet3d.png',
-                          height: 120, 
+                          height: 150, 
                           fit: BoxFit.contain,
                         ),
                       ],
