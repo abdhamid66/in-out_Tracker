@@ -506,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(20), // Padding dalam biar lega
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF138D75), Color(0xFF045C4A)], // Gradasi warna teal gelap
+                  colors: [Color(0xFF18A58D), Color(0xFF096C5B)], 
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
