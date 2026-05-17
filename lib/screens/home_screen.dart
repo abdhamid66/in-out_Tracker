@@ -12,6 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
+import '../widgets/kartu_saldo.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -500,107 +501,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 10), // Jarak dipangkas
 
-            //KARTU SALDO UTAMA 
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20), // Padding dalam biar lega
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF18A58D), Color(0xFF096C5B)], 
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: const Color(0xFF045C4A).withOpacity(0.3), spreadRadius: 2, blurRadius: 10, offset: const Offset(0, 5))],
-              ),
-              //STACK DIMULAI DI SINI 
-              child: Stack(
-                clipBehavior: Clip.none, 
-                children: [
-                  
-                  //KONTEN UTAMA 
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Area Saldo Utama
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Total Saldo Saat Ini', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                          Text(formatRupiah(saldo), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 5),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.access_time, color: Colors.white70, size: 10),
-                                const SizedBox(width: 4),
-                                Text('Update terakhir: $waktuUpdate', style: const TextStyle(color: Colors.white70, fontSize: 9)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      
-                      const SizedBox(height: 25), 
-                      const Divider(color: Colors.white24), // GARIS PEMBATAS HORIZONTA
-                      const SizedBox(height: 12), 
-
-                      // KODE PEMASUKAN & PENGELUARAN 
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                CircleAvatar(backgroundColor: Colors.white.withOpacity(0.2), radius: 14, child: const Icon(Icons.arrow_downward, color: Colors.greenAccent, size: 16)),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                                    Text(formatRupiah(totalPemasukan), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(height: 25, width: 1, color: Colors.white.withOpacity(0.3)),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                CircleAvatar(backgroundColor: Colors.white.withOpacity(0.2), radius: 14, child: const Icon(Icons.arrow_upward, color: Colors.redAccent, size: 16)),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                                    Text(formatRupiah(totalPengeluaran), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // GAMBAR DOMPET 
-                  Positioned(
-                    top: -70, 
-                    right: -25, 
-                    child: Image.asset(
-                      'assets/images/dompet3d.png',
-                      height: 265, 
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  
-                ],
-              ),
+            // MENGHUBUNGKAN KE RUANGAN KARTU SALDO
+            KartuSaldo(
+              saldo: saldo, // Kata kiri: nama pintu masuk | Kata kanan: data yang dikirim dari home
+              totalPemasukan: totalPemasukan,
+              totalPengeluaran: totalPengeluaran,
+              waktuUpdate: waktuUpdate,
             ),
             
             const SizedBox(height: 15), 
