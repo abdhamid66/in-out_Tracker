@@ -603,11 +603,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            const SizedBox(height: 15), // JARAK DOUBLE DIHAPUS, SISA 15 AJA
+            const SizedBox(height: 15), 
             _buildGrafikCard(),
-            const SizedBox(height: 15), // JARAK DOUBLE DIHAPUS, SISA 15 AJA
+            const SizedBox(height: 15), 
             
-            // --- TOMBOL NAVIGASI BAWAH MODERN ---
+            // TOMBOL NAVIGASI BAWAH 
             Row(
               children: [
                 Expanded(
@@ -618,9 +618,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     borderRadius: BorderRadius.circular(15),
                     child: Container(
-                      padding: const EdgeInsets.all(12), // Diperkecil dari 20
+                      padding: const EdgeInsets.all(12), 
                       decoration: BoxDecoration(
-                        color: const Color(0xFF138D75),
+                        color: const Color(0xFF18A58D),
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [BoxShadow(color: const Color(0xFF138D75).withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))],
                       ),
