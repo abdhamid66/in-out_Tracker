@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
 import '../widgets/kartu_saldo.dart';
+import '../widgets/grafik_card.dart';
 import '../widgets/tombol_menu_home.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -195,141 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildGrafikCard() {
-    double total = totalPemasukan + totalPengeluaran;
-    double persenMasuk = total == 0 ? 0 : (totalPemasukan / total) * 100;
-    double persenKeluar = total == 0 ? 0 : (totalPengeluaran / total) * 100;
-
-    return Container(
-      padding: const EdgeInsets.all(15), 
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 5,
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // --- HEADER GRAFIK ---
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.pie_chart, color: Color(0xFF006D5B), size: 18),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Visualisasi Arus Kas',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87), // Font diperkecil
-                  ),
-                ],
-              ),
-              const Icon(Icons.more_horiz, color: Colors.grey, size: 18),
-            ],
-          ),
-          const SizedBox(height: 15), // Diperkecil dari 25
-
-          //  KONTEN GRAFIK & PERSENTASE 
-          if (total == 0)
-            const SizedBox(
-              height: 100,
-              child: Center(child: Text("Belum ada transaksi", style: TextStyle(color: Colors.grey))),
-            )
-          else
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // BAGIAN KIRI: Pengeluaran
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: const [
-                          CircleAvatar(radius: 4, backgroundColor: Color(0xFFFF5252)),
-                          SizedBox(width: 6),
-                          Text('Pengeluaran', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text('${persenKeluar.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
-                      Text(formatRupiah(totalPengeluaran), style: const TextStyle(color: Color(0xFFFF5252), fontSize: 10)),
-                    ],
-                  ),
-                ),
-
-                // BAGIAN TENGAH: Donut Chart
-                Expanded(
-                  flex: 3,
-                  child: SizedBox(
-                    height: 100, 
-                    child: Stack(
-                      children: [
-                        PieChart(
-                          PieChartData(
-                            sectionsSpace: 0,
-                            centerSpaceRadius: 30, 
-                            startDegreeOffset: 180,
-                            sections: [
-                              PieChartSectionData(color: const Color(0xFFFF5252), value: totalPengeluaran, title: '', radius: 20),
-                              PieChartSectionData(color: const Color(0xFF26C6DA), value: totalPemasukan, title: '', radius: 20),
-                            ],
-                          ),
-                        ),
-                        Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Icon(Icons.show_chart, color: Colors.teal, size: 16),
-                              Text('Arus Kas', style: TextStyle(fontSize: 9, color: Colors.grey)),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-
-                // BAGIAN KANAN: Pemasukan
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: const [
-                          CircleAvatar(radius: 4, backgroundColor: Color(0xFF26C6DA)),
-                          SizedBox(width: 6),
-                          Text('Pemasukan', style: TextStyle(color: Colors.grey, fontSize: 10)),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text('${persenMasuk.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
-                      Text(formatRupiah(totalPemasukan), style: const TextStyle(color: Color(0xFF006D5B), fontSize: 10)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -433,11 +300,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
       
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0), // Padding atas-bawah ditipiskan
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // HEADER RINGKASAN KEUANGAN
+            // 1. HEADER RINGKASAN KEUANGAN & DROPDOWN BULAN
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -453,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 Container(
-                  height: 30, // Biar tingginya pas dan rapi
+                  height: 30, 
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -480,7 +347,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               backgroundColor: const Color(0xFF138D75),
                             ),
                           );
-                          // NANTI KITA MASUKKAN LOGIKA FILTER DATABASE DI SINI
                         }
                       },
                       items: daftarBulan.map<DropdownMenuItem<String>>((String namaBulan) {
@@ -500,24 +366,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10), // Jarak dipangkas
+            const SizedBox(height: 10), 
 
-            // MENGHUBUNGKAN KE RUANGAN KARTU SALDO
             KartuSaldo(
-              saldo: saldo, // Kata kiri: nama pintu masuk | Kata kanan: data yang dikirim dari home
+              saldo: saldo, 
               totalPemasukan: totalPemasukan,
               totalPengeluaran: totalPengeluaran,
               waktuUpdate: waktuUpdate,
             ),
             
             const SizedBox(height: 15), 
-            _buildGrafikCard(),
+
+            
+            GrafikCard(
+              totalPemasukan: totalPemasukan,
+              totalPengeluaran: totalPengeluaran,
+            ),
+
             const SizedBox(height: 15), 
             
-            // TOMBOL NAVIGASI BAWAH 
+            TombolMenuHome(
+              onRefresh: _refreshData, 
+            ),
           ],
         ),
       ),
-    );
-  }
-}
+    ); 
+  } 
+} 
