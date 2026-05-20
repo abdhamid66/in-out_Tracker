@@ -47,7 +47,7 @@ class GrafikCard extends StatelessWidget {
           const SizedBox(height: 15),
           if (total == 0)
             const SizedBox(
-              height: 100,
+              height: 130,
               child: Center(child: Text("Belum ada transaksi", style: TextStyle(color: Colors.grey))),
             )
           else
@@ -75,7 +75,7 @@ class GrafikCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: SizedBox(
-                    height: 100, 
+                    height: 130, 
                     child: Stack(
                       children: [
                         PieChart(
