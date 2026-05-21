@@ -195,6 +195,49 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+  void _tampilkanDialogTentang() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: const [
+            Icon(Icons.info_outline, color: Color(0xFF006D5B)),
+            SizedBox(width: 10),
+            Text('Tentang Aplikasi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min, // Biar kotaknya nggak kepanjangan
+          children: [
+            const Icon(Icons.account_balance_wallet, size: 60, color: Color(0xFF138D75)),
+            const SizedBox(height: 15),
+            const Text('In-Out Tracker', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF006D5B))),
+            const Text('Versi 1.0.0', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            const SizedBox(height: 20),
+            const Text(
+              'Aplikasi catatan keuangan pribadi yang dirancang untuk membantu Anda melacak arus kas dengan mudah, aman, dan tanpa perlu koneksi internet.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, height: 1.5),
+            ),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 10),
+            // Nah, bagian ini pas banget buat mejeng pas presentasi project tugas akhir!
+            const Text('Dikembangkan oleh:', style: TextStyle(color: Colors.grey, fontSize: 11)),
+            const Text('Abd Hamid', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            const Text('Mahasiswa Semester 4', style: TextStyle(color: Colors.grey, fontSize: 11)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup', style: TextStyle(color: Color(0xFF006D5B), fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
 
   
 
