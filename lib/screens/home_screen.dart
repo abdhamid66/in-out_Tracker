@@ -331,10 +331,11 @@ class _HomeScreenState extends State<HomeScreen> {
             
             // Menu 3: Tentang
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.grey),
+              leading: const Icon(Icons.info_outline, color: Color(0xFF006D5B)), // Warnanya aku samain hijau sekalian
               title: const Text('Tentang Aplikasi'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(context); 
+                _tampilkanDialogTentang(); 
               },
             ),
           ],
