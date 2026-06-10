@@ -239,10 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  
-
-  @override
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -325,18 +322,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const Divider(), 
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Color(0xFF006D5B)), 
+              leading: const Icon(Icons.info_outline, color: Colors.grey),
               title: const Text('Tentang Aplikasi'),
               onTap: () {
                 Navigator.pop(context); 
-                _tampilkanDialogTentang(); 
               },
             ),
           ],
         ),
       ),
 
-      // --- 1. BODY SEKARANG BISA DI-SCROLL (SingleChildScrollView) ---
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
@@ -435,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      // --- 2. NAVIGASI BAWAH YANG BARU & ELEGAN ---
+      // NAVIGASI BAWAH  
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         elevation: 10,
