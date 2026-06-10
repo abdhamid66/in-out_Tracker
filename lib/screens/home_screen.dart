@@ -242,6 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
   
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -277,12 +278,12 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      // --- TAMBAHKAN KODE DRAWER INI ---
+      
+      // --- DRAWER (LACI SAMPING) ---
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            // Bagian Header (Atas)
             const DrawerHeader(
               decoration: BoxDecoration(
                 color: Color(0xFF138D75), 
@@ -304,34 +305,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            
-            // Gembok
             ListTile(
               leading: const Icon(Icons.security, color: Color(0xFF006D5B)),
               title: const Text('Keamanan (Gembok)'),
               subtitle: const Text('Ubah PIN Aplikasi'), 
               onTap: () {
-                Navigator.pop(context); // Tutup drawer dulu
-                _tampilkanDialogUbahPin(); // Panggil dialog konfirmasi
+                Navigator.pop(context); 
+                _tampilkanDialogUbahPin(); 
               },
             ),
-            
-            // Ekspor Data
             ListTile(
               leading: const Icon(Icons.insert_drive_file, color: Color(0xFF006D5B)),
               title: const Text('Ekspor Laporan'),
               subtitle: const Text('Simpan ke Excel (.xlsx)'),
               onTap: () {
-                Navigator.pop(context); // Tutup drawer dulu
-                _eksporKeExcel();       // Panggil fungsi pembuat Excel
+                Navigator.pop(context); 
+                _eksporKeExcel(); 
               },
             ),
-            
-            const Divider(), // Garis pemisah
-            
-            // Menu 3: Tentang
+            const Divider(), 
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Color(0xFF006D5B)), // Warnanya aku samain hijau sekalian
+              leading: const Icon(Icons.info_outline, color: Color(0xFF006D5B)), 
               title: const Text('Tentang Aplikasi'),
               onTap: () {
                 Navigator.pop(context); 
@@ -342,97 +336,130 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. HEADER RINGKASAN KEUANGAN & DROPDOWN BULAN
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(8)),
-                      child: const Icon(Icons.bar_chart, color: Color(0xFF006D5B), size: 18),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text('Ringkasan Keuangan', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
-                  ],
-                ),
-                Container(
-                  height: 30, 
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
+      // --- 1. BODY SEKARANG BISA DI-SCROLL (SingleChildScrollView) ---
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // HEADER RINGKASAN KEUANGAN & DROPDOWN BULAN
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(8)),
+                        child: const Icon(Icons.bar_chart, color: Color(0xFF006D5B), size: 18),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text('Ringkasan Keuangan', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
+                    ],
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: bulanTerpilih,
-                      icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
-                      style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.bold),
-                      onChanged: (String? nilaiBaru) {
-                        if (nilaiBaru != null) {
-                          setState(() {
-                            bulanTerpilih = nilaiBaru; // Ubah teks di layar
-                          });
-
-                          _refreshData();
-                          // Memunculkan notifikasi kecil saat bulan diganti
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Menyiapkan data bulan: $nilaiBaru...'), 
-                              duration: const Duration(seconds: 1),
-                              backgroundColor: const Color(0xFF138D75),
+                  Container(
+                    height: 30, 
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: bulanTerpilih,
+                        icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
+                        style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.bold),
+                        onChanged: (String? nilaiBaru) {
+                          if (nilaiBaru != null) {
+                            setState(() {
+                              bulanTerpilih = nilaiBaru;
+                            });
+                            _refreshData();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Menyiapkan data bulan: $nilaiBaru...'), 
+                                duration: const Duration(seconds: 1),
+                                backgroundColor: const Color(0xFF138D75),
+                              ),
+                            );
+                          }
+                        },
+                        items: daftarBulan.map<DropdownMenuItem<String>>((String namaBulan) {
+                          return DropdownMenuItem<String>(
+                            value: namaBulan,
+                            child: Row(
+                              children: [
+                                if (namaBulan == 'Bulan Ini') const Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey),
+                                if (namaBulan == 'Bulan Ini') const SizedBox(width: 4),
+                                Text(namaBulan),
+                              ],
                             ),
                           );
-                        }
-                      },
-                      items: daftarBulan.map<DropdownMenuItem<String>>((String namaBulan) {
-                        return DropdownMenuItem<String>(
-                          value: namaBulan,
-                          child: Row(
-                            children: [
-                              if (namaBulan == 'Bulan Ini') const Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey),
-                              if (namaBulan == 'Bulan Ini') const SizedBox(width: 4),
-                              Text(namaBulan),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                        }).toList(),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10), 
+                ],
+              ),
+              const SizedBox(height: 10), 
 
-            KartuSaldo(
-              saldo: saldo, 
-              totalPemasukan: totalPemasukan,
-              totalPengeluaran: totalPengeluaran,
-              waktuUpdate: waktuUpdate,
-            ),
-            
-            const SizedBox(height: 15), 
+              // KARTU SALDO UTAMA
+              KartuSaldo(
+                saldo: saldo, 
+                totalPemasukan: totalPemasukan,
+                totalPengeluaran: totalPengeluaran,
+                waktuUpdate: waktuUpdate,
+              ),
+              
+              const SizedBox(height: 15), 
 
-            
-            GrafikCard(
-              totalPemasukan: totalPemasukan,
-              totalPengeluaran: totalPengeluaran,
-            ),
+              // GRAFIK ARUS KAS
+              GrafikCard(
+                totalPemasukan: totalPemasukan,
+                totalPengeluaran: totalPengeluaran,
+              ),
 
-            const SizedBox(height: 15), 
-            
-            TombolMenuHome(
-              onRefresh: _refreshData, 
-            ),
-          ],
+              const SizedBox(height: 15), 
+              
+              // TOMBOL AKSI UTAMA (CATAT TRANSAKSI & RIWAYAT)
+              TombolMenuHome(
+                onRefresh: _refreshData, 
+              ),
+              
+              // Jarak tambahan di paling bawah agar konten tidak terpotong navigasi
+              const SizedBox(height: 25),
+            ],
+          ),
+        ),
+      ),
+
+      // --- 2. NAVIGASI BAWAH YANG BARU & ELEGAN ---
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        elevation: 10,
+        child: SizedBox(
+          height: 60,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // Tombol Beranda (Aktif)
+              IconButton(
+                icon: const Icon(Icons.home, color: Color(0xFF138D75), size: 30),
+                onPressed: () {
+                  // Kita sudah di halaman Home
+                }, 
+              ),
+              // Tombol Profil / Buka Laci
+              IconButton(
+                icon: const Icon(Icons.person_outline, color: Colors.grey, size: 30),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer(); // Membuka drawer samping
+                },
+              ),
+            ],
+          ),
         ),
       ),
     ); 
