@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
 import '../widgets/kartu_saldo.dart';
 import '../widgets/grafik_card.dart';
+import '../services/auth_service.dart';
 import '../widgets/tombol_menu_home.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -460,8 +461,35 @@ class _HomeScreenState extends State<HomeScreen> {
               // Tombol Profil / Buka Laci
               IconButton(
                 icon: const Icon(Icons.person_outline, color: Colors.grey, size: 30),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer(); // Membuka drawer samping
+                onPressed: () async {
+                  // Munculkan tulisan loading kecil di bawah
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Memproses Login Google...'), duration: Duration(seconds: 1)),
+                  );
+
+                  // Panggil mesin login yang udah kita buat tadi
+                  final user = await AuthService().signInWithGoogle();
+
+                  // Cek apakah berhasil login atau tidak
+                  if (user != null) {
+                    // Kalau berhasil, sapa namanya!
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Selamat datang, ${user.displayName}!'), 
+                        backgroundColor: const Color(0xFF138D75),
+                      ),
+                    );
+                  } else {
+                    // Kalau gagal atau dibatalkan
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Login dibatalkan atau gagal.'), 
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                  }
                 },
               ),
             ],
