@@ -24,11 +24,11 @@ android {
     applicationId "com.example.out_tracker"
     // You can update the following values to match your application needs.
     // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-    minSdkVersion 23  
-    targetSdkVersion flutter.targetSdkVersion
-    versionCode flutterVersionCode.toInteger()
-    versionName flutterVersionName
-    multiDexEnabled true 
+    minSdkVersion = 23 
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutterVersionCode
+        versionName = flutterVersionName
+        multiDexEnabled = true 
 }
 
     buildTypes {
