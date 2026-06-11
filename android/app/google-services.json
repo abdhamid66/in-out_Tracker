@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "654308995743",
+    "project_id": "in-out-tracker-2101c",
+    "storage_bucket": "in-out-tracker-2101c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654308995743:android:f9d9e1c3723263bda4a8aa",
+        "android_client_info": {
+          "package_name": "com.example.out_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXn6qFxe6V3L50aM58s1U5TS5zM9A4m2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

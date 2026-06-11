@@ -322,10 +322,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const Divider(), 
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.grey),
+              leading: const Icon(Icons.info_outline, color: Color(0xFF006D5B)),
               title: const Text('Tentang Aplikasi'),
               onTap: () {
-                Navigator.pop(context); 
+                Navigator.pop(context); // 1. Tutup laci dulu
+                
+                // 2. Munculin info bawaan Flutter yang super bersih & simpel
+                showAboutDialog(
+                  context: context,
+                  applicationName: 'In-Out Tracker',
+                  applicationVersion: '1.0.0',
+                  applicationIcon: const Icon(Icons.account_balance_wallet, color: Color(0xFF138D75), size: 42),
+                  children: const [
+                    Text('Aplikasi catatan keuangan pribadi untuk melacak pemasukan dan pengeluaran secara lokal dan aman.'),
+                  ],
+                );
               },
             ),
           ],
