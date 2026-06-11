@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  // Wajib dipanggil sebelum Firebase nyala
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Menyalakan koneksi ke Server Firebase Cloud
+  await Firebase.initializeApp();
+
+  // Jalankan aplikasinya
   runApp(const MyApp());
 }
 
