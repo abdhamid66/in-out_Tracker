@@ -20,16 +20,20 @@ android {
     }
 
     defaultConfig {
-    // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-    applicationId "com.example.out_tracker"
-    // You can update the following values to match your application needs.
-    // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-    minSdkVersion = 23 
+        // 1. Jangan lupa tanda '=' di sini
+        applicationId = "com.example.out_tracker"
+        
+        // 2. minSdk kita naikkan ke 23 untuk Firebase
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutterVersionCode
-        versionName = flutterVersionName
-        multiDexEnabled = true 
-}
+        
+        // 3. Kita ubah jadi angka langsung (Hardcode) biar KTS gak rewel
+        versionCode = 1
+        versionName = "1.0"
+        
+        // 4. Obat tambahan untuk mesin database
+        multiDexEnabled = true
+    }
 
     buildTypes {
         release {
