@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "654308995743",
+    "firebase_url": "https://in-out-tracker-2101c-default-rtdb.firebaseio.com",
     "project_id": "in-out-tracker-2101c",
     "storage_bucket": "in-out-tracker-2101c.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.out_tracker"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "654308995743-bvpu4o20u28pp53os1gn8r8rurfke4n4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.out_tracker",
+            "certificate_hash": "4ba31f643dd2fd776372ef7df32839677f653445"
+          }
+        },
+        {
+          "client_id": "654308995743-t5auil7hhq5hes8q61jm809d6sbpct9c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBXn6qFxe6V3L50aM58s1U5TS5zM9A4m2Y"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "654308995743-t5auil7hhq5hes8q61jm809d6sbpct9c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
