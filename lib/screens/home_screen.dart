@@ -192,9 +192,67 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // =================================================================
+  // CETAKAN UNTUK 5 RIWAYAT TERAKHIR
+  Widget _buildRiwayatTerakhir() {
+    // 1. Ambil data transaksi yang ada, lalu urutkan dari yang paling baru
+    List<Transaksi> riwayat = List.from(daftarTransaksi);
+    riwayat.sort((a, b) => b.tanggal.compareTo(a.tanggal)); 
+    
+    // 2. Potong maksimal ambil 5 saja
+    final limaTerbaru = riwayat.take(5).toList();
+
+    // Kalau datanya kosong
+    if (limaTerbaru.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 30.0),
+          child: Text('Belum ada transaksi di bulan ini.', style: TextStyle(color: Colors.grey)),
+        ),
+      );
+    }
+
+    // Kalau ada datanya, buatkan daftarnya
+    return Column(
+      children: limaTerbaru.map((trx) {
+        return Card(
+          elevation: 0,
+          margin: const EdgeInsets.only(bottom: 10),
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.grey.shade200),
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: trx.isPemasukan ? Colors.green.shade50 : Colors.red.shade50,
+              child: Icon(
+                trx.isPemasukan ? Icons.arrow_downward : Icons.arrow_upward,
+                color: trx.isPemasukan ? Colors.green : Colors.red,
+              ),
+            ),
+            title: Text(
+              trx.judul, 
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            subtitle: Text(
+              DateFormat('dd MMM yyyy').format(trx.tanggal),
+              style: const TextStyle(fontSize: 12),
+            ),
+            trailing: Text(
+              trx.isPemasukan ? '+ Rp ${trx.nominal.toInt()}' : '- Rp ${trx.nominal.toInt()}',
+              style: TextStyle(
+                color: trx.isPemasukan ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   // KODINGAN DESAIN HALAMAN BERANDA
-  // =================================================================
   Widget _buildBeranda() {
     return SingleChildScrollView(
       child: Padding(
