@@ -289,9 +289,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (nilaiBaru != null) {
                           setState(() { bulanTerpilih = nilaiBaru; });
                           _refreshData();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Menyiapkan data bulan: $nilaiBaru...'), duration: const Duration(seconds: 1), backgroundColor: const Color(0xFF138D75)),
-                          );
                         }
                       },
                       items: daftarBulan.map<DropdownMenuItem<String>>((String namaBulan) {
@@ -317,7 +314,30 @@ class _HomeScreenState extends State<HomeScreen> {
             GrafikCard(totalPemasukan: totalPemasukan, totalPengeluaran: totalPengeluaran),
             const SizedBox(height: 15),
             TombolMenuHome(onRefresh: _refreshData),
-            const SizedBox(height: 25),
+            
+            const SizedBox(height: 25), // Jarak sebelum riwayat
+
+            // RIWAYAT TRANSAKSI 
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Riwayat Terakhir', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                GestureDetector(
+                  onTap: () {
+                    // Pindah ke Halaman Riwayat Lengkap (history_screen)
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HystoryScreen()));
+                  },
+                  child: const Text('Lihat Semua', style: TextStyle(color: Color(0xFF006D5B), fontWeight: FontWeight.bold, fontSize: 13)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            
+            // Panggil cetakan 5 riwayat yang kita buat di atas
+            _buildRiwayatTerakhir(),
+
+            // Jarak paling bawah biar ga mentok navigasi
+            const SizedBox(height: 40), 
           ],
         ),
       ),
