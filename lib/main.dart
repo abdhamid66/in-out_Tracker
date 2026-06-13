@@ -3,20 +3,14 @@ import 'screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
-  // Wajib dipanggil pertama kali
+  // Wajib dipanggil biar mesin Flutter siap menerima perintah mesin luar
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Kita pasang CCTV (Try-Catch) biar kalau Firebase gagal, aplikasi tetap mau jalan
-  try {
-    print("⏳ Sedang mencoba menyalakan mesin Firebase...");
-    await Firebase.initializeApp();
-    print("✅ MANTAP! Firebase berhasil nyala!");
-  } catch (e) {
-    print("❌ WADUH! Gagal menyalakan Firebase. Error-nya: $e");
-  }
+  // Menyalakan saklar utama Firebase!
+  await Firebase.initializeApp();
 
-  // Paksa aplikasi untuk tetap me-render tampilan UI
-  runApp(const MyApp());
+  // Menjalankan aplikasimu
+  runApp(const MyApp()); // Pastikan nama MyApp() sesuai dengan nama class utama aplikasimu
 }
 
 class MyApp extends StatelessWidget {
