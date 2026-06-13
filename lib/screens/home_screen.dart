@@ -329,6 +329,25 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Body akan berubah otomatis sesuai tombol yang dipencet
+      body: _halaman[_currentIndex], 
+      
+      // Ini kerangka tombol navigasi bawahmu
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _gantiHalaman, // Panggil fungsi ganti halaman saat dipencet
+        type: BottomNavigationBarType.fixed, // Biar ukurannya pas dan ga gerak aneh
+        selectedItemColor: const Color(0xFF006D5B), // Warna hijau tosca andalanmu
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: 'Dompet'),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Laporan'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
+          BottomNavigationBarItem(icon: Icon(Icons.login), label: 'Login'), 
+        ],
+      ),
+    );
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8F9FA),
