@@ -26,6 +26,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  // Mengingat tombol mana yang sedang dipencet (Mulai dari 0 = Beranda)
+  int _currentIndex = 0;
+
+  // Daftar isi halaman yang akan ditampilkan secara bergantian
+  // (Pastikan kamu sudah meng-import profile_screen.dart di atas)
+  final List<Widget> _halaman = [
+    const Center(child: Text('Ini Isi Halaman Beranda (Nanti diisi)')), // Halaman 0
+    const Center(child: Text('Ini Isi Halaman Dompet')), // Halaman 1
+    const Center(child: Text('Ini Isi Halaman Laporan')), // Halaman 2
+    const Center(child: Text('Ini Isi Halaman Pengaturan')), // Halaman 3
+    const ProfileScreen(), // Halaman 4: Ini halaman Login/Profil buatan kita!
+  ];
+
+  // Fungsi saat tombol navigasi bawah dipencet
+  void _gantiHalaman(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
   // daftar transaksi yang akan ditampilkan di halaman home
   List<Transaksi> daftarTransaksi = [];
 
