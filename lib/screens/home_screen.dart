@@ -135,31 +135,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _tampilkanDialogUbahPin() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ubah PIN Keamanan'),
-        content: const Text('Apakah kamu yakin ingin mengatur ulang (mengubah) PIN aplikasi? Kamu akan diminta membuat 4 digit PIN baru.'),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: Colors.grey))),
-          ElevatedButton(
-            onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.remove('user_pin');
-              if (!mounted) return;
-              Navigator.pop(context);
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan buat PIN baru kamu'), backgroundColor: Color(0xFF138D75)));
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF006D5B)),
-            child: const Text('Ya, Ubah PIN', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _tampilkanDialogTentang() {
     showDialog(
@@ -402,11 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.security, color: Color(0xFF006D5B)),
-              title: const Text('Keamanan (Gembok)'), subtitle: const Text('Ubah PIN Aplikasi'),
-              onTap: () { Navigator.pop(context); _tampilkanDialogUbahPin(); },
-            ),
+            
             ListTile(
               leading: const Icon(Icons.insert_drive_file, color: Color(0xFF006D5B)),
               title: const Text('Ekspor Laporan'), subtitle: const Text('Simpan ke Excel (.xlsx)'),
