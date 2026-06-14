@@ -117,14 +117,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       // Kalau sudah di slide terakhir
                       if (_halamanSekarang == _dataOnboarding.length - 1) {
                         // SIMPAN MEMORI BAHWA USER SUDAH PERNAH LIHAT ONBOARDING
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool('sudah_onboarding', true);
-
                         if (!mounted) return;
-                        // Pindah ke Halaman Utama dan tutup onboarding selamanya
+                        // Pindah ke Halaman Syarat dan Ketentuan (ToS)
                         Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HomeScreen()),
+                          context,  
+                          MaterialPageRoute(builder: (context) => const TosScreen()),
                         );
                       } else {
                         // Kalau belum terakhir, geser ke slide berikutnya
