@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'login_screen.dart';
 import '../database/db_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -11,36 +10,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  void _resetPIN() async {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reset PIN?'),
-        content: const Text('Anda akan diminta membuat PIN baru saat membuka aplikasi lagi.'),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.remove('user_pin');
-              if (!mounted) return;
-              Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF006D5B)),
-            child: const Text('Reset PIN', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _hapusSemuaData() async {
     showDialog(
@@ -80,18 +49,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Pengaturan Akun',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-            ),
-            const SizedBox(height: 15),
-            _buildSettingCard(
-              icon: Icons.lock_outline,
-              title: 'Ubah PIN Keamanan',
-              subtitle: 'Reset PIN aplikasi Anda',
-              onTap: _resetPIN,
-            ),
-            const SizedBox(height: 30),
             
             const Text(
               'Manajemen Data',

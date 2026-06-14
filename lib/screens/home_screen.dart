@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/transaksi.dart';
 import 'input_screen.dart'; 
 import 'hystory_screen.dart';
-import 'login_screen.dart';
 import '../database/db_helper.dart'; 
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:io';
@@ -352,10 +351,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_outlined, color: Color(0xFF006D5B), size: 24),
-            tooltip: 'Logout',
+            icon: const Icon(Icons.download_rounded, color: Color(0xFF006D5B), size: 24),
+            tooltip: 'Ekspor ke Excel',
             onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+              _eksporKeExcel();
             },
           ),
           const SizedBox(width: 8),
