@@ -16,6 +16,7 @@ import '../widgets/grafik_card.dart';
 import '../services/auth_service.dart';
 import '../widgets/tombol_menu_home.dart';
 import '../screens/profile_screen.dart';
+import '../screens/settings_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Tambahan untuk ambil foto profil
 
 class HomeScreen extends StatefulWidget {
@@ -324,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // KITA MASUKKAN HALAMAN BERANDA KE DALAM DAFTAR HALAMAN DI SINI
     final List<Widget> daftarHalaman = [
       _buildBeranda(), // Index 0: Halaman Beranda Utama
-      const Center(child: Text('Ini Isi Halaman Pengaturan')), // Index 1: Halaman Pengaturan
+      const SettingsScreen(), // Index 1: Halaman Pengaturan
       const ProfileScreen(), // Index 2: Halaman Login Profile
     ];
 

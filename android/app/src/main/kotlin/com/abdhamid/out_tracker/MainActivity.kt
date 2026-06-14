@@ -1,4 +1,4 @@
-package com.example.out_tracker
+package com.abdhamid.out_tracker
 
 import io.flutter.embedding.android.FlutterActivity
 

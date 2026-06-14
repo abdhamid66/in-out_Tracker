@@ -93,6 +93,11 @@ class DBHelper {
     );
   }
 
+  Future<int> deleteAllTransaksi() async {
+    Database db = await database;
+    return await db.delete('transaksi');
+  }
+
 // fungsi untuk menghapus data
   Future<int> updateTransaksi(Transaksi transaksi) async {
     Database db = await database;
