@@ -75,7 +75,7 @@ void _simpanData() async {
         content: Text(widget.transaksiLama == null
             ? 'Data Berhasil Disimpan!!'
             : 'Data Berhasil Diperbarui'),
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color(0xFF006D5B),
       ),
     );
 
@@ -91,7 +91,7 @@ void _simpanData() async {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Catat Transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color(0xFF006D5B),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -105,7 +105,7 @@ void _simpanData() async {
             borderRadius: BorderRadius.circular(20),// form bersudut bulatt
             boxShadow: [
               BoxShadow(
-                color: Colors.teal.withOpacity(0.1),
+                color: const Color(0xFF006D5B).withOpacity(0.1),
                 spreadRadius: 2,
                 blurRadius: 8,
                 offset: const Offset(0, 4),
@@ -123,7 +123,7 @@ void _simpanData() async {
                 decoration: InputDecoration(
                   labelText: 'Keterangan',
                   hintText: 'Contoh: Gaji Bulan Ini, Beli Makan, dll',
-                  prefixIcon: Icon(Icons.description,color: Colors.teal),
+                  prefixIcon: Icon(Icons.description,color: const Color(0xFF006D5B)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),// kolom input bersudut bulattt
                   ),
@@ -142,7 +142,7 @@ void _simpanData() async {
                 decoration: InputDecoration(
                   labelText: 'Nominal (Rp)',
                   hintText: 'Contoh: 15.000',
-                  prefixIcon: Icon(Icons.attach_money,color: Colors.teal),
+                  prefixIcon: Icon(Icons.attach_money,color: const Color(0xFF006D5B)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -188,7 +188,7 @@ void _simpanData() async {
                 child: ElevatedButton(
                   onPressed: _simpanData,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
+                    backgroundColor: const Color(0xFF006D5B),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),// tombol simpan bersudut bulattt

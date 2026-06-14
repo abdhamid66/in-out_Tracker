@@ -93,7 +93,7 @@ class GrafikCard extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: const [
-                              Icon(Icons.show_chart, color: Colors.teal, size: 16),
+                              Icon(Icons.show_chart, color: const Color(0xFF006D5B), size: 16),
                               Text('Arus Kas', style: TextStyle(fontSize: 9, color: Colors.grey)),
                             ],
                           ),

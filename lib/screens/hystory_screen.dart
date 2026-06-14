@@ -77,7 +77,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Riwayat Transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color(0xFF006D5B),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -92,19 +92,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
               children: [
                 // Tombol Panah Kiri (Mundur 1 Bulan)
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.teal, size: 20),
+                  icon: const Icon(Icons.arrow_back_ios, color: const Color(0xFF006D5B), size: 20),
                   onPressed: () => _gantiBulan(-1), 
                 ),
                 
                 // Teks Penunjuk Bulan dan Tahun
                 Text(
                   "${namaBulan[_bulanDipilih.month - 1]} ${_bulanDipilih.year}",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF006D5B)),
                 ),
                 
                 // Tombol Panah Kanan (Maju 1 Bulan)
                 IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios, color: Colors.teal, size: 20),
+                  icon: const Icon(Icons.arrow_forward_ios, color: const Color(0xFF006D5B), size: 20),
                   onPressed: () => _gantiBulan(1), 
                 ),
               ],
