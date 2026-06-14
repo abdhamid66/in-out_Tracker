@@ -310,9 +310,19 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         const SnackBar(content: Text('Memproses Login...')),
                       );
                       final user = await AuthService().signInWithGoogle();
-                      if (user != null && mounted) {
+                      if (!mounted) return;
+                      
+                      if (user != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Selamat datang, ${user.displayName}!'), backgroundColor: primaryColor),
+                        );
+                      } else {
+                        // Tampilkan error kalau login gagal atau dibatalkan
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Login gagal! Pastikan koneksi internet lancar dan SHA-1 sudah terdaftar di Firebase.'),
+                            backgroundColor: Colors.red,
+                          ),
                         );
                       }
                     },
