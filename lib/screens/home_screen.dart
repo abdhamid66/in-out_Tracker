@@ -300,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 GestureDetector(
                   onTap: () {
                     // Pindah ke Halaman Riwayat Lengkap (history_screen)
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HystoryScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryScreen()));
                   },
                   child: const Text('Lihat Semua', style: TextStyle(color: Color(0xFF006D5B), fontWeight: FontWeight.bold, fontSize: 13)),
                 ),
