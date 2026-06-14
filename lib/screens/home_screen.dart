@@ -201,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
             leading: CircleAvatar(
               backgroundColor: trx.isPemasukan ? Colors.green.shade50 : Colors.red.shade50,
               child: Icon(
-                trx.isPemasukan ? Icons.arrow_downward : Icons.arrow_upward,
+                Transaksi.getIconForKategori(trx.kategori),
                 color: trx.isPemasukan ? Colors.green : Colors.red,
               ),
             ),
@@ -210,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             subtitle: Text(
-              DateFormat('dd MMM yyyy').format(trx.tanggal),
+              '${trx.kategori} • ${DateFormat('dd MMM yyyy').format(trx.tanggal)}',
               style: const TextStyle(fontSize: 12),
             ),
             trailing: Text(

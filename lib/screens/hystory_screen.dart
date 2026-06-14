@@ -148,13 +148,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              item.isPemasukan ? Icons.arrow_downward : Icons.arrow_upward,
+                              Transaksi.getIconForKategori(item.kategori),
                               color: item.isPemasukan ? Colors.green : Colors.red,
                             ),
                           ),
                           title: Text(item.judul, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           subtitle: Text(
-                            "${item.tanggal.day} ${namaBulan[item.tanggal.month - 1]} ${item.tanggal.year}",
+                            "${item.kategori} • ${item.tanggal.day} ${namaBulan[item.tanggal.month - 1]} ${item.tanggal.year}",
                             style: TextStyle(color: Colors.grey[600], fontSize: 12),
                           ),
                           trailing: Text(

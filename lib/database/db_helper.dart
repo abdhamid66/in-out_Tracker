@@ -23,8 +23,9 @@ class DBHelper {
     // mmbuka dtabase, dan jika belum ada filenya jalankan fungsi _onCreate
     return await openDatabase(
       path,
-      version: 1, // versi database, bisa diubah jika ada perubahan struktur tabel
+      version: 2, // versi database diubah menjadi 2 karena ada tambahan kolom kategori
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
   // fungsi untuk membuat tabel transaksi di dalam database, dengan kolom id, judul, nominal, isPemasukan, dan tanggal
@@ -36,9 +37,18 @@ class DBHelper {
         judul TEXT,
         nominal REAL,
         isPemasukan INTEGER,
-        tanggal TEXT
+        tanggal TEXT,
+        kategori TEXT
       )
     ''');
+  }
+
+  // Fungsi untuk meng-upgrade database dari versi lama ke versi baru
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Jika versi lama kurang dari 2, tambahkan kolom kategori
+      await db.execute("ALTER TABLE transaksi ADD COLUMN kategori TEXT DEFAULT 'Lainnya'");
+    }
   }
   // --- FUNGSI UNTUK MENYIMPAN DATA TRANSAKSI ---
   Future<int> insertTransaksi(Transaksi transaksi) async {

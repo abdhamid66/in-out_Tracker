@@ -17,6 +17,10 @@ class _InputScreenState extends State<InputScreen> {
   final TextEditingController _nominalController = TextEditingController();
   // variabel untuk menyimpan jenis transaksi, defaultnya adalah pemasukan (true)
   bool _isPemasukan = true;
+  String _kategori = 'Lainnya';
+
+  final List<String> kategoriPemasukan = ['Gaji', 'Bonus', 'Bisnis', 'Lainnya'];
+  final List<String> kategoriPengeluaran = ['Makanan', 'Transportasi', 'Hiburan', 'Belanja', 'Tagihan', 'Lainnya'];
 
   @override
   void initState() {
@@ -28,6 +32,7 @@ class _InputScreenState extends State<InputScreen> {
       _nominalController.text = formatter.format(widget.transaksiLama!.nominal);
 
       _isPemasukan = widget.transaksiLama!.isPemasukan;
+      _kategori = widget.transaksiLama!.kategori;
     }
   }
 
@@ -50,6 +55,7 @@ void _simpanData() async {
         nominal: double.parse(_nominalController.text.replaceAll('.', '')),
         isPemasukan: _isPemasukan,
         tanggal: DateTime.now(),
+        kategori: _kategori,
       );
 
       await DBHelper().insertTransaksi(transaksiBaru);
@@ -61,6 +67,7 @@ void _simpanData() async {
         nominal: double.parse(_nominalController.text.replaceAll('.', '')),
         isPemasukan: _isPemasukan,
         tanggal: widget.transaksiLama!.tanggal,
+        kategori: _kategori,
       );
 
       await DBHelper().updateTransaksi(transaksiUpdate);
@@ -174,11 +181,39 @@ void _simpanData() async {
                       onChanged: (nilaiBaru) {
                         setState(() {
                           _isPemasukan = nilaiBaru;
+                          // Pastikan kategori direset ke 'Lainnya' jika pindah tipe agar tidak error (tidak ada di list baru)
+                          _kategori = 'Lainnya';
                         });
                       },
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 20),
+              
+              // KOLOM KATEGORI
+              DropdownButtonFormField<String>(
+                value: _kategori,
+                decoration: InputDecoration(
+                  labelText: 'Kategori',
+                  prefixIcon: Icon(Icons.category, color: const Color(0xFF006D5B)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                ),
+                items: (_isPemasukan ? kategoriPemasukan : kategoriPengeluaran)
+                    .map((kategori) => DropdownMenuItem(
+                          value: kategori,
+                          child: Text(kategori),
+                        ))
+                    .toList(),
+                onChanged: (nilaiBaru) {
+                  setState(() {
+                    _kategori = nilaiBaru!;
+                  });
+                },
               ),
               const SizedBox(height: 30),
               // tombol simpan dengan desain baru yang lebih lebar dab warna yang lebih menarik
