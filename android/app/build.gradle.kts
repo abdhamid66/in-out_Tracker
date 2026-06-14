@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.out_tracker"
+    namespace = "com.abdhamid.out_tracker"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         // 1. Jangan lupa tanda '=' di sini
-        applicationId = "com.example.out_tracker"
+        applicationId = "com.abdhamid.out_tracker"
         
         // 2. minSdk kita naikkan ke 23 untuk Firebase
         minSdk = flutter.minSdkVersion
