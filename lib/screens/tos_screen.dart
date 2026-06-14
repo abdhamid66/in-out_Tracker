@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 
 class TosScreen extends StatefulWidget {
-  const TosScreen({super.key});
+  final bool isFromSettings;
+  const TosScreen({super.key, this.isFromSettings = false});
 
   @override
   State<TosScreen> createState() => _TosScreenState();
@@ -25,7 +26,7 @@ class _TosScreenState extends State<TosScreen> {
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false, // Menghilangkan tombol back
+        automaticallyImplyLeading: widget.isFromSettings, // Tampilkan tombol back jika dari settings
       ),
       body: SafeArea(
         child: Column(
@@ -67,7 +68,8 @@ class _TosScreenState extends State<TosScreen> {
               ),
             ),
 
-            // BAGIAN CHECKBOX DAN TOMBOL
+            // BAGIAN CHECKBOX DAN TOMBOL (Hanya tampil saat Onboarding)
+            if (!widget.isFromSettings)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               decoration: BoxDecoration(

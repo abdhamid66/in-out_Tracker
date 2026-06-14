@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../database/db_helper.dart';
+import 'tos_screen.dart';
+import 'privacy_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -40,6 +41,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _tampilkanDialogTentang() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: const [
+            Icon(Icons.info_outline, color: Color(0xFF006D5B)), SizedBox(width: 10),
+            Text('Tentang Aplikasi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.account_balance_wallet, size: 60, color: Color(0xFF138D75)), SizedBox(height: 15),
+            Text('In-Out Tracker', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF006D5B))),
+            Text('Versi 1.0.0', style: TextStyle(color: Colors.grey, fontSize: 12)), SizedBox(height: 20),
+            Text('Aplikasi catatan keuangan pribadi yang dirancang untuk membantu Anda melacak arus kas dengan mudah, aman, dan tanpa perlu koneksi internet.', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, height: 1.5)),
+            SizedBox(height: 20), Divider(), SizedBox(height: 10),
+            Text('Dikembangkan oleh:', style: TextStyle(color: Colors.grey, fontSize: 11)),
+            Text('Abd Hamid', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            Text('Mahasiswa Semester 4', style: TextStyle(color: Colors.grey, fontSize: 11)),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup', style: TextStyle(color: Color(0xFF006D5B), fontWeight: FontWeight.bold))),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +93,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: 'Reset ulang data keuangan',
               iconColor: Colors.red,
               onTap: _hapusSemuaData,
+            ),
+            
+            const SizedBox(height: 30),
+            const Text(
+              'Informasi & Bantuan',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+            ),
+            const SizedBox(height: 15),
+            _buildSettingCard(
+              icon: Icons.gavel_rounded,
+              title: 'Syarat & Ketentuan',
+              subtitle: 'Aturan penggunaan aplikasi',
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const TosScreen(isFromSettings: true)));
+              },
+            ),
+            const SizedBox(height: 10),
+            _buildSettingCard(
+              icon: Icons.privacy_tip_outlined,
+              title: 'Kebijakan Privasi',
+              subtitle: 'Bagaimana data Anda dilindungi',
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyScreen()));
+              },
+            ),
+            const SizedBox(height: 10),
+            _buildSettingCard(
+              icon: Icons.info_outline,
+              title: 'Tentang Aplikasi',
+              subtitle: 'Versi dan Info Developer',
+              onTap: _tampilkanDialogTentang,
             ),
           ],
         ),
