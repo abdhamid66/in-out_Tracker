@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart'; // 👇 INI YANG DITAMBAH
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,// menggunakan Material3 untuk mendapatkan tampilan yang lebih modern dan sesuai dengan desain terbaru dari Google.
       ),
-        home: const LoginScreen(),
-      );
+      home: const SplashScreen(), // 👇 INI YANG DIGANTI
+    );
   }
 }
