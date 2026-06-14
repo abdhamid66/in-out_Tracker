@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'home_screen.dart'; // Sementara kita arahkan ke Home dulu
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home_screen.dart';
+import 'onboarding_screen.dart'; 
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,19 +15,37 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Setting timer: Setelah 3 detik, layar akan pindah otomatis
+    _cekArahTujuan(); // Jalankan fungsi pengecekan saat layar dibuka
+  }
+
+  // Fungsi untuk mengecek lemari memori HP
+  Future<void> _cekArahTujuan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Cek apakah ada catatan 'sudah_onboarding'? Kalau kosong, anggap false (belum)
+    bool sudahOnboarding = prefs.getBool('sudah_onboarding') ?? false;
+
+    // Timer 3 detik biar logonya kelihatan dulu
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()), // Nanti ini kita ganti ke Onboarding
-      );
+      if (sudahOnboarding) {
+        // Kalau SUDAH, lempar langsung ke Beranda
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        // Kalau BELUM, lempar ke Onboarding Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        );
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF006D5B), // Warna hijau tosca andalan In-Out Tracker
+      backgroundColor: const Color(0xFF006D5B), 
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -54,7 +74,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             SizedBox(height: 40),
-            // Animasi loading muter-muter
             CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),
