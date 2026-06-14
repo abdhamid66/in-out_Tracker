@@ -114,7 +114,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
           // --- DAFTAR TRANSAKSI ---
           Expanded(
             child: riwayat.isEmpty
-                ? const Center(child: Text('Belum ada transaksi di bulan ini'))
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.history_toggle_off_rounded, size: 80, color: Colors.grey.shade300),
+                        const SizedBox(height: 15),
+                        const Text('Belum ada riwayat', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 18)),
+                        const SizedBox(height: 5),
+                        Text('Tidak ada transaksi di bulan ${namaBulan[_bulanDipilih.month - 1]}', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                      ],
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.all(15.0),
                     itemCount: riwayat.length,

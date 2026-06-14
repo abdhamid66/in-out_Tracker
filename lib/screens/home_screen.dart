@@ -178,10 +178,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Kalau datanya kosong
     if (limaTerbaru.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 30.0),
-          child: Text('Belum ada transaksi di bulan ini.', style: TextStyle(color: Colors.grey)),
+          padding: const EdgeInsets.symmetric(vertical: 40.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.inbox_rounded, size: 60, color: Colors.grey.shade300),
+              const SizedBox(height: 15),
+              const Text('Belum ada transaksi', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 16)),
+              const SizedBox(height: 5),
+              const Text('Yuk, catat pengeluaran pertamamu!', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
         ),
       );
     }
