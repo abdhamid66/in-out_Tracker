@@ -286,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             KartuSaldo(saldo: saldo, totalPemasukan: totalPemasukan, totalPengeluaran: totalPengeluaran, waktuUpdate: waktuUpdate),
             const SizedBox(height: 15),
-            GrafikCard(totalPemasukan: totalPemasukan, totalPengeluaran: totalPengeluaran),
+            GrafikCard(daftarTransaksi: daftarTransaksi),
             const SizedBox(height: 15),
             TombolMenuHome(onRefresh: _refreshData),
             
