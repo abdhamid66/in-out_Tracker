@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/transaksi.dart';
-import '../database/db_helper.dart'; // Jika butuh fungsi formatRupiah()
+import '../database/db_helper.dart'; 
 
 class GrafikCard extends StatefulWidget {
   final List<Transaksi> daftarTransaksi;
+  final VoidCallback onLihatSelengkapnya;
 
   const GrafikCard({
     super.key,
     required this.daftarTransaksi,
+    required this.onLihatSelengkapnya,
   });
 
   @override
@@ -16,90 +18,62 @@ class GrafikCard extends StatefulWidget {
 }
 
 class _GrafikCardState extends State<GrafikCard> {
-  // Secara default menampilkan Pengeluaran
-  bool _isMelihatPengeluaran = true;
-
-  // Fungsi untuk mendapatkan warna berdasarkan kategori
-  Color _getColorForKategori(String kategori) {
-    switch (kategori) {
-      case 'Makanan': return Colors.orange;
-      case 'Transportasi': return Colors.blue;
-      case 'Hiburan': return Colors.purple;
-      case 'Belanja': return Colors.pink;
-      case 'Tagihan': return Colors.red;
-      case 'Gaji': return Colors.green;
-      case 'Bonus': return Colors.teal;
-      case 'Bisnis': return Colors.blueAccent;
-      default: return Colors.grey;
-    }
-  }
+  bool _isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
-    // 1. Filter transaksi berdasarkan tipe yang sedang dilihat (Pengeluaran vs Pemasukan)
-    List<Transaksi> transaksiTerkait = widget.daftarTransaksi
-        .where((trx) => trx.isPemasukan == !_isMelihatPengeluaran)
-        .toList();
+    double totalPemasukan = 0;
+    double totalPengeluaran = 0;
 
-    // 2. Hitung total per kategori
-    Map<String, double> kategoriTotal = {};
-    double totalNominal = 0;
-    
-    for (var trx in transaksiTerkait) {
-      kategoriTotal[trx.kategori] = (kategoriTotal[trx.kategori] ?? 0) + trx.nominal;
-      totalNominal += trx.nominal;
+    for (var trx in widget.daftarTransaksi) {
+      if (trx.isPemasukan) {
+        totalPemasukan += trx.nominal;
+      } else {
+        totalPengeluaran += trx.nominal;
+      }
     }
 
-    // 3. Siapkan data untuk PieChart dan daftar Legenda
+    double total = totalPemasukan + totalPengeluaran;
+
     List<PieChartSectionData> pieChartData = [];
-    List<Widget> legendaWidgets = [];
+    double pctPemasukan = 0;
+    double pctPengeluaran = 0;
+    
+    if (total > 0) {
+      pctPemasukan = (totalPemasukan / total) * 100;
+      pctPengeluaran = (totalPengeluaran / total) * 100;
 
-    if (totalNominal > 0) {
-      kategoriTotal.forEach((kategori, jumlah) {
-        double persentase = (jumlah / totalNominal) * 100;
-        Color warna = _getColorForKategori(kategori);
-        
-        // Data irisan grafik
+      if (totalPengeluaran > 0) {
         pieChartData.add(PieChartSectionData(
-          color: warna,
-          value: jumlah,
-          title: '${persentase.toStringAsFixed(1)}%',
-          radius: 50,
-          titleStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+          color: const Color(0xFFEF5350), // Merah untuk Pengeluaran
+          value: totalPengeluaran,
+          title: '', // Teks disembunyikan di dalam chart
+          radius: 20, // Ketebalan donut
         ));
-
-        // Data teks legenda di sebelah grafik
-        legendaWidgets.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                CircleAvatar(radius: 5, backgroundColor: warna),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    kategori,
-                    style: const TextStyle(fontSize: 12, color: Colors.black87),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Text(
-                  formatRupiah(jumlah),
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-              ],
-            ),
-          )
-        );
-      });
+      }
+      if (totalPemasukan > 0) {
+        pieChartData.add(PieChartSectionData(
+          color: const Color(0xFF26C6DA), // Cyan untuk Pemasukan
+          value: totalPemasukan,
+          title: '',
+          radius: 20, 
+        ));
+      }
     }
 
     return Container(
-      padding: const EdgeInsets.all(15), 
+      padding: const EdgeInsets.all(20), 
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 5, blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08), 
+            spreadRadius: 5, 
+            blurRadius: 15, 
+            offset: const Offset(0, 5)
+          )
+        ],
       ),
       child: Column(
         children: [
@@ -111,111 +85,146 @@ class _GrafikCardState extends State<GrafikCard> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(8)),
                     child: const Icon(Icons.pie_chart, color: Color(0xFF006D5B), size: 18),
                   ),
-                  const SizedBox(width: 8),
-                  const Text('Analisis Kategori', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
+                  const SizedBox(width: 10),
+                  const Text('Visualisasi Arus Kas', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
                 ],
               ),
-              const Icon(Icons.more_horiz, color: Colors.grey, size: 18),
+              Row(
+                children: [
+                  // Tombol Lihat Selengkapnya (titik 3 di screenshot)
+                  GestureDetector(
+                    onTap: widget.onLihatSelengkapnya,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.more_horiz, color: Colors.grey, size: 20),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  // Tombol Tutup/Buka
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isExpanded = !_isExpanded;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF006D5B).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Icon(
+                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        color: const Color(0xFF006D5B),
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-          const SizedBox(height: 15),
           
-          // Tombol Sakelar (Toggle) Pengeluaran / Pemasukan
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _isMelihatPengeluaran = true),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: _isMelihatPengeluaran ? Colors.red.shade400 : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Pengeluaran',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: _isMelihatPengeluaran ? Colors.white : Colors.grey,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _isMelihatPengeluaran = false),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: !_isMelihatPengeluaran ? Colors.green.shade400 : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Pemasukan',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: !_isMelihatPengeluaran ? Colors.white : Colors.grey,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 25),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: !_isExpanded
+                ? const SizedBox.shrink()
+                : Column(
+                    children: [
+                      const SizedBox(height: 30),
+                      if (total == 0)
+                        const SizedBox(
+                          height: 120,
+                          child: Center(child: Text("Belum ada data transaksi.", style: TextStyle(color: Colors.grey))),
+                        )
+                      else
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Kiri: Pengeluaran
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const CircleAvatar(radius: 4, backgroundColor: Color(0xFFEF5350)),
+                                      const SizedBox(width: 6),
+                                      const Text('Pengeluaran', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text('${pctPengeluaran.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
+                                  const SizedBox(height: 2),
+                                  Text(formatRupiah(totalPengeluaran), style: const TextStyle(fontSize: 11, color: Color(0xFFEF5350))),
+                                ],
+                              ),
+                            ),
+                            
+                            // Tengah: Grafik Donut
+                            Expanded(
+                              flex: 3,
+                              child: SizedBox(
+                                height: 110,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    PieChart(
+                                      PieChartData(
+                                        sectionsSpace: 0, // Dibuat menempel seperti screenshot
+                                        centerSpaceRadius: 35, 
+                                        startDegreeOffset: -90,
+                                        sections: pieChartData,
+                                      ),
+                                    ),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        Icon(Icons.show_chart, color: Color(0xFF006D5B), size: 16),
+                                        Text('Arus Kas', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
 
-          // Area Grafik dan Legenda
-          if (totalNominal == 0)
-            const SizedBox(
-              height: 150,
-              child: Center(child: Text("Belum ada data di kategori ini.", style: TextStyle(color: Colors.grey))),
-            )
-          else
-            Row(
-              children: [
-                // Bagian Kiri: Grafik Pie Chart
-                Expanded(
-                  flex: 1,
-                  child: SizedBox(
-                    height: 150,
-                    child: PieChart(
-                      PieChartData(
-                        sectionsSpace: 2, // Jarak antar irisan
-                        centerSpaceRadius: 25, // Lubang di tengah
-                        sections: pieChartData,
-                      ),
-                    ),
+                            // Kanan: Pemasukan
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      const CircleAvatar(radius: 4, backgroundColor: Color(0xFF26C6DA)),
+                                      const SizedBox(width: 6),
+                                      const Text('Pemasukan', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text('${pctPemasukan.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
+                                  const SizedBox(height: 2),
+                                  Text(formatRupiah(totalPemasukan), style: const TextStyle(fontSize: 11, color: Color(0xFF006D5B))),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 15),
-                // Bagian Kanan: Daftar Legenda Kategori
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: legendaWidgets,
-                  ),
-                ),
-              ],
-            ),
+          ),
         ],
       ),
     );

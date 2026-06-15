@@ -14,7 +14,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   final Color primaryColor = const Color(0xFF006D5B);
   List<Transaksi> _transaksiBulanIni = [];
   Map<String, double> _pengeluaranPerKategori = {};
+  Map<String, double> _pemasukanPerKategori = {};
   double _totalPengeluaran = 0;
+  double _totalPemasukan = 0;
   bool _isLoading = true;
 
   final List<Color> _chartColors = [
@@ -37,26 +39,36 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Future<void> _loadData() async {
     final data = await DBHelper().getTransaksiBulanIni();
     
-    // Hitung pengeluaran per kategori
-    Map<String, double> hitungKategori = {};
-    double total = 0;
+    // Hitung pengeluaran dan pemasukan per kategori
+    Map<String, double> hitungKategoriPengeluaran = {};
+    Map<String, double> hitungKategoriPemasukan = {};
+    double totalPengeluaran = 0;
+    double totalPemasukan = 0;
     
     for (var trx in data) {
       if (!trx.isPemasukan) {
-        hitungKategori[trx.kategori] = (hitungKategori[trx.kategori] ?? 0) + trx.nominal;
-        total += trx.nominal;
+        hitungKategoriPengeluaran[trx.kategori] = (hitungKategoriPengeluaran[trx.kategori] ?? 0) + trx.nominal;
+        totalPengeluaran += trx.nominal;
+      } else {
+        hitungKategoriPemasukan[trx.kategori] = (hitungKategoriPemasukan[trx.kategori] ?? 0) + trx.nominal;
+        totalPemasukan += trx.nominal;
       }
     }
     
-    // Urutkan dari pengeluaran terbesar ke terkecil
-    var sortedKategori = Map.fromEntries(
-      hitungKategori.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)),
+    // Urutkan dari terbesar ke terkecil
+    var sortedPengeluaran = Map.fromEntries(
+      hitungKategoriPengeluaran.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)),
+    );
+    var sortedPemasukan = Map.fromEntries(
+      hitungKategoriPemasukan.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)),
     );
 
     setState(() {
       _transaksiBulanIni = data;
-      _pengeluaranPerKategori = sortedKategori;
-      _totalPengeluaran = total;
+      _pengeluaranPerKategori = sortedPengeluaran;
+      _pemasukanPerKategori = sortedPemasukan;
+      _totalPengeluaran = totalPengeluaran;
+      _totalPemasukan = totalPemasukan;
       _isLoading = false;
     });
   }
@@ -79,90 +91,104 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildBody() {
-    if (_pengeluaranPerKategori.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.pie_chart_outline_rounded, size: 80, color: Colors.grey.shade300),
-            const SizedBox(height: 16),
-            const Text(
-              'Belum ada data pengeluaran bulan ini',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
-          ],
-        ),
-      );
-    }
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Pengeluaran Bulan Ini',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
-          const SizedBox(height: 20),
-          
-          // Grafik Card
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(color: Colors.grey.shade200, blurRadius: 15, spreadRadius: 2),
-              ],
-            ),
-            child: SizedBox(
-              height: 250,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  PieChart(
-                    PieChartData(
-                      sectionsSpace: 3,
-                      centerSpaceRadius: 70,
-                      sections: _generateChartSections(),
-                    ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Total', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                      Text(
-                        formatRupiah(_totalPengeluaran),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 30),
-          
-          const Text(
-            'Rincian per Kategori',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
-          const SizedBox(height: 15),
-          
-          // List Kategori
-          ..._buildCategoryList(),
+          _buildStatSection('Pemasukan Bulan Ini', _pemasukanPerKategori, _totalPemasukan, Colors.green, 'pemasukan'),
+          const Divider(height: 40, thickness: 1.5, color: Colors.black12),
+          _buildStatSection('Pengeluaran Bulan Ini', _pengeluaranPerKategori, _totalPengeluaran, Colors.red, 'pengeluaran'),
         ],
       ),
     );
   }
 
-  List<PieChartSectionData> _generateChartSections() {
+  Widget _buildStatSection(String title, Map<String, double> data, double total, Color valueColor, String typeText) {
+    if (data.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 30.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.pie_chart_outline_rounded, size: 60, color: Colors.grey.shade300),
+              const SizedBox(height: 10),
+              Text(
+                'Belum ada data $typeText bulan ini',
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+        ),
+        const SizedBox(height: 15),
+        
+        // Grafik Card
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(color: Colors.grey.shade200, blurRadius: 15, spreadRadius: 2),
+            ],
+          ),
+          child: SizedBox(
+            height: 220,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 3,
+                    centerSpaceRadius: 65,
+                    sections: _generateChartSections(data, total),
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Total', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                    Text(
+                      formatRupiah(total),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: valueColor),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 25),
+        
+        const Text(
+          'Rincian per Kategori',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+        ),
+        const SizedBox(height: 10),
+        
+        // List Kategori
+        ..._buildCategoryList(data, total, valueColor, typeText),
+      ],
+    );
+  }
+
+  List<PieChartSectionData> _generateChartSections(Map<String, double> data, double total) {
     List<PieChartSectionData> sections = [];
     int i = 0;
-    _pengeluaranPerKategori.forEach((kategori, nominal) {
-      final double percentage = (nominal / _totalPengeluaran) * 100;
+    data.forEach((kategori, nominal) {
+      final double percentage = total > 0 ? (nominal / total) * 100 : 0;
       final color = _chartColors[i % _chartColors.length];
       
       sections.add(
@@ -179,12 +205,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return sections;
   }
 
-  List<Widget> _buildCategoryList() {
+  List<Widget> _buildCategoryList(Map<String, double> data, double total, Color valueColor, String typeStr) {
     List<Widget> list = [];
     int i = 0;
-    _pengeluaranPerKategori.forEach((kategori, nominal) {
+    data.forEach((kategori, nominal) {
       final color = _chartColors[i % _chartColors.length];
-      final double percentage = (nominal / _totalPengeluaran) * 100;
+      final double percentage = total > 0 ? (nominal / total) * 100 : 0;
       
       list.add(
         Container(
@@ -200,10 +226,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             title: Text(kategori, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-            subtitle: Text('${percentage.toStringAsFixed(1)}% dari total pengeluaran'),
+            subtitle: Text('${percentage.toStringAsFixed(1)}% dari total $typeStr'),
             trailing: Text(
               formatRupiah(nominal),
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 14),
+              style: TextStyle(fontWeight: FontWeight.bold, color: valueColor, fontSize: 14),
             ),
           ),
         )
