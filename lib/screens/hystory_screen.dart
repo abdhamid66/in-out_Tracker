@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:out_tracker/database/db_helper.dart';
 import '../models/transaksi.dart'; // untuk mengimpor model transaksi yang sudah dibuat untuk menampilkan daftar transaksi yang sudah di inputkan di halaman ini
 import '../screens/input_screen.dart';
+import '../services/cloud_sync_service.dart';
+
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
@@ -174,6 +176,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         onDismissed: (direction) async {
                           await DBHelper().deleteTransaksi(item.id);
                           _refreshRiwayat();
+                          CloudSyncService().backupKeCloud();
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Transaksi berhasil dihapus'), backgroundColor: Color(0xFF006D5B)),
@@ -208,23 +211,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                             title: Text(item.judul, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                             subtitle: Text(item.kategori, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '${item.isPemasukan ? '+' : '-'} Rp $nominalRupiah',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: item.isPemasukan ? Colors.green : Colors.red,
-                                    fontSize: 14,
+                            trailing: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 120),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '${item.isPemasukan ? '+' : '-'} Rp $nominalRupiah',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: item.isPemasukan ? Colors.green : Colors.red,
+                                      fontSize: 14,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                Text(
-                                  DateFormat('dd MMM yyyy').format(item.tanggal),
-                                  style: const TextStyle(color: Colors.grey, fontSize: 11),
-                                ),
-                              ],
+                                  Text(
+                                    DateFormat('dd MMM yyyy').format(item.tanggal),
+                                    style: const TextStyle(color: Colors.grey, fontSize: 11),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),

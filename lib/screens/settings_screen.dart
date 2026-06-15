@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../database/db_helper.dart';
+import '../models/transaksi.dart';
 import '../services/cloud_sync_service.dart';
-import '../services/auth_service.dart';
 import 'tos_screen.dart';
 import 'privacy_screen.dart';
-import 'onboarding_screen.dart';
+import 'profile_screen.dart';
+import 'package:excel/excel.dart' hide Border;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:local_auth/local_auth.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,10 +21,46 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final User? user = FirebaseAuth.instance.currentUser;
   final CloudSyncService _cloudSync = CloudSyncService();
 
   bool _isLoading = false;
+  bool _isBiometricEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBiometricSettings();
+  }
+
+  Future<void> _loadBiometricSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isBiometricEnabled = prefs.getBool('biometric_enabled') ?? false;
+    });
+  }
+
+  Future<void> _toggleBiometric(bool value) async {
+    if (value) {
+      // Cek apakah device support biometrik sebelum mengaktifkan
+      final localAuth = LocalAuthentication();
+      final bool canAuthenticateWithBiometrics = await localAuth.canCheckBiometrics;
+      final bool canAuthenticate = canAuthenticateWithBiometrics || await localAuth.isDeviceSupported();
+      
+      if (!canAuthenticate) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Perangkat ini tidak mendukung fitur biometrik/kunci layar.'), backgroundColor: Colors.red),
+        );
+        return;
+      }
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('biometric_enabled', value);
+    setState(() {
+      _isBiometricEnabled = value;
+    });
+  }
 
   void _hapusSemuaData() async {
     showDialog(
@@ -108,14 +150,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<void> _prosesLogout() async {
-    await AuthService().signOut();
-    if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-      (route) => false,
-    );
+  Future<void> _exportKeExcel() async {
+    setState(() => _isLoading = true);
+    try {
+      // 1. Ambil data dari SQLite
+      List<Transaksi> daftarTransaksi = await DBHelper().getSemuaTransaksi();
+      
+      if (daftarTransaksi.isEmpty) {
+        setState(() => _isLoading = false);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tidak ada data transaksi untuk diexport.')),
+        );
+        return;
+      }
+
+      // 2. Buat file Excel baru
+      var excel = Excel.createExcel();
+      Sheet sheetObject = excel['Sheet1'];
+
+      // Header kolom
+      sheetObject.appendRow([
+        TextCellValue('Tanggal'),
+        TextCellValue('Judul'),
+        TextCellValue('Kategori'),
+        TextCellValue('Jenis'),
+        TextCellValue('Nominal (Rp)')
+      ]);
+
+      // Isi data
+      final formatTanggal = DateFormat('dd MMM yyyy');
+      for (var trx in daftarTransaksi) {
+        sheetObject.appendRow([
+          TextCellValue(formatTanggal.format(trx.tanggal)),
+          TextCellValue(trx.judul),
+          TextCellValue(trx.kategori),
+          TextCellValue(trx.isPemasukan ? 'Pemasukan' : 'Pengeluaran'),
+          IntCellValue(trx.nominal.toInt()),
+        ]);
+      }
+
+      // 3. Simpan file sementara (Temporary)
+      var fileBytes = excel.save();
+      final directory = await getTemporaryDirectory();
+      final String filePath = '${directory.path}/Laporan_Keuangan_InOut.xlsx';
+      
+      File file = File(filePath);
+      await file.writeAsBytes(fileBytes!);
+
+      setState(() => _isLoading = false);
+
+      // 4. Munculkan dialog share
+      if (!mounted) return;
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        text: 'Ini laporan keuangan bulanan In-Out Tracker.',
+      );
+
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal export: $e'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
@@ -135,39 +233,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- BAGIAN PROFIL ---
-                if (user != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFF006D5B), Color(0xFF138D75)]),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [BoxShadow(color: const Color(0xFF006D5B).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.white,
-                          backgroundImage: user!.photoURL != null ? NetworkImage(user!.photoURL!) : null,
-                          child: user!.photoURL == null ? const Icon(Icons.person, size: 30, color: Colors.grey) : null,
-                        ),
-                        const SizedBox(width: 15),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(user!.displayName ?? 'Pengguna', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 5),
-                              Text(user!.email ?? '', style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                ],
+                // --- BAGIAN PROFIL & AKUN ---
+                const Text(
+                  'Akun Pengguna',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                const SizedBox(height: 15),
+                _buildSettingCard(
+                  icon: Icons.person_outline,
+                  title: 'Profil & Akun',
+                  subtitle: 'Kelola data Google dan status login',
+                  iconColor: const Color(0xFF006D5B),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+                  },
+                ),
+                const SizedBox(height: 30),
 
                 // --- BAGIAN CLOUD SYNC ---
                 const Text(
@@ -199,11 +280,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 15),
                 _buildSettingCard(
+                  icon: Icons.insert_drive_file_outlined,
+                  title: 'Export Laporan (Excel)',
+                  subtitle: 'Download semua transaksi',
+                  iconColor: Colors.orange,
+                  onTap: _exportKeExcel,
+                ),
+                const SizedBox(height: 10),
+                _buildSettingCard(
                   icon: Icons.delete_forever_outlined,
                   title: 'Hapus Semua Transaksi',
                   subtitle: 'Reset ulang data di HP ini',
                   iconColor: Colors.red,
                   onTap: _hapusSemuaData,
+                ),
+                const SizedBox(height: 30),
+
+                // --- BAGIAN KEAMANAN ---
+                const Text(
+                  'Keamanan Aplikasi',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                const SizedBox(height: 15),
+                Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: SwitchListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    title: const Text('Kunci Layar (Biometrik/PIN)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),
+                    subtitle: Text('Gunakan sidik jari atau PIN saat membuka aplikasi', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                    secondary: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.fingerprint, color: Colors.purple, size: 24),
+                    ),
+                    value: _isBiometricEnabled,
+                    activeColor: const Color(0xFF006D5B),
+                    onChanged: _toggleBiometric,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
                 ),
                 const SizedBox(height: 30),
 
@@ -235,20 +356,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // --- TOMBOL KELUAR ---
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _prosesLogout,
-                    icon: const Icon(Icons.logout, color: Colors.red),
-                    label: const Text('Keluar (Logout)', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      side: const BorderSide(color: Colors.red),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 40),
               ],
             ),
@@ -274,26 +381,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Color iconColor = const Color(0xFF006D5B),
     required VoidCallback onTap,
   }) {
-    return Card(
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-        side: BorderSide(color: Colors.grey.shade200),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20), // Sudut lebih membulat ala Material 3
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         leading: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: iconColor.withOpacity(0.1),
-            shape: BoxShape.circle,
+            shape: BoxShape.circle, // Ikon bulat
           ),
           child: Icon(icon, color: iconColor, size: 24),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-        subtitle: Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),
+        subtitle: Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         onTap: onTap,
       ),
     );

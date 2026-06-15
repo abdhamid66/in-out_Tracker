@@ -44,7 +44,17 @@ class KartuSaldo extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Total Saldo Saat Ini', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                          Text(formatRupiah(saldo), style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.55, // Batasi lebar teks biar ga nabrak dompet
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                formatRupiah(saldo), 
+                                style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 5),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -77,7 +87,12 @@ class KartuSaldo extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                                    Text(formatRupiah(totalPemasukan), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                                    Text(
+                                      formatRupiah(totalPemasukan), 
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ],
                                 ),
                               ],
@@ -94,7 +109,12 @@ class KartuSaldo extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                                    Text(formatRupiah(totalPengeluaran), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                                    Text(
+                                      formatRupiah(totalPengeluaran), 
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ],
                                 ),
                               ],

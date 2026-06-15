@@ -3,20 +3,17 @@ import '../models/transaksi.dart';
 import 'input_screen.dart'; 
 import 'hystory_screen.dart';
 import '../database/db_helper.dart'; 
-import 'package:fl_chart/fl_chart.dart';
 import 'dart:io';
 import 'package:excel/excel.dart' hide Border;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/kartu_saldo.dart';
 import '../widgets/grafik_card.dart';
-import '../services/auth_service.dart';
+import '../services/cloud_sync_service.dart';
 import '../widgets/tombol_menu_home.dart';
-import '../screens/profile_screen.dart';
+import '../screens/statistics_screen.dart';
 import '../screens/settings_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Tambahan untuk ambil foto profil
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -235,6 +232,10 @@ class _HomeScreenState extends State<HomeScreen> {
           onDismissed: (direction) async {
             await DBHelper().deleteTransaksi(trx.id);
             _refreshData(); // Refresh data beranda
+            
+            // Auto-sync ke Cloud (berjalan di background tanpa menghentikan layar)
+            CloudSyncService().backupKeCloud();
+
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Transaksi berhasil dihapus'), backgroundColor: Color(0xFF006D5B)),
@@ -273,12 +274,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 '${trx.kategori} • ${DateFormat('dd MMM yyyy').format(trx.tanggal)}',
                 style: const TextStyle(fontSize: 12),
               ),
-              trailing: Text(
-                trx.isPemasukan ? '+ Rp ${trx.nominal.toInt()}' : '- Rp ${trx.nominal.toInt()}',
-                style: TextStyle(
-                  color: trx.isPemasukan ? Colors.green : Colors.red,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+              trailing: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 120),
+                child: Text(
+                  trx.isPemasukan ? '+ Rp ${trx.nominal.toInt()}' : '- Rp ${trx.nominal.toInt()}',
+                  style: TextStyle(
+                    color: trx.isPemasukan ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
                 ),
               ),
             ),
@@ -382,11 +389,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // KITA MASUKKAN HALAMAN BERANDA KE DALAM DAFTAR HALAMAN DI SINI
     final List<Widget> daftarHalaman = [
       _buildBeranda(), // Index 0: Halaman Beranda Utama
-      const SettingsScreen(), // Index 1: Halaman Pengaturan
-      const ProfileScreen(), // Index 2: Halaman Login Profile
+      const StatisticsScreen(), // Index 1: Halaman Statistik
+      const SettingsScreen(), // Index 2: Halaman Pengaturan
     ];
 
     return Scaffold(
@@ -457,38 +463,22 @@ class _HomeScreenState extends State<HomeScreen> {
       // BODY AKAN OTOMATIS BERUBAH BERDASARKAN TOMBOL YANG DIPENCET
       body: daftarHalaman[_currentIndex], 
 
-      // NAVIGASI BAWAH YANG SUDAH DILENGKAPI 3 TOMBOL DAN CCTV FIREBASE
-      bottomNavigationBar: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(), // Memantau status login
-        builder: (context, snapshot) {
-          final user = snapshot.data; // Ambil data user saat ini
-
-          return BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            }, 
-            type: BottomNavigationBarType.fixed, 
-            selectedItemColor: const Color(0xFF006D5B), 
-            unselectedItemColor: Colors.grey,
-            items: [
-              const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-              const BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
-              BottomNavigationBarItem(
-                // Jika user ada DAN fotonya ada ? Tampilkan foto : Tampilkan Ikon
-                icon: user != null && user.photoURL != null
-                    ? CircleAvatar(
-                        radius: 12, // Ukuran disamakan dengan ikon biasa
-                        backgroundImage: NetworkImage(user.photoURL!),
-                      )
-                    : const Icon(Icons.login),
-                label: user != null ? 'Profil' : 'Login',
-              ), 
-            ],
-          );
-        }
+      // NAVIGASI BAWAH
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        }, 
+        type: BottomNavigationBarType.fixed, 
+        selectedItemColor: const Color(0xFF006D5B), 
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Statistik'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
+        ],
       ),
     );
   }

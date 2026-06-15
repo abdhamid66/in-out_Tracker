@@ -40,7 +40,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F6),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Profil Akun', style: TextStyle(fontWeight: FontWeight.w600)),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+      ),
       body: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -62,299 +68,164 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-  // Tampilan ketika user SUDAH login
+  // Tampilan ketika user SUDAH login (Material 3 Style)
   Widget _buildProfileView(User user) {
-    return Column(
-      children: [
-        // Header Melengkung Keren
-        Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF138D75), Color(0xFF005445)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Foto Profil
+          CircleAvatar(
+            radius: 60,
+            backgroundColor: primaryColor.withOpacity(0.1),
+            backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+            child: user.photoURL == null
+                ? Icon(Icons.person, size: 60, color: primaryColor)
+                : null,
+          ),
+          const SizedBox(height: 24),
+          
+          // Nama & Email
+          Text(
+            user.displayName ?? 'Pengguna',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(20),
             ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(40),
-              bottomRight: Radius.circular(40),
+            child: Text(
+              user.email ?? '',
+              style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
             ),
           ),
-          padding: const EdgeInsets.only(top: 80, bottom: 50),
-          child: Column(
-            children: [
-              // Foto Profil dengan Glowing Border
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: 55,
-                  backgroundColor: Colors.white,
-                  backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-                  child: user.photoURL == null
-                      ? Icon(Icons.person, size: 60, color: primaryColor)
-                      : null,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                user.displayName ?? 'Pengguna',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  user.email ?? '',
-                  style: const TextStyle(color: Colors.white, fontSize: 13),
-                ),
-              ),
-            ],
-          ),
-        ),
-        
-        const SizedBox(height: 40),
-        
-        // Info Card
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Container(
-            padding: const EdgeInsets.all(20),
+          
+          const SizedBox(height: 48),
+
+          // Status Akun
+          Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 15,
-                  spreadRadius: 5,
-                  offset: const Offset(0, 5),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade50,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: const Icon(Icons.verified_user_rounded, color: Colors.green, size: 28),
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Akun Terverifikasi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(height: 4),
-                      Text('Terhubung dengan Google', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    ],
-                  ),
-                ),
-              ],
+                child: const Icon(Icons.verified_user, color: Colors.green),
+              ),
+              title: const Text('Akun Terverifikasi', style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('Terhubung dengan Google'),
             ),
           ),
-        ),
 
-        const Spacer(),
+          const SizedBox(height: 32),
 
-        // Tombol Logout Elegan
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
-          child: Container(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.red.withOpacity(0.2),
-                  blurRadius: 15,
-                  spreadRadius: 2,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF4B4B),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 0,
-              ),
+          // Tombol Logout
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton.tonalIcon(
               onPressed: () async {
                 await AuthService().signOut();
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Berhasil keluar'), backgroundColor: Color(0xFF006D5B)),
+                  const SnackBar(content: Text('Berhasil keluar'), backgroundColor: Colors.black87),
                 );
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.power_settings_new_rounded, size: 22),
-                  SizedBox(width: 10),
-                  Text('Keluar Akun', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-                ],
+              icon: const Icon(Icons.logout, color: Colors.red),
+              label: const Text('Keluar Akun', style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold)),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.red.shade50,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  // Tampilan ketika user BELUM login
+  // Tampilan ketika user BELUM login (Material 3 Style)
   Widget _buildLoginView() {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF096C5B), Color(0xFF138D75)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(flex: 2),
-            
-            // Ikon gembok bercahaya
-            Container(
-              padding: const EdgeInsets.all(25),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.15),
-                boxShadow: [
-                  BoxShadow(color: Colors.white.withOpacity(0.05), blurRadius: 30, spreadRadius: 10),
-                ],
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Ikon ilustrasi
+          Container(
+            padding: const EdgeInsets.all(30),
+            decoration: BoxDecoration(
+              color: primaryColor.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.account_circle, size: 80, color: primaryColor),
+          ),
+          const SizedBox(height: 40),
+          
+          const Text(
+            'Profil Belum Terhubung',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Masuk dengan akun Google Anda untuk mengaktifkan fitur pencadangan awan (Cloud Sync) dan sinkronisasi antar perangkat.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15, color: Colors.grey.shade600, height: 1.5),
+          ),
+          const SizedBox(height: 48),
+          
+          // Tombol Google
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton.icon(
+              onPressed: () async {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Memproses Login...')),
+                );
+                final user = await AuthService().signInWithGoogle();
+                if (!mounted) return;
+                
+                if (user != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Selamat datang, ${user.displayName}!'), backgroundColor: primaryColor),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Login gagal atau dibatalkan.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: primaryColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Icon(Icons.security_rounded, size: 80, color: Colors.white),
-            ),
-            
-            const SizedBox(height: 30),
-            
-            const Text(
-              'Akses Eksklusif',
-              style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 1),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: const Text(
-                'Masuk dengan akun Google Anda untuk personalisasi aplikasi',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
-              ),
-            ),
-            
-            const Spacer(flex: 3),
-            
-            // Card Putih Melengkung di bawah
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(35),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
+              icon: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
                 ),
+                child: const Icon(Icons.g_mobiledata_rounded, color: Colors.blue, size: 24),
               ),
-              child: Column(
-                children: [
-                  const Text(
-                    'Mulai Perjalanan Anda',
-                    style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 25),
-                  
-                  // Tombol Google tanpa Overflow (pakai Expanded)
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      surfaceTintColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                      elevation: 3,
-                      shadowColor: Colors.black12,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        side: BorderSide(color: Colors.grey.shade200),
-                      ),
-                    ),
-                    onPressed: () async {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Memproses Login...')),
-                      );
-                      final user = await AuthService().signInWithGoogle();
-                      if (!mounted) return;
-                      
-                      if (user != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Selamat datang, ${user.displayName}!'), backgroundColor: primaryColor),
-                        );
-                      } else {
-                        // Tampilkan error kalau login gagal atau dibatalkan
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Login gagal! Pastikan koneksi internet lancar dan SHA-1 sudah terdaftar di Firebase.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Ikon G sederhana tapi elegan
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.g_mobiledata_rounded, color: Colors.blue, size: 30),
-                        ),
-                        const SizedBox(width: 15),
-                        const Expanded(
-                          child: Text(
-                            'Masuk dengan Google',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                ],
-              ),
+              label: const Text('Masuk dengan Google', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

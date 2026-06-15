@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 import 'onboarding_screen.dart'; 
+import 'lock_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,15 +24,24 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // Cek apakah ada catatan 'sudah_onboarding'? Kalau kosong, anggap false (belum)
     bool sudahOnboarding = prefs.getBool('sudah_onboarding') ?? false;
+    bool isBiometricEnabled = prefs.getBool('biometric_enabled') ?? false;
 
     // Timer 3 detik biar logonya kelihatan dulu
     Timer(const Duration(seconds: 3), () {
       if (sudahOnboarding) {
-        // Kalau SUDAH, lempar langsung ke Beranda
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+        if (isBiometricEnabled) {
+          // Ke LockScreen dulu untuk verifikasi
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LockScreen()),
+          );
+        } else {
+          // Kalau SUDAH onboarding dan ga ada biometrik, lempar langsung ke Beranda
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
       } else {
         // Kalau BELUM, lempar ke Onboarding Screen
         Navigator.pushReplacement(

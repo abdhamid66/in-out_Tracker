@@ -3,6 +3,7 @@ import '../models/transaksi.dart'; //memanggil model transaksi yang sudah dibuat
 import '../database/db_helper.dart'; // untuk menyimpan data transaksi baru ke database setelah di inputkan di halaman ini
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import '../services/cloud_sync_service.dart';
 
 class InputScreen extends StatefulWidget {
   final Transaksi? transaksiLama;
@@ -48,11 +49,19 @@ void _simpanData() async {
       return;
     }
 
+    double nominal = double.parse(_nominalController.text.replaceAll('.', ''));
+    if (nominal > 1000000000) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Maksimal nominal adalah Rp 1.000.000.000!')),
+      );
+      return;
+    }
+
     if (widget.transaksiLama == null) {
       final transaksiBaru = Transaksi(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         judul: _judulController.text,
-        nominal: double.parse(_nominalController.text.replaceAll('.', '')),
+        nominal: nominal,
         isPemasukan: _isPemasukan,
         tanggal: DateTime.now(),
         kategori: _kategori,
@@ -64,7 +73,7 @@ void _simpanData() async {
       final transaksiUpdate = Transaksi(
         id: widget.transaksiLama!.id,
         judul: _judulController.text,
-        nominal: double.parse(_nominalController.text.replaceAll('.', '')),
+        nominal: nominal,
         isPemasukan: _isPemasukan,
         tanggal: widget.transaksiLama!.tanggal,
         kategori: _kategori,
@@ -72,6 +81,9 @@ void _simpanData() async {
 
       await DBHelper().updateTransaksi(transaksiUpdate);
     }
+
+    // Auto-sync ke Cloud (berjalan di background tanpa menghentikan layar)
+    CloudSyncService().backupKeCloud();
 
     await Future.delayed(const Duration(milliseconds: 100));
 
@@ -253,6 +265,11 @@ class CurrencyFormat extends TextInputFormatter {
     String angkaMurni = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
     
     int value = int.parse(angkaMurni);
+
+    // Batasi input maksimal 1 Miliar
+    if (value > 1000000000) {
+      return oldValue;
+    }
 
     final formatter = NumberFormat('#,###', 'id_ID');
     String teksBaru = formatter.format(value);
