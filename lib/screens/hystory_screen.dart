@@ -136,44 +136,95 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       final formatter = NumberFormat('#,###', 'id_ID');
                       final nominalRupiah = formatter.format(item.nominal);
 
-                      return Card(
-                        elevation: 1,
-                        margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        child: ListTile(
-                          onTap: () async {
-                            final hasilEdit = await Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => InputScreen(transaksiLama: item)),
-                            );
-                            if (hasilEdit == true) {
-                              _refreshRiwayat();
-                            }
-                          },
-                          onLongPress: () => _konfirmasiHapus(item.id),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: item.isPemasukan ? Colors.green[50] : Colors.red[50],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Transaksi.getIconForKategori(item.kategori),
-                              color: item.isPemasukan ? Colors.green : Colors.red,
-                            ),
+                      return Dismissible(
+                        key: Key(item.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade400,
+                            borderRadius: BorderRadius.circular(15),
                           ),
-                          title: Text(item.judul, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          subtitle: Text(
-                            "${item.kategori} • ${item.tanggal.day} ${namaBulan[item.tanggal.month - 1]} ${item.tanggal.year}",
-                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                          ),
-                          trailing: Text(
-                            "${item.isPemasukan ? '+' : '-'} $nominalRupiah",
-                            style: TextStyle(
-                              color: item.isPemasukan ? Colors.green : Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
+                          child: const Icon(Icons.delete_outline, color: Colors.white, size: 30),
+                        ),
+                        confirmDismiss: (direction) async {
+                          // Tampilkan dialog konfirmasi hapus
+                          return await showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Hapus Transaksi?'),
+                              content: const Text('Data yang dihapus tidak bisa dikembalikan lho.'),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                  child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        onDismissed: (direction) async {
+                          await DBHelper().deleteTransaksi(item.id);
+                          _refreshRiwayat();
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Transaksi berhasil dihapus'), backgroundColor: Color(0xFF006D5B)),
+                          );
+                        },
+                        child: Card(
+                          elevation: 1,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          child: ListTile(
+                            onTap: () async {
+                              final hasilEdit = await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => InputScreen(transaksiLama: item)),
+                              );
+                              if (hasilEdit == true) {
+                                _refreshRiwayat();
+                              }
+                            },
+                            // Hapus onLongPress karena sudah diganti Swipe
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            leading: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: item.isPemasukan ? Colors.green[50] : Colors.red[50],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Transaksi.getIconForKategori(item.kategori),
+                                color: item.isPemasukan ? Colors.green : Colors.red,
+                              ),
+                            ),
+                            title: Text(item.judul, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            subtitle: Text(item.kategori, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${item.isPemasukan ? '+' : '-'} Rp $nominalRupiah',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: item.isPemasukan ? Colors.green : Colors.red,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  DateFormat('dd MMM yyyy').format(item.tanggal),
+                                  style: const TextStyle(color: Colors.grey, fontSize: 11),
+                                ),
+                              ],
                             ),
                           ),
                         ),

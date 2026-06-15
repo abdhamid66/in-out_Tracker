@@ -198,36 +198,88 @@ class _HomeScreenState extends State<HomeScreen> {
     // Kalau ada datanya, buatkan daftarnya
     return Column(
       children: limaTerbaru.map((trx) {
-        return Card(
-          elevation: 0,
-          margin: const EdgeInsets.only(bottom: 10),
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.grey.shade200),
+        return Dismissible(
+          key: Key(trx.id),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              color: Colors.red.shade400,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.delete_outline, color: Colors.white, size: 30),
           ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: trx.isPemasukan ? Colors.green.shade50 : Colors.red.shade50,
-              child: Icon(
-                Transaksi.getIconForKategori(trx.kategori),
-                color: trx.isPemasukan ? Colors.green : Colors.red,
+          confirmDismiss: (direction) async {
+            return await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Hapus Transaksi?'),
+                content: const Text('Data yang dihapus tidak bisa dikembalikan lho.'),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+                  ),
+                ],
               ),
+            );
+          },
+          onDismissed: (direction) async {
+            await DBHelper().deleteTransaksi(trx.id);
+            _refreshData(); // Refresh data beranda
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Transaksi berhasil dihapus'), backgroundColor: Color(0xFF006D5B)),
+            );
+          },
+          child: Card(
+            elevation: 0,
+            margin: const EdgeInsets.only(bottom: 10),
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: Colors.grey.shade200),
             ),
-            title: Text(
-              trx.judul, 
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            subtitle: Text(
-              '${trx.kategori} • ${DateFormat('dd MMM yyyy').format(trx.tanggal)}',
-              style: const TextStyle(fontSize: 12),
-            ),
-            trailing: Text(
-              trx.isPemasukan ? '+ Rp ${trx.nominal.toInt()}' : '- Rp ${trx.nominal.toInt()}',
-              style: TextStyle(
-                color: trx.isPemasukan ? Colors.green : Colors.red,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
+            child: ListTile(
+              onTap: () async {
+                final hasilEdit = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => InputScreen(transaksiLama: trx)),
+                );
+                if (hasilEdit == true) {
+                  _refreshData();
+                }
+              },
+              leading: CircleAvatar(
+                backgroundColor: trx.isPemasukan ? Colors.green.shade50 : Colors.red.shade50,
+                child: Icon(
+                  Transaksi.getIconForKategori(trx.kategori),
+                  color: trx.isPemasukan ? Colors.green : Colors.red,
+                ),
+              ),
+              title: Text(
+                trx.judul, 
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              subtitle: Text(
+                '${trx.kategori} • ${DateFormat('dd MMM yyyy').format(trx.tanggal)}',
+                style: const TextStyle(fontSize: 12),
+              ),
+              trailing: Text(
+                trx.isPemasukan ? '+ Rp ${trx.nominal.toInt()}' : '- Rp ${trx.nominal.toInt()}',
+                style: TextStyle(
+                  color: trx.isPemasukan ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
