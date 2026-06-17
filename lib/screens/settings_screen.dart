@@ -220,145 +220,169 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text('Pengaturan', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-      ),
       body: Stack(
         children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- BAGIAN PROFIL & AKUN ---
-                const Text(
-                  'Akun Pengguna',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-                const SizedBox(height: 15),
-                _buildSettingCard(
-                  icon: Icons.person_outline,
-                  title: 'Profil & Akun',
-                  subtitle: 'Kelola data Google dan status login',
-                  iconColor: const Color(0xFF006D5B),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
-                  },
-                ),
-                const SizedBox(height: 30),
-
-                // --- BAGIAN CLOUD SYNC ---
-                const Text(
-                  'Cadangan Cloud (Firebase)',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-                const SizedBox(height: 15),
-                _buildSettingCard(
-                  icon: Icons.cloud_upload_outlined,
-                  title: 'Backup ke Cloud',
-                  subtitle: 'Simpan data lokal ke internet',
-                  iconColor: Colors.blue,
-                  onTap: _prosesBackup,
-                ),
-                const SizedBox(height: 10),
-                _buildSettingCard(
-                  icon: Icons.cloud_download_outlined,
-                  title: 'Pulihkan dari Cloud',
-                  subtitle: 'Tarik data lama dari internet',
-                  iconColor: Colors.green,
-                  onTap: _prosesRestore,
-                ),
-                const SizedBox(height: 30),
-
-                // --- BAGIAN LOKAL ---
-                const Text(
-                  'Manajemen Data Lokal',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-                const SizedBox(height: 15),
-                _buildSettingCard(
-                  icon: Icons.insert_drive_file_outlined,
-                  title: 'Export Laporan (Excel)',
-                  subtitle: 'Download semua transaksi',
-                  iconColor: Colors.orange,
-                  onTap: _exportKeExcel,
-                ),
-                const SizedBox(height: 10),
-                _buildSettingCard(
-                  icon: Icons.delete_forever_outlined,
-                  title: 'Hapus Semua Transaksi',
-                  subtitle: 'Reset ulang data di HP ini',
-                  iconColor: Colors.red,
-                  onTap: _hapusSemuaData,
-                ),
-                const SizedBox(height: 30),
-
-                // --- BAGIAN KEAMANAN ---
-                const Text(
-                  'Keamanan Aplikasi',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-                const SizedBox(height: 15),
-                Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: SwitchListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    title: const Text('Kunci Layar (Biometrik/PIN)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),
-                    subtitle: Text('Gunakan sidik jari atau PIN saat membuka aplikasi', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                    secondary: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.purple.withOpacity(0.1),
-                        shape: BoxShape.circle,
+          CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 120.0,
+                floating: false,
+                pinned: true,
+                backgroundColor: Colors.white,
+                elevation: 0,
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: true,
+                  title: const Text('Pengaturan', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w800, fontSize: 20)),
+                  background: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFE0F2F1), Colors.white],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                      child: const Icon(Icons.fingerprint, color: Colors.purple, size: 24),
                     ),
-                    value: _isBiometricEnabled,
-                    activeColor: const Color(0xFF006D5B),
-                    onChanged: _toggleBiometric,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
                 ),
-                const SizedBox(height: 30),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // --- BAGIAN PROFIL & AKUN ---
+                      _buildSectionTitle('Akun Pengguna'),
+                      _buildSettingCard(
+                        icon: Icons.person_rounded,
+                        title: 'Profil & Akun',
+                        subtitle: 'Kelola data Google dan status login',
+                        iconColor: const Color(0xFF006D5B),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+                        },
+                        delay: 0,
+                      ),
+                      const SizedBox(height: 25),
 
-                // --- BAGIAN INFORMASI ---
-                const Text(
-                  'Informasi & Bantuan',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
-                const SizedBox(height: 15),
-                _buildSettingCard(
-                  icon: Icons.gavel_rounded,
-                  title: 'Syarat & Ketentuan',
-                  subtitle: 'Aturan penggunaan aplikasi',
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TosScreen(isFromSettings: true))),
-                ),
-                const SizedBox(height: 10),
-                _buildSettingCard(
-                  icon: Icons.privacy_tip_outlined,
-                  title: 'Kebijakan Privasi',
-                  subtitle: 'Bagaimana data Anda dilindungi',
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyScreen())),
-                ),
-                const SizedBox(height: 10),
-                _buildSettingCard(
-                  icon: Icons.info_outline,
-                  title: 'Tentang Aplikasi',
-                  subtitle: 'Versi dan Info Developer',
-                  onTap: _tampilkanDialogTentang,
-                ),
-                const SizedBox(height: 30),
+                      // --- BAGIAN CLOUD SYNC ---
+                      _buildSectionTitle('Cadangan Cloud (Firebase)'),
+                      _buildSettingCard(
+                        icon: Icons.cloud_upload_rounded,
+                        title: 'Backup ke Cloud',
+                        subtitle: 'Simpan data lokal ke internet',
+                        iconColor: Colors.blue.shade600,
+                        onTap: _prosesBackup,
+                        delay: 100,
+                      ),
+                      _buildSettingCard(
+                        icon: Icons.cloud_download_rounded,
+                        title: 'Pulihkan dari Cloud',
+                        subtitle: 'Tarik data lama dari internet',
+                        iconColor: Colors.green.shade600,
+                        onTap: _prosesRestore,
+                        delay: 200,
+                      ),
+                      const SizedBox(height: 25),
 
-                const SizedBox(height: 40),
-              ],
-            ),
+                      // --- BAGIAN LOKAL ---
+                      _buildSectionTitle('Manajemen Data Lokal'),
+                      _buildSettingCard(
+                        icon: Icons.insert_drive_file_rounded,
+                        title: 'Export Laporan (Excel)',
+                        subtitle: 'Download semua transaksi',
+                        iconColor: Colors.orange.shade600,
+                        onTap: _exportKeExcel,
+                        delay: 300,
+                      ),
+                      _buildSettingCard(
+                        icon: Icons.delete_sweep_rounded,
+                        title: 'Hapus Semua Transaksi',
+                        subtitle: 'Reset ulang data di HP ini',
+                        iconColor: Colors.red.shade600,
+                        onTap: _hapusSemuaData,
+                        delay: 400,
+                      ),
+                      const SizedBox(height: 25),
+
+                      // --- BAGIAN KEAMANAN ---
+                      _buildSectionTitle('Keamanan Aplikasi'),
+                      TweenAnimationBuilder(
+                        duration: const Duration(milliseconds: 600),
+                        tween: Tween<double>(begin: 0, end: 1),
+                        builder: (context, double value, child) {
+                          return Opacity(
+                            opacity: value,
+                            child: Transform.translate(
+                              offset: Offset(0, 20 * (1 - value)),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5)),
+                            ],
+                          ),
+                          child: SwitchListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            title: const Text('Kunci Layar (Biometrik/PIN)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Text('Gunakan sidik jari atau PIN saat membuka aplikasi', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                            ),
+                            secondary: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.purple.shade50,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Icon(Icons.fingerprint_rounded, color: Colors.purple, size: 26),
+                            ),
+                            value: _isBiometricEnabled,
+                            activeColor: const Color(0xFF006D5B),
+                            activeTrackColor: const Color(0xFF006D5B).withOpacity(0.3),
+                            onChanged: _toggleBiometric,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25),
+
+                      // --- BAGIAN INFORMASI ---
+                      _buildSectionTitle('Informasi & Bantuan'),
+                      _buildSettingCard(
+                        icon: Icons.gavel_rounded,
+                        title: 'Syarat & Ketentuan',
+                        subtitle: 'Aturan penggunaan aplikasi',
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TosScreen(isFromSettings: true))),
+                        delay: 500,
+                      ),
+                      _buildSettingCard(
+                        icon: Icons.privacy_tip_rounded,
+                        title: 'Kebijakan Privasi',
+                        subtitle: 'Bagaimana data Anda dilindungi',
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyScreen())),
+                        delay: 600,
+                      ),
+                      _buildSettingCard(
+                        icon: Icons.info_rounded,
+                        title: 'Tentang Aplikasi',
+                        subtitle: 'Versi dan Info Developer',
+                        onTap: _tampilkanDialogTentang,
+                        delay: 700,
+                      ),
+                      
+                      const SizedBox(height: 60),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           
           // --- LOADING OVERLAY ---
@@ -374,34 +398,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 12),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: Colors.black54,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSettingCard({
     required IconData icon,
     required String title,
     required String subtitle,
     Color iconColor = const Color(0xFF006D5B),
     required VoidCallback onTap,
+    int delay = 0,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20), // Sudut lebih membulat ala Material 3
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        leading: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
-            shape: BoxShape.circle, // Ikon bulat
+    return TweenAnimationBuilder(
+      duration: Duration(milliseconds: 500 + delay),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
           ),
-          child: Icon(icon, color: iconColor, size: 24),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 15, offset: const Offset(0, 5)),
+          ],
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),
-        subtitle: Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        onTap: onTap,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24),
+            onTap: onTap,
+            splashColor: iconColor.withOpacity(0.1),
+            highlightColor: iconColor.withOpacity(0.05),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: iconColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(icon, color: iconColor, size: 26),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+                        const SizedBox(height: 4),
+                        Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.black38),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

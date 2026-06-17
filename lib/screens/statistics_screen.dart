@@ -78,11 +78,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Statistik Cerdas', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-        backgroundColor: Colors.white,
+        title: const Text('Statistik Cerdas', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 22)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black87),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.white, Color(0xFFF8F9FA)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
       ),
       body: _isLoading 
         ? Center(child: CircularProgressIndicator(color: primaryColor))
@@ -92,13 +101,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildBody() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatSection('Pemasukan Bulan Ini', _pemasukanPerKategori, _totalPemasukan, Colors.green, 'pemasukan'),
-          const Divider(height: 40, thickness: 1.5, color: Colors.black12),
-          _buildStatSection('Pengeluaran Bulan Ini', _pengeluaranPerKategori, _totalPengeluaran, Colors.red, 'pengeluaran'),
+          _buildStatSection('Pemasukan Bulan Ini', _pemasukanPerKategori, _totalPemasukan, Colors.green.shade600, 'pemasukan'),
+          const SizedBox(height: 20),
+          const Divider(height: 40, thickness: 1, color: Colors.black12),
+          const SizedBox(height: 10),
+          _buildStatSection('Pengeluaran Bulan Ini', _pengeluaranPerKategori, _totalPengeluaran, Colors.red.shade500, 'pengeluaran'),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -106,81 +119,138 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildStatSection(String title, Map<String, double> data, double total, Color valueColor, String typeText) {
     if (data.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 30.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.pie_chart_outline_rounded, size: 60, color: Colors.grey.shade300),
-              const SizedBox(height: 10),
-              Text(
-                'Belum ada data $typeText bulan ini',
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        const SizedBox(height: 15),
-        
-        // Grafik Card
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(color: Colors.grey.shade200, blurRadius: 15, spreadRadius: 2),
-            ],
-          ),
-          child: SizedBox(
-            height: 220,
-            child: Stack(
-              alignment: Alignment.center,
+      return TweenAnimationBuilder(
+        duration: const Duration(milliseconds: 600),
+        tween: Tween<double>(begin: 0, end: 1),
+        builder: (context, double value, child) {
+          return Opacity(
+            opacity: value,
+            child: Transform.translate(
+              offset: Offset(0, 20 * (1 - value)),
+              child: child,
+            ),
+          );
+        },
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                PieChart(
-                  PieChartData(
-                    sectionsSpace: 3,
-                    centerSpaceRadius: 65,
-                    sections: _generateChartSections(data, total),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
                   ),
+                  child: Icon(Icons.pie_chart_outline_rounded, size: 60, color: Colors.grey.shade400),
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Total', style: TextStyle(color: Colors.grey, fontSize: 13)),
-                    Text(
-                      formatRupiah(total),
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: valueColor),
-                    ),
-                  ],
+                const SizedBox(height: 15),
+                Text(
+                  'Belum ada data $typeText bulan ini',
+                  style: const TextStyle(color: Colors.grey, fontSize: 15, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
           ),
         ),
-        
-        const SizedBox(height: 25),
-        
-        const Text(
-          'Rincian per Kategori',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        const SizedBox(height: 10),
-        
-        // List Kategori
-        ..._buildCategoryList(data, total, valueColor, typeText),
-      ],
+      );
+    }
+
+    return TweenAnimationBuilder(
+      duration: const Duration(milliseconds: 600),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 4,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: valueColor,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: Colors.black87),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // Grafik Card
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.grey.shade50],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: valueColor.withOpacity(0.08), 
+                  blurRadius: 20, 
+                  offset: const Offset(0, 10),
+                  spreadRadius: 2
+                ),
+              ],
+            ),
+            child: SizedBox(
+              height: 220,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PieChart(
+                    PieChartData(
+                      sectionsSpace: 4,
+                      centerSpaceRadius: 65,
+                      startDegreeOffset: 180,
+                      sections: _generateChartSections(data, total),
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Total', style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 4),
+                      Text(
+                        formatRupiah(total),
+                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: valueColor),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 30),
+          
+          const Text(
+            'Rincian per Kategori',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          const SizedBox(height: 15),
+          
+          // List Kategori
+          ..._buildCategoryList(data, total, valueColor, typeText),
+        ],
+      ),
     );
   }
 
@@ -196,8 +266,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           color: color,
           value: nominal,
           title: '${percentage.toStringAsFixed(1)}%',
-          radius: 50,
-          titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+          radius: 55,
+          titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, shadows: [Shadow(color: Colors.black26, blurRadius: 2)]),
+          badgeWidget: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+            ),
+            child: Icon(Icons.circle, size: 10, color: color),
+          ),
+          badgePositionPercentageOffset: 1.1,
         ),
       );
       i++;
@@ -213,23 +293,68 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       final double percentage = total > 0 ? (nominal / total) * 100 : 0;
       
       list.add(
-        Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: ListTile(
-            leading: Container(
-              width: 15,
-              height: 15,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        TweenAnimationBuilder(
+          duration: Duration(milliseconds: 400 + (i * 100)),
+          tween: Tween<double>(begin: 0, end: 1),
+          builder: (context, double value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(20 * (1 - value), 0),
+                child: child,
+              ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(color: Colors.grey.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4)),
+              ],
             ),
-            title: Text(kategori, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-            subtitle: Text('${percentage.toStringAsFixed(1)}% dari total $typeStr'),
-            trailing: Text(
-              formatRupiah(nominal),
-              style: TextStyle(fontWeight: FontWeight.bold, color: valueColor, fontSize: 14),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.category_rounded, color: color, size: 20),
+              ),
+              title: Text(kategori, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: percentage / 100,
+                          backgroundColor: Colors.grey.shade200,
+                          valueColor: AlwaysStoppedAnimation<Color>(color),
+                          minHeight: 6,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text('${percentage.toStringAsFixed(1)}%', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    formatRupiah(nominal),
+                    style: TextStyle(fontWeight: FontWeight.w800, color: valueColor, fontSize: 15),
+                  ),
+                ],
+              ),
             ),
           ),
         )
