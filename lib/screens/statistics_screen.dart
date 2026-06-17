@@ -19,6 +19,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   double _totalPemasukan = 0;
   bool _isLoading = true;
 
+  String bulanTerpilih = 'Bulan Ini';
+  final List<String> daftarBulan = [
+    'Bulan Ini', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  ];
+
   final List<Color> _chartColors = [
     const Color(0xFFFF6384),
     const Color(0xFF36A2EB),
@@ -37,7 +43,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Future<void> _loadData() async {
-    final data = await DBHelper().getTransaksiBulanIni();
+    setState(() {
+      _isLoading = true;
+    });
+
+    List<Transaksi> data = [];
+    if (bulanTerpilih == 'Bulan Ini') {
+      data = await DBHelper().getTransaksiBulanIni();
+    } else {
+      int angkaBulan = daftarBulan.indexOf(bulanTerpilih);
+      int tahunSekarang = DateTime.now().year;
+      data = await DBHelper().getTransaksiBulan(angkaBulan, tahunSekarang);
+    }
     
     // Hitung pengeluaran dan pemasukan per kategori
     Map<String, double> hitungKategoriPengeluaran = {};
@@ -106,11 +123,66 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatSection('Pemasukan Bulan Ini', _pemasukanPerKategori, _totalPemasukan, Colors.green.shade600, 'pemasukan'),
+          // Filter Bulan
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Periode Laporan',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              Container(
+                height: 36,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))
+                  ],
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: bulanTerpilih,
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Colors.grey),
+                    style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w700),
+                    onChanged: (String? nilaiBaru) {
+                      if (nilaiBaru != null && nilaiBaru != bulanTerpilih) {
+                        setState(() { bulanTerpilih = nilaiBaru; });
+                        _loadData();
+                      }
+                    },
+                    items: daftarBulan.map<DropdownMenuItem<String>>((String namaBulan) {
+                      return DropdownMenuItem<String>(
+                        value: namaBulan,
+                        child: Row(
+                          children: [
+                            if (namaBulan == 'Bulan Ini') const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
+                            if (namaBulan == 'Bulan Ini') const SizedBox(width: 6),
+                            Text(namaBulan),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 25),
+          
+          _buildStatSection(
+            bulanTerpilih == 'Bulan Ini' ? 'Pemasukan Bulan Ini' : 'Pemasukan $bulanTerpilih', 
+            _pemasukanPerKategori, _totalPemasukan, Colors.green.shade600, 'pemasukan'
+          ),
           const SizedBox(height: 20),
           const Divider(height: 40, thickness: 1, color: Colors.black12),
           const SizedBox(height: 10),
-          _buildStatSection('Pengeluaran Bulan Ini', _pengeluaranPerKategori, _totalPengeluaran, Colors.red.shade500, 'pengeluaran'),
+          _buildStatSection(
+            bulanTerpilih == 'Bulan Ini' ? 'Pengeluaran Bulan Ini' : 'Pengeluaran $bulanTerpilih', 
+            _pengeluaranPerKategori, _totalPengeluaran, Colors.red.shade500, 'pengeluaran'
+          ),
           const SizedBox(height: 40),
         ],
       ),
@@ -147,7 +219,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  'Belum ada data $typeText bulan ini',
+                  'Belum ada data $typeText ${bulanTerpilih == 'Bulan Ini' ? 'bulan ini' : bulanTerpilih.toLowerCase()}',
                   style: const TextStyle(color: Colors.grey, fontSize: 15, fontWeight: FontWeight.w500),
                 ),
               ],
