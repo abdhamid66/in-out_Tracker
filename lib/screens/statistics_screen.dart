@@ -26,14 +26,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   ];
 
   final List<Color> _chartColors = [
-    const Color(0xFFFF6384),
-    const Color(0xFF36A2EB),
-    const Color(0xFFFFCE56),
-    const Color(0xFF4BC0C0),
-    const Color(0xFF9966FF),
-    const Color(0xFFFF9F40),
-    Colors.teal,
-    Colors.pinkAccent,
+    const Color(0xFFE57373), // M3-friendly softer colors
+    const Color(0xFF64B5F6),
+    const Color(0xFFFFD54F),
+    const Color(0xFF81C784),
+    const Color(0xFFBA68C8),
+    const Color(0xFFFFB74D),
+    const Color(0xFF4DB6AC),
+    const Color(0xFFF06292),
   ];
 
   @override
@@ -56,7 +56,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       data = await DBHelper().getTransaksiBulan(angkaBulan, tahunSekarang);
     }
     
-    // Hitung pengeluaran dan pemasukan per kategori
     Map<String, double> hitungKategoriPengeluaran = {};
     Map<String, double> hitungKategoriPemasukan = {};
     double totalPengeluaran = 0;
@@ -72,7 +71,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       }
     }
     
-    // Urutkan dari terbesar ke terkecil
     var sortedPengeluaran = Map.fromEntries(
       hitungKategoriPengeluaran.entries.toList()..sort((e1, e2) => e2.value.compareTo(e1.value)),
     );
@@ -90,25 +88,63 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
+  void _tampilkanPilihBulan() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(width: 32, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Pilih Periode', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: primaryColor)),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: daftarBulan.length,
+                  itemBuilder: (context, index) {
+                    final bulan = daftarBulan[index];
+                    final isSelected = bulan == bulanTerpilih;
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                      title: Text(bulan, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? primaryColor : Colors.black87)),
+                      trailing: isSelected ? Icon(Icons.check_circle_rounded, color: primaryColor) : null,
+                      onTap: () {
+                        Navigator.pop(context);
+                        if (bulan != bulanTerpilih) {
+                          setState(() { bulanTerpilih = bulan; });
+                          _loadData();
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Statistik Cerdas', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 22)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('Statistik Cerdas', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 1, // Material 3 scroll effect
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black87),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.white, Color(0xFFF8F9FA)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-        ),
       ),
       body: _isLoading 
         ? Center(child: CircularProgressIndicator(color: primaryColor))
@@ -119,71 +155,52 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget _buildBody() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filter Bulan
+          // Filter Bulan Material 3
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Periode Laporan',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: Colors.black87),
               ),
-              Container(
-                height: 36,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))
+              ActionChip(
+                backgroundColor: primaryColor.withOpacity(0.08),
+                side: BorderSide.none,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.calendar_month_rounded, size: 16, color: primaryColor),
+                    const SizedBox(width: 8),
+                    Text(
+                      bulanTerpilih,
+                      style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_drop_down_rounded, size: 20, color: primaryColor),
                   ],
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: bulanTerpilih,
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Colors.grey),
-                    style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w700),
-                    onChanged: (String? nilaiBaru) {
-                      if (nilaiBaru != null && nilaiBaru != bulanTerpilih) {
-                        setState(() { bulanTerpilih = nilaiBaru; });
-                        _loadData();
-                      }
-                    },
-                    items: daftarBulan.map<DropdownMenuItem<String>>((String namaBulan) {
-                      return DropdownMenuItem<String>(
-                        value: namaBulan,
-                        child: Row(
-                          children: [
-                            if (namaBulan == 'Bulan Ini') const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
-                            if (namaBulan == 'Bulan Ini') const SizedBox(width: 6),
-                            Text(namaBulan),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
+                onPressed: _tampilkanPilihBulan,
               ),
             ],
           ),
-          const SizedBox(height: 25),
+          const SizedBox(height: 24),
           
           _buildStatSection(
             bulanTerpilih == 'Bulan Ini' ? 'Pemasukan Bulan Ini' : 'Pemasukan $bulanTerpilih', 
-            _pemasukanPerKategori, _totalPemasukan, Colors.green.shade600, 'pemasukan'
+            _pemasukanPerKategori, _totalPemasukan, const Color(0xFF388E3C), 'pemasukan'
           ),
-          const SizedBox(height: 20),
-          const Divider(height: 40, thickness: 1, color: Colors.black12),
-          const SizedBox(height: 10),
+          const SizedBox(height: 32),
           _buildStatSection(
             bulanTerpilih == 'Bulan Ini' ? 'Pengeluaran Bulan Ini' : 'Pengeluaran $bulanTerpilih', 
-            _pengeluaranPerKategori, _totalPengeluaran, Colors.red.shade500, 'pengeluaran'
+            _pengeluaranPerKategori, _totalPengeluaran, const Color(0xFFD32F2F), 'pengeluaran'
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 48),
         ],
       ),
     );
@@ -191,138 +208,102 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildStatSection(String title, Map<String, double> data, double total, Color valueColor, String typeText) {
     if (data.isEmpty) {
-      return TweenAnimationBuilder(
-        duration: const Duration(milliseconds: 600),
-        tween: Tween<double>(begin: 0, end: 1),
-        builder: (context, double value, child) {
-          return Opacity(
-            opacity: value,
-            child: Transform.translate(
-              offset: Offset(0, 20 * (1 - value)),
-              child: child,
-            ),
-          );
-        },
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.pie_chart_outline_rounded, size: 60, color: Colors.grey.shade400),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: Colors.black87)),
+          const SizedBox(height: 12),
+          Card(
+            elevation: 0,
+            color: Colors.grey.shade100,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 16),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.pie_chart_outline_rounded, size: 48, color: Colors.grey.shade400),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Belum ada data $typeText ${bulanTerpilih == 'Bulan Ini' ? 'bulan ini' : bulanTerpilih.toLowerCase()}',
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 15),
-                Text(
-                  'Belum ada data $typeText ${bulanTerpilih == 'Bulan Ini' ? 'bulan ini' : bulanTerpilih.toLowerCase()}',
-                  style: const TextStyle(color: Colors.grey, fontSize: 15, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: Colors.black87)),
+        const SizedBox(height: 12),
+        
+        // Grafik Material 3 (Ringkas dan Bersih)
+        Card(
+          elevation: 0,
+          color: valueColor.withOpacity(0.05),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: BorderSide(color: valueColor.withOpacity(0.1), width: 1),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+            child: Row(
+              children: [
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: PieChart(
+                    PieChartData(
+                      sectionsSpace: 2,
+                      centerSpaceRadius: 36, // Lebih kecil dan rapi
+                      startDegreeOffset: -90,
+                      sections: _generateChartSections(data, total),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Total', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 4),
+                      Text(
+                        formatRupiah(total),
+                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: valueColor),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ),
-      );
-    }
-
-    return TweenAnimationBuilder(
-      duration: const Duration(milliseconds: 600),
-      tween: Tween<double>(begin: 0, end: 1),
-      builder: (context, double value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 20 * (1 - value)),
-            child: child,
+        
+        const SizedBox(height: 16),
+        
+        // List Kategori - Satu Card menyatu (Material 3 List)
+        Card(
+          elevation: 0,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24), 
+            side: BorderSide(color: Colors.grey.shade200, width: 1)
           ),
-        );
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 4,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: valueColor,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: Colors.black87),
-              ),
-            ],
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: _buildCategoryList(data, total, valueColor, typeText),
           ),
-          const SizedBox(height: 20),
-          
-          // Grafik Card
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.white, Colors.grey.shade50],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: valueColor.withOpacity(0.08), 
-                  blurRadius: 20, 
-                  offset: const Offset(0, 10),
-                  spreadRadius: 2
-                ),
-              ],
-            ),
-            child: SizedBox(
-              height: 220,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  PieChart(
-                    PieChartData(
-                      sectionsSpace: 4,
-                      centerSpaceRadius: 65,
-                      startDegreeOffset: 180,
-                      sections: _generateChartSections(data, total),
-                    ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Total', style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w500)),
-                      const SizedBox(height: 4),
-                      Text(
-                        formatRupiah(total),
-                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: valueColor),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 30),
-          
-          const Text(
-            'Rincian per Kategori',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
-          const SizedBox(height: 15),
-          
-          // List Kategori
-          ..._buildCategoryList(data, total, valueColor, typeText),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -330,26 +311,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     List<PieChartSectionData> sections = [];
     int i = 0;
     data.forEach((kategori, nominal) {
-      final double percentage = total > 0 ? (nominal / total) * 100 : 0;
       final color = _chartColors[i % _chartColors.length];
       
       sections.add(
         PieChartSectionData(
           color: color,
           value: nominal,
-          title: '${percentage.toStringAsFixed(1)}%',
-          radius: 55,
-          titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white, shadows: [Shadow(color: Colors.black26, blurRadius: 2)]),
-          badgeWidget: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-            ),
-            child: Icon(Icons.circle, size: 10, color: color),
-          ),
-          badgePositionPercentageOffset: 1.1,
+          title: '', // Kosongkan agar terlihat bersih seperti Donut Chart
+          radius: 12, // Ketebalan donut chart yang elegan
         ),
       );
       i++;
@@ -360,79 +329,57 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   List<Widget> _buildCategoryList(Map<String, double> data, double total, Color valueColor, String typeStr) {
     List<Widget> list = [];
     int i = 0;
-    data.forEach((kategori, nominal) {
+    final entries = data.entries.toList();
+    
+    for (var entry in entries) {
+      final kategori = entry.key;
+      final nominal = entry.value;
       final color = _chartColors[i % _chartColors.length];
       final double percentage = total > 0 ? (nominal / total) * 100 : 0;
       
       list.add(
-        TweenAnimationBuilder(
-          duration: Duration(milliseconds: 400 + (i * 100)),
-          tween: Tween<double>(begin: 0, end: 1),
-          builder: (context, double value, child) {
-            return Opacity(
-              opacity: value,
-              child: Transform.translate(
-                offset: Offset(20 * (1 - value), 0),
-                child: child,
-              ),
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 15),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(color: Colors.grey.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4)),
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          leading: Container(
+            width: 14,
+            height: 14,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          title: Text(kategori, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87)),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: percentage / 100,
+                      backgroundColor: Colors.grey.shade100,
+                      valueColor: AlwaysStoppedAnimation<Color>(color),
+                      minHeight: 6,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text('${percentage.toStringAsFixed(1)}%', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w600)),
               ],
             ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.category_rounded, color: color, size: 20),
-              ),
-              title: Text(kategori, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: percentage / 100,
-                          backgroundColor: Colors.grey.shade200,
-                          valueColor: AlwaysStoppedAnimation<Color>(color),
-                          minHeight: 6,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text('${percentage.toStringAsFixed(1)}%', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    formatRupiah(nominal),
-                    style: TextStyle(fontWeight: FontWeight.w800, color: valueColor, fontSize: 15),
-                  ),
-                ],
-              ),
-            ),
+          ),
+          trailing: Text(
+            formatRupiah(nominal),
+            style: TextStyle(fontWeight: FontWeight.bold, color: valueColor, fontSize: 14),
           ),
         )
       );
+      
+      // Tambahkan divider tipis kecuali di item terakhir
+      if (i < entries.length - 1) {
+        list.add(Divider(height: 1, thickness: 1, indent: 50, endIndent: 20, color: Colors.grey.shade100));
+      }
       i++;
-    });
+    }
     return list;
   }
 }
+
