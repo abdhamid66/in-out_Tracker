@@ -138,24 +138,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: const Text('Statistik Cerdas', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 1, // Material 3 scroll effect
-        centerTitle: true,
-      ),
-      body: _isLoading 
-        ? Center(child: CircularProgressIndicator(color: primaryColor))
-        : _buildBody(),
-    );
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator(color: primaryColor));
+    }
+    return _buildBody();
   }
 
   Widget _buildBody() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -189,18 +181,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 15),
           
           _buildStatSection(
             bulanTerpilih == 'Bulan Ini' ? 'Pemasukan Bulan Ini' : 'Pemasukan $bulanTerpilih', 
             _pemasukanPerKategori, _totalPemasukan, const Color(0xFF388E3C), 'pemasukan'
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
           _buildStatSection(
             bulanTerpilih == 'Bulan Ini' ? 'Pengeluaran Bulan Ini' : 'Pengeluaran $bulanTerpilih', 
             _pengeluaranPerKategori, _totalPengeluaran, const Color(0xFFD32F2F), 'pengeluaran'
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 30),
         ],
       ),
     );
@@ -216,9 +208,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           Card(
             elevation: 0,
             color: Colors.grey.shade100,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -242,27 +234,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: Colors.black87)),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         
         // Grafik Material 3 (Ringkas dan Bersih)
         Card(
           elevation: 0,
           color: valueColor.withOpacity(0.05),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(12),
             side: BorderSide(color: valueColor.withOpacity(0.1), width: 1),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             child: Row(
               children: [
                 SizedBox(
-                  height: 100,
-                  width: 100,
+                  height: 80,
+                  width: 80,
                   child: PieChart(
                     PieChartData(
                       sectionsSpace: 2,
-                      centerSpaceRadius: 36, // Lebih kecil dan rapi
+                      centerSpaceRadius: 28, // Lebih kecil dan rapi
                       startDegreeOffset: -90,
                       sections: _generateChartSections(data, total),
                     ),
@@ -288,14 +280,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
         ),
         
-        const SizedBox(height: 16),
+        const SizedBox(height: 10),
         
         // List Kategori - Satu Card menyatu (Material 3 List)
         Card(
           elevation: 0,
           color: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24), 
+            borderRadius: BorderRadius.circular(12), 
             side: BorderSide(color: Colors.grey.shade200, width: 1)
           ),
           clipBehavior: Clip.antiAlias,
@@ -318,7 +310,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           color: color,
           value: nominal,
           title: '', // Kosongkan agar terlihat bersih seperti Donut Chart
-          radius: 12, // Ketebalan donut chart yang elegan
+          radius: 10, // Ketebalan donut chart yang elegan
         ),
       );
       i++;
@@ -339,7 +331,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       
       list.add(
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           leading: Container(
             width: 14,
             height: 14,
@@ -357,11 +350,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       value: percentage / 100,
                       backgroundColor: Colors.grey.shade100,
                       valueColor: AlwaysStoppedAnimation<Color>(color),
-                      minHeight: 6,
+                      minHeight: 5,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Text('${percentage.toStringAsFixed(1)}%', style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w600)),
               ],
             ),
@@ -375,7 +368,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       
       // Tambahkan divider tipis kecuali di item terakhir
       if (i < entries.length - 1) {
-        list.add(Divider(height: 1, thickness: 1, indent: 50, endIndent: 20, color: Colors.grey.shade100));
+        list.add(Divider(height: 1, thickness: 1, indent: 40, endIndent: 16, color: Colors.grey.shade100));
       }
       i++;
     }

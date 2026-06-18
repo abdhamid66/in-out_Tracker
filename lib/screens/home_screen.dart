@@ -399,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<Widget> daftarHalaman = [
       _buildBeranda(), // Index 0: Halaman Beranda Utama
       const StatisticsScreen(), // Index 1: Halaman Statistik
-      const SettingsScreen(), // Index 2: Halaman Pengaturan
+      SettingsScreen(onDataChanged: _refreshData), // Index 2: Halaman Pengaturan
     ];
 
     return Scaffold(
@@ -474,6 +474,9 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
+          if (index == 0 && _currentIndex != 0) {
+            _refreshData();
+          }
           setState(() {
             _currentIndex = index;
           });

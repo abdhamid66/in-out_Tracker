@@ -20,6 +20,18 @@ class GrafikCard extends StatefulWidget {
 class _GrafikCardState extends State<GrafikCard> {
   bool _isExpanded = true;
 
+  String _formatSingkat(double angka) {
+    if (angka >= 1000000000) {
+      double val = angka / 1000000000;
+      return 'Rp ${val.toStringAsFixed(val.truncateToDouble() == val ? 0 : 1).replaceAll('.', ',')} M';
+    } else if (angka >= 1000000) {
+      double val = angka / 1000000;
+      return 'Rp ${val.toStringAsFixed(val.truncateToDouble() == val ? 0 : 1).replaceAll('.', ',')} Jt';
+    } else {
+      return formatRupiah(angka);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double totalPemasukan = 0;
@@ -165,7 +177,7 @@ class _GrafikCardState extends State<GrafikCard> {
                                   const SizedBox(height: 5),
                                   Text('${pctPengeluaran.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
                                   const SizedBox(height: 2),
-                                  Text(formatRupiah(totalPengeluaran), style: const TextStyle(fontSize: 11, color: Color(0xFFEF5350))),
+                                  Text(_formatSingkat(totalPengeluaran), style: const TextStyle(fontSize: 11, color: Color(0xFFEF5350))),
                                 ],
                               ),
                             ),
@@ -215,7 +227,7 @@ class _GrafikCardState extends State<GrafikCard> {
                                   const SizedBox(height: 5),
                                   Text('${pctPemasukan.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
                                   const SizedBox(height: 2),
-                                  Text(formatRupiah(totalPemasukan), style: const TextStyle(fontSize: 11, color: Color(0xFF006D5B))),
+                                  Text(_formatSingkat(totalPemasukan), style: const TextStyle(fontSize: 11, color: Color(0xFF006D5B))),
                                 ],
                               ),
                             ),

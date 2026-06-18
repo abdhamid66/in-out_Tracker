@@ -204,28 +204,48 @@ void _simpanData() async {
               const SizedBox(height: 20),
               
               // KOLOM KATEGORI
-              DropdownButtonFormField<String>(
-                value: _kategori,
-                decoration: InputDecoration(
-                  labelText: 'Kategori',
-                  prefixIcon: Icon(Icons.category, color: const Color(0xFF006D5B)),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                ),
-                items: (_isPemasukan ? kategoriPemasukan : kategoriPengeluaran)
-                    .map((kategori) => DropdownMenuItem(
-                          value: kategori,
-                          child: Text(kategori),
-                        ))
-                    .toList(),
-                onChanged: (nilaiBaru) {
-                  setState(() {
-                    _kategori = nilaiBaru!;
-                  });
-                },
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return PopupMenuButton<String>(
+                    initialValue: _kategori,
+                    color: Colors.white,
+                    constraints: BoxConstraints(
+                      minWidth: constraints.maxWidth,
+                      maxWidth: constraints.maxWidth,
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    offset: const Offset(0, 60), // Muncul ke bawah
+                    onSelected: (nilaiBaru) {
+                      setState(() {
+                        _kategori = nilaiBaru;
+                      });
+                    },
+                    itemBuilder: (context) {
+                      return (_isPemasukan ? kategoriPemasukan : kategoriPengeluaran)
+                          .map((k) => PopupMenuItem<String>(
+                                value: k,
+                                child: Text(k),
+                              ))
+                          .toList();
+                    },
+                    child: AbsorbPointer(
+                      child: TextField(
+                        readOnly: true,
+                        controller: TextEditingController(text: _kategori),
+                        decoration: InputDecoration(
+                          labelText: 'Kategori',
+                          prefixIcon: const Icon(Icons.category, color: Color(0xFF006D5B)),
+                          suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                        ),
+                      ),
+                    ),
+                  );
+                }
               ),
               const SizedBox(height: 30),
               // tombol simpan dengan desain baru yang lebih lebar dab warna yang lebih menarik

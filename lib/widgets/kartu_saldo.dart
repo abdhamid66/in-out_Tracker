@@ -16,6 +16,18 @@ class KartuSaldo extends StatelessWidget {
     required this.waktuUpdate,
   });
 
+  String _formatSingkat(double angka) {
+    if (angka >= 1000000000) {
+      double val = angka / 1000000000;
+      return 'Rp ${val.toStringAsFixed(val.truncateToDouble() == val ? 0 : 1).replaceAll('.', ',')} M';
+    } else if (angka >= 1000000) {
+      double val = angka / 1000000;
+      return 'Rp ${val.toStringAsFixed(val.truncateToDouble() == val ? 0 : 1).replaceAll('.', ',')} Jt';
+    } else {
+      return formatRupiah(angka); // memanggil fungsi bawaan yang sudah ada
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -83,17 +95,19 @@ class KartuSaldo extends StatelessWidget {
                               children: [
                                 CircleAvatar(backgroundColor: Colors.white.withOpacity(0.2), radius: 14, child: const Icon(Icons.arrow_downward, color: Colors.greenAccent, size: 16)),
                                 const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                                    Text(
-                                      formatRupiah(totalPemasukan), 
-                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Pemasukan', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                      Text(
+                                        _formatSingkat(totalPemasukan), 
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -105,17 +119,19 @@ class KartuSaldo extends StatelessWidget {
                               children: [
                                 CircleAvatar(backgroundColor: Colors.white.withOpacity(0.2), radius: 14, child: const Icon(Icons.arrow_upward, color: Colors.redAccent, size: 16)),
                                 const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 10)),
-                                    Text(
-                                      formatRupiah(totalPengeluaran), 
-                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Pengeluaran', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                      Text(
+                                        _formatSingkat(totalPengeluaran), 
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
