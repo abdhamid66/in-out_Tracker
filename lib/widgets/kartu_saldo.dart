@@ -47,7 +47,18 @@ class KartuSaldo extends StatelessWidget {
                 clipBehavior: Clip.none, 
                 children: [
                   
-                  //KONTEN UTAMA 
+                  // GAMBAR DOMPET (DI BACKGROUND)
+                  Positioned(
+                    top: -70, 
+                    right: -25, 
+                    child: Image.asset(
+                      'assets/images/dompet3d.png',
+                      height: 265, 
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+
+                  //KONTEN UTAMA (DI DEPAN)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -139,17 +150,6 @@ class KartuSaldo extends StatelessWidget {
                         ],
                       ),
                     ],
-                  ),
-
-                  // GAMBAR DOMPET 
-                  Positioned(
-                    top: -70, 
-                    right: -25, 
-                    child: Image.asset(
-                      'assets/images/dompet3d.png',
-                      height: 265, 
-                      fit: BoxFit.contain,
-                    ),
                   ),
                   
                 ],

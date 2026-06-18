@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:out_tracker/database/db_helper.dart';
-import '../models/transaksi.dart'; // untuk mengimpor model transaksi yang sudah dibuat untuk menampilkan daftar transaksi yang sudah di inputkan di halaman ini
+import '../models/transaksi.dart';
 import '../screens/input_screen.dart';
 import '../services/cloud_sync_service.dart';
+import '../services/kategori_service.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -17,7 +18,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   DateTime _bulanDipilih = DateTime.now(); 
 
-  // Daftar nama bulan biar tampilannya bahasa Indonesia
   final List<String> namaBulan = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -30,20 +30,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _refreshRiwayat() async {
-    // 2. Minta data ke database sesuai bulan yang dipilih
     final data = await DBHelper().getTransaksiBulan(_bulanDipilih.month, _bulanDipilih.year);
     setState(() {
       riwayat = data;
     });
   }
 
-  // 3. Fungsi untuk menggeser bulan saat panah ditekan
   void _gantiBulan(int tambahBulan) {
     setState(() {
-      // Dart sangat pintar: jika bulan dikurangi 1 dari Januari, dia otomatis mundur ke Desember tahun lalu!
       _bulanDipilih = DateTime(_bulanDipilih.year, _bulanDipilih.month + tambahBulan, 1);
     });
-    _refreshRiwayat(); // Jangan lupa panggil data lagi setelah ganti bulan
+    _refreshRiwayat();
   }
 
   void _konfirmasiHapus(String id) {
@@ -85,35 +82,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       body: Column(
         children: [
-          // --- KOTAK PEMILIH BULAN (NAVIGASI PANAH) ---
           Container(
             color: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Tombol Panah Kiri (Mundur 1 Bulan)
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: const Color(0xFF006D5B), size: 20),
+                  icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF006D5B), size: 20),
                   onPressed: () => _gantiBulan(-1), 
                 ),
                 
-                // Teks Penunjuk Bulan dan Tahun
                 Text(
                   "${namaBulan[_bulanDipilih.month - 1]} ${_bulanDipilih.year}",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF006D5B)),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF006D5B)),
                 ),
                 
-                // Tombol Panah Kanan (Maju 1 Bulan)
                 IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios, color: const Color(0xFF006D5B), size: 20),
+                  icon: const Icon(Icons.arrow_forward_ios, color: Color(0xFF006D5B), size: 20),
                   onPressed: () => _gantiBulan(1), 
                 ),
               ],
             ),
           ),
           
-          // --- DAFTAR TRANSAKSI ---
           Expanded(
             child: riwayat.isEmpty
                 ? Center(
@@ -134,7 +126,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     itemBuilder: (context, index) {
                       final item = riwayat[index];
                       
-                      // Format rupiah
                       final formatter = NumberFormat('#,###', 'id_ID');
                       final nominalRupiah = formatter.format(item.nominal);
 
@@ -152,7 +143,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           child: const Icon(Icons.delete_outline, color: Colors.white, size: 30),
                         ),
                         confirmDismiss: (direction) async {
-                          // Tampilkan dialog konfirmasi hapus
                           return await showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -196,17 +186,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 _refreshRiwayat();
                               }
                             },
-                            // Hapus onLongPress karena sudah diganti Swipe
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            leading: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: item.isPemasukan ? Colors.green[50] : Colors.red[50],
-                                shape: BoxShape.circle,
-                              ),
+                            leading: CircleAvatar(
+                              backgroundColor: KategoriService.getColor(item.kategori, item.isPemasukan).withOpacity(0.1),
                               child: Icon(
-                                Transaksi.getIconForKategori(item.kategori),
-                                color: item.isPemasukan ? Colors.green : Colors.red,
+                                KategoriService.getIcon(item.kategori, item.isPemasukan),
+                                color: KategoriService.getColor(item.kategori, item.isPemasukan),
                               ),
                             ),
                             title: Text(item.judul, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),

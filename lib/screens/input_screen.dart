@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/transaksi.dart'; //memanggil model transaksi yang sudah dibuat untuk menyimpan data transaksi baru yang di inputkan di halaman ini
-import '../database/db_helper.dart'; // untuk menyimpan data transaksi baru ke database setelah di inputkan di halaman ini
+import '../models/transaksi.dart';
+import '../database/db_helper.dart';
+import '../services/kategori_service.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../services/cloud_sync_service.dart';
@@ -20,8 +21,8 @@ class _InputScreenState extends State<InputScreen> {
   bool _isPemasukan = true;
   String _kategori = 'Lainnya';
 
-  final List<String> kategoriPemasukan = ['Gaji', 'Bonus', 'Bisnis', 'Lainnya'];
-  final List<String> kategoriPengeluaran = ['Makanan', 'Transportasi', 'Hiburan', 'Belanja', 'Tagihan', 'Lainnya'];
+  List<String> kategoriPemasukan = [];
+  List<String> kategoriPengeluaran = [];
 
   @override
   void initState() {
@@ -35,6 +36,21 @@ class _InputScreenState extends State<InputScreen> {
       _isPemasukan = widget.transaksiLama!.isPemasukan;
       _kategori = widget.transaksiLama!.kategori;
     }
+
+    _loadKategori();
+  }
+
+  void _loadKategori() {
+    setState(() {
+      kategoriPemasukan = KategoriService.getSemuaPemasukan().map((e) => e.nama).toList();
+      kategoriPengeluaran = KategoriService.getSemuaPengeluaran().map((e) => e.nama).toList();
+      
+      // Jika kategori tidak ditemukan di list yang baru, set ke 'Lainnya' atau yang pertama
+      final currentList = _isPemasukan ? kategoriPemasukan : kategoriPengeluaran;
+      if (!currentList.contains(_kategori)) {
+        _kategori = currentList.isNotEmpty ? currentList.first : 'Lainnya';
+      }
+    });
   }
 
   // menbhkan asyncronos karena proses menyimpan ke brngks buth sedikit waktu
@@ -193,8 +209,7 @@ void _simpanData() async {
                       onChanged: (nilaiBaru) {
                         setState(() {
                           _isPemasukan = nilaiBaru;
-                          // Pastikan kategori direset ke 'Lainnya' jika pindah tipe agar tidak error (tidak ada di list baru)
-                          _kategori = 'Lainnya';
+                          _loadKategori(); // Refresh kategori
                         });
                       },
                     ),
@@ -222,11 +237,12 @@ void _simpanData() async {
                     },
                     itemBuilder: (context) {
                       return (_isPemasukan ? kategoriPemasukan : kategoriPengeluaran)
-                          .map((k) => PopupMenuItem<String>(
-                                value: k,
-                                child: Text(k),
-                              ))
-                          .toList();
+                          .map<PopupMenuEntry<String>>((String nilai) {
+                        return PopupMenuItem<String>(
+                          value: nilai,
+                          child: Text(nilai, style: const TextStyle(fontSize: 14)),
+                        );
+                      }).toList();
                     },
                     child: AbsorbPointer(
                       child: TextField(

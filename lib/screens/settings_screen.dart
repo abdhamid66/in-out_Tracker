@@ -5,6 +5,7 @@ import '../services/cloud_sync_service.dart';
 import 'tos_screen.dart';
 import 'privacy_screen.dart';
 import 'profile_screen.dart';
+import 'kategori_screen.dart';
 import 'package:excel/excel.dart' hide Border;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -239,8 +240,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- BAGIAN PROFIL & AKUN ---
-          _buildSectionTitle('Akun Pengguna'),
+          // --- BAGIAN PENGATURAN UMUM ---
+          _buildSectionTitle('Pengaturan Umum'),
           _buildSettingCard(
             icon: Icons.person_rounded,
             title: 'Profil & Akun',
@@ -248,6 +249,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             iconColor: const Color(0xFF006D5B),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+            },
+            delay: 0,
+          ),
+
+          _buildSettingCard(
+            icon: Icons.category_rounded,
+            title: 'Kelola Kategori',
+            subtitle: 'Tambah atau ubah ikon & warna kategori',
+            iconColor: const Color(0xFF006D5B),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const KategoriScreen())).then((_) {
+                widget.onDataChanged?.call();
+              });
             },
             delay: 0,
           ),

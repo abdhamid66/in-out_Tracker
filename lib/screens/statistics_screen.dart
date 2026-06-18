@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../database/db_helper.dart';
 import '../models/transaksi.dart';
+import '../services/kategori_service.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -256,7 +257,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       sectionsSpace: 2,
                       centerSpaceRadius: 28, // Lebih kecil dan rapi
                       startDegreeOffset: -90,
-                      sections: _generateChartSections(data, total),
+                      sections: _generateChartSections(data, total, typeText == 'pemasukan'),
                     ),
                   ),
                 ),
@@ -292,18 +293,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
-            children: _buildCategoryList(data, total, valueColor, typeText),
+            children: _buildCategoryList(data, total, valueColor, typeText, typeText == 'pemasukan'),
           ),
         ),
       ],
     );
   }
 
-  List<PieChartSectionData> _generateChartSections(Map<String, double> data, double total) {
+  List<PieChartSectionData> _generateChartSections(Map<String, double> data, double total, bool isPemasukan) {
     List<PieChartSectionData> sections = [];
-    int i = 0;
     data.forEach((kategori, nominal) {
-      final color = _chartColors[i % _chartColors.length];
+      final color = KategoriService.getColor(kategori, isPemasukan);
       
       sections.add(
         PieChartSectionData(
@@ -313,12 +313,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           radius: 10, // Ketebalan donut chart yang elegan
         ),
       );
-      i++;
     });
     return sections;
   }
 
-  List<Widget> _buildCategoryList(Map<String, double> data, double total, Color valueColor, String typeStr) {
+  List<Widget> _buildCategoryList(Map<String, double> data, double total, Color valueColor, String typeStr, bool isPemasukan) {
     List<Widget> list = [];
     int i = 0;
     final entries = data.entries.toList();
@@ -326,7 +325,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     for (var entry in entries) {
       final kategori = entry.key;
       final nominal = entry.value;
-      final color = _chartColors[i % _chartColors.length];
+      final color = KategoriService.getColor(kategori, isPemasukan);
       final double percentage = total > 0 ? (nominal / total) * 100 : 0;
       
       list.add(

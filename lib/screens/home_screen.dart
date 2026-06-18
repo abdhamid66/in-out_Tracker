@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import '../widgets/kartu_saldo.dart';
 import '../widgets/grafik_card.dart';
 import '../services/cloud_sync_service.dart';
+import '../services/kategori_service.dart';
 import '../widgets/tombol_menu_home.dart';
 import '../screens/statistics_screen.dart';
 import '../screens/settings_screen.dart';
@@ -260,10 +261,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               },
               leading: CircleAvatar(
-                backgroundColor: trx.isPemasukan ? Colors.green.shade50 : Colors.red.shade50,
+                backgroundColor: KategoriService.getColor(trx.kategori, trx.isPemasukan).withOpacity(0.15),
                 child: Icon(
-                  Transaksi.getIconForKategori(trx.kategori),
-                  color: trx.isPemasukan ? Colors.green : Colors.red,
+                  KategoriService.getIcon(trx.kategori, trx.isPemasukan),
+                  color: KategoriService.getColor(trx.kategori, trx.isPemasukan),
                 ),
               ),
               title: Text(
