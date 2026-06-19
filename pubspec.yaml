@@ -48,6 +48,7 @@ dependencies:
   google_sign_in: ^6.2.1
   google_fonts: ^8.1.0
   local_auth: ^3.0.1
+  table_calendar: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -105,7 +106,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-flutter_icons:
+flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/images/Logo_app.png" 

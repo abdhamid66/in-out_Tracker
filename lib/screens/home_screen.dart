@@ -15,6 +15,9 @@ import '../services/kategori_service.dart';
 import '../widgets/tombol_menu_home.dart';
 import '../screens/statistics_screen.dart';
 import '../screens/settings_screen.dart';
+import '../screens/calendar_screen.dart';
+import '../screens/tos_screen.dart';
+import '../screens/privacy_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -426,10 +429,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.download_rounded, color: Color(0xFF006D5B), size: 24),
-            tooltip: 'Ekspor ke Excel',
+            icon: const Icon(Icons.calendar_month, color: Color(0xFF006D5B), size: 24),
+            tooltip: 'Kalender Transaksi',
             onPressed: () {
-              _eksporKeExcel();
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarScreen()));
             },
           ),
           const SizedBox(width: 8),
@@ -454,13 +457,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             
             ListTile(
-              leading: const Icon(Icons.insert_drive_file, color: Color(0xFF006D5B)),
-              title: const Text('Ekspor Laporan'), subtitle: const Text('Simpan ke Excel (.xlsx)'),
-              onTap: () { Navigator.pop(context); _eksporKeExcel(); },
+              leading: const Icon(Icons.gavel_rounded, color: Color(0xFF006D5B)),
+              title: const Text('Syarat & Ketentuan'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const TosScreen(isFromSettings: true)));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.privacy_tip_rounded, color: Color(0xFF006D5B)),
+              title: const Text('Kebijakan Privasi'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyScreen()));
+              },
             ),
             const Divider(),
             ListTile(
-              leading: const Icon(Icons.info_outline, color: Color(0xFF006D5B)),
+              leading: const Icon(Icons.info_rounded, color: Color(0xFF006D5B)),
               title: const Text('Tentang Aplikasi'),
               onTap: () { Navigator.pop(context); _tampilkanDialogTentang(); },
             ),

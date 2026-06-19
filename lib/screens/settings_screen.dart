@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../database/db_helper.dart';
 import '../models/transaksi.dart';
 import '../services/cloud_sync_service.dart';
-import 'tos_screen.dart';
-import 'privacy_screen.dart';
 import 'profile_screen.dart';
 import 'kategori_screen.dart';
 import 'package:excel/excel.dart' hide Border;
@@ -115,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SizedBox(height: 20), Divider(), SizedBox(height: 10),
             Text('Dikembangkan oleh:', style: TextStyle(color: Colors.grey, fontSize: 11)),
             Text('Abd Hamid', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            Text('Mahasiswa Semester 4', style: TextStyle(color: Colors.grey, fontSize: 11)),
+            Text('Mahasiswa Universitas Islam Madura', style: TextStyle(color: Colors.grey, fontSize: 11)),
           ],
         ),
         actions: [
@@ -300,7 +298,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingCard(
             icon: Icons.delete_sweep_rounded,
             title: 'Hapus Semua Transaksi',
-            subtitle: 'Reset ulang data di HP ini',
+            subtitle: 'Reset ulang data Transaksi di HP ini',
             iconColor: Colors.red.shade600,
             onTap: _hapusSemuaData,
             delay: 400,
@@ -353,30 +351,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 20),
 
-          // --- BAGIAN INFORMASI ---
-          _buildSectionTitle('Informasi & Bantuan'),
-          _buildSettingCard(
-            icon: Icons.gavel_rounded,
-            title: 'Syarat & Ketentuan',
-            subtitle: 'Aturan penggunaan aplikasi',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TosScreen(isFromSettings: true))),
-            delay: 500,
-          ),
-          _buildSettingCard(
-            icon: Icons.privacy_tip_rounded,
-            title: 'Kebijakan Privasi',
-            subtitle: 'Bagaimana data Anda dilindungi',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyScreen())),
-            delay: 600,
-          ),
-          _buildSettingCard(
-            icon: Icons.info_rounded,
-            title: 'Tentang Aplikasi',
-            subtitle: 'Versi dan Info Developer',
-            onTap: _tampilkanDialogTentang,
-            delay: 700,
-          ),
-          
           const SizedBox(height: 40),
         ],
       ),

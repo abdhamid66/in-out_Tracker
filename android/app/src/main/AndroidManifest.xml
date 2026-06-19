@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
     <application
-        android:label="out_tracker"
+        android:label="In-Out Tracker"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
