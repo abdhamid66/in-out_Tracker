@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 20), Divider(), SizedBox(height: 10),
             Text('Dikembangkan oleh:', style: TextStyle(color: Colors.grey, fontSize: 11)),
             Text('Abd Hamid', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            Text('Mahasiswa Semester 4', style: TextStyle(color: Colors.grey, fontSize: 11)),
+            Text('Mahasiswa Universitas Islam Madura', style: TextStyle(color: Colors.grey, fontSize: 11)),
           ],
         ),
         actions: [
