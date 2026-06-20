@@ -58,78 +58,103 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: Column(
         children: [
-          Card(
-            margin: const EdgeInsets.all(12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TableCalendar<Transaksi>(
-                firstDay: DateTime.utc(2020, 1, 1),
-                lastDay: DateTime.utc(2030, 12, 31),
-                focusedDay: _focusedDay,
-                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                    _selectedTransactions = _getTransactionsForDay(selectedDay);
-                  });
-                },
-                eventLoader: _getTransactionsForDay,
-                rowHeight: 60,
-                calendarBuilders: CalendarBuilders(
-                  markerBuilder: (context, day, events) {
-                    if (events.isEmpty) return const SizedBox();
-                    
-                    double pemasukan = 0;
-                    double pengeluaran = 0;
-                    for (var event in events) {
-                      final trx = event as Transaksi;
-                      if (trx.isPemasukan) {
-                        pemasukan += trx.nominal;
-                      } else {
-                        pengeluaran += trx.nominal;
-                      }
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: TableCalendar<Transaksi>(
+              firstDay: DateTime.utc(2020, 1, 1),
+              lastDay: DateTime.utc(2030, 12, 31),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                  _selectedTransactions = _getTransactionsForDay(selectedDay);
+                });
+              },
+              eventLoader: _getTransactionsForDay,
+              rowHeight: 52,
+              daysOfWeekHeight: 40,
+              availableGestures: AvailableGestures.horizontalSwipe,
+              calendarBuilders: CalendarBuilders(
+                markerBuilder: (context, day, events) {
+                  if (events.isEmpty) return const SizedBox();
+                  
+                  bool hasPemasukan = false;
+                  bool hasPengeluaran = false;
+                  for (var event in events) {
+                    final trx = event as Transaksi;
+                    if (trx.isPemasukan) {
+                      hasPemasukan = true;
+                    } else {
+                      hasPengeluaran = true;
                     }
+                  }
 
-                    return Positioned(
-                      bottom: 2,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (pemasukan > 0)
-                            Text(
-                              '+${NumberFormat.compact().format(pemasukan)}',
-                              style: const TextStyle(color: Colors.green, fontSize: 8, fontWeight: FontWeight.bold),
+                  return Positioned(
+                    bottom: 4,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (hasPemasukan)
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
                             ),
-                          if (pemasukan > 0 && pengeluaran > 0)
-                            const SizedBox(width: 2),
-                          if (pengeluaran > 0)
-                            Text(
-                              '-${NumberFormat.compact().format(pengeluaran)}',
-                              style: const TextStyle(color: Colors.red, fontSize: 8, fontWeight: FontWeight.bold),
+                          ),
+                        if (hasPengeluaran)
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
                             ),
-                        ],
-                      ),
-                    );
-                  },
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              calendarStyle: CalendarStyle(
+                todayDecoration: const BoxDecoration(
+                  color: Color(0xFF006D5B),
+                  shape: BoxShape.circle,
                 ),
-                calendarStyle: CalendarStyle(
-                  todayDecoration: BoxDecoration(
-                    color: const Color(0xFF006D5B).withOpacity(0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  selectedDecoration: const BoxDecoration(
-                    color: Color(0xFF006D5B),
-                    shape: BoxShape.circle,
-                  ),
+                todayTextStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
-                headerStyle: const HeaderStyle(
-                  formatButtonVisible: false,
-                  titleCentered: true,
-                  titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                selectedDecoration: BoxDecoration(
+                  color: const Color(0xFF006D5B).withOpacity(0.15),
+                  shape: BoxShape.circle,
                 ),
+                selectedTextStyle: const TextStyle(
+                  color: Color(0xFF006D5B),
+                  fontWeight: FontWeight.bold,
+                ),
+                outsideDaysVisible: true,
+                defaultTextStyle: const TextStyle(color: Colors.black87),
+                weekendTextStyle: const TextStyle(color: Colors.black87),
+                cellMargin: const EdgeInsets.all(6),
+              ),
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: false,
+                leftChevronIcon: Icon(Icons.chevron_left, color: Colors.black54),
+                rightChevronIcon: Icon(Icons.chevron_right, color: Colors.black54),
+                titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black87),
+                headerPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              daysOfWeekStyle: const DaysOfWeekStyle(
+                weekdayStyle: TextStyle(color: Colors.black54, fontSize: 13, fontWeight: FontWeight.w500),
+                weekendStyle: TextStyle(color: Colors.black54, fontSize: 13, fontWeight: FontWeight.w500),
               ),
             ),
           ),
@@ -140,7 +165,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               alignment: Alignment.centerLeft,
               child: Text(
                 _selectedDay != null ? 'Transaksi pada ${DateFormat('dd MMM yyyy').format(_selectedDay!)}' : 'Transaksi',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54),
               ),
             ),
           ),
