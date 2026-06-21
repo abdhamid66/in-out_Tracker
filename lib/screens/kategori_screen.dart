@@ -14,26 +14,6 @@ class _KategoriScreenState extends State<KategoriScreen> with SingleTickerProvid
   List<KategoriItem> pemasukanList = [];
   List<KategoriItem> pengeluaranList = [];
 
-  final List<IconData> availableIcons = [
-    Icons.account_balance_wallet_rounded,
-    Icons.card_giftcard_rounded,
-    Icons.storefront_rounded,
-    Icons.fastfood_rounded,
-    Icons.directions_car_rounded,
-    Icons.movie_creation_rounded,
-    Icons.shopping_bag_rounded,
-    Icons.receipt_long_rounded,
-    Icons.category_rounded,
-    Icons.pets_rounded,
-    Icons.flight_takeoff_rounded,
-    Icons.favorite_rounded,
-    Icons.local_hospital_rounded,
-    Icons.school_rounded,
-    Icons.sports_esports_rounded,
-    Icons.home_rounded,
-    Icons.laptop_chromebook_rounded,
-    Icons.fitness_center_rounded,
-  ];
 
   final List<Color> availableColors = [
     Colors.red,
@@ -74,8 +54,8 @@ class _KategoriScreenState extends State<KategoriScreen> with SingleTickerProvid
   void _showCategoryDialog({KategoriItem? existingItem, required bool isPemasukan}) {
     final TextEditingController nameController = TextEditingController(text: existingItem?.nama ?? '');
     IconData selectedIcon = existingItem != null 
-        ? IconData(existingItem.iconCode, fontFamily: 'MaterialIcons') 
-        : availableIcons[0];
+        ? KategoriService.availableIcons.firstWhere((icon) => icon.codePoint == existingItem.iconCode, orElse: () => Icons.category_rounded)
+        : KategoriService.availableIcons[0];
     Color selectedColor = existingItem != null 
         ? Color(existingItem.colorValue) 
         : availableColors[0];
@@ -122,15 +102,15 @@ class _KategoriScreenState extends State<KategoriScreen> with SingleTickerProvid
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                       ),
-                      itemCount: availableIcons.length,
+                      itemCount: KategoriService.availableIcons.length,
                       itemBuilder: (context, index) {
-                        final icon = availableIcons[index];
+                        final icon = KategoriService.availableIcons[index];
                         final isSelected = icon == selectedIcon;
                         return GestureDetector(
                           onTap: () => setModalState(() => selectedIcon = icon),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: isSelected ? const Color(0xFF006D5B).withOpacity(0.2) : Colors.transparent,
+                              color: isSelected ? const Color(0xFF006D5B).withValues(alpha: 0.2) : Colors.transparent,
                               shape: BoxShape.circle,
                               border: isSelected ? Border.all(color: const Color(0xFF006D5B), width: 2) : null,
                             ),
@@ -265,9 +245,9 @@ class _KategoriScreenState extends State<KategoriScreen> with SingleTickerProvid
           ),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: Color(item.colorValue).withOpacity(0.1),
+              backgroundColor: Color(item.colorValue).withValues(alpha: 0.1),
               child: Icon(
-                IconData(item.iconCode, fontFamily: 'MaterialIcons'),
+                KategoriService.availableIcons.firstWhere((icon) => icon.codePoint == item.iconCode, orElse: () => Icons.category_rounded),
                 color: Color(item.colorValue),
               ),
             ),

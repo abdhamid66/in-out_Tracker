@@ -132,7 +132,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   fontWeight: FontWeight.bold,
                 ),
                 selectedDecoration: BoxDecoration(
-                  color: const Color(0xFF006D5B).withOpacity(0.15),
+                  color: const Color(0xFF006D5B).withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 selectedTextStyle: const TextStyle(
@@ -197,7 +197,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: KategoriService.getColor(trx.kategori, trx.isPemasukan).withOpacity(0.15),
+                            backgroundColor: KategoriService.getColor(trx.kategori, trx.isPemasukan).withValues(alpha: 0.15),
                             child: Icon(
                               KategoriService.getIcon(trx.kategori, trx.isPemasukan),
                               color: KategoriService.getColor(trx.kategori, trx.isPemasukan),

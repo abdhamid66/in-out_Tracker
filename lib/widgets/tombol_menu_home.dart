@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/input_screen.dart';
-import '../screens/hystory_screen.dart';
+import '../screens/history_screen.dart';
 
 class TombolMenuHome extends StatelessWidget {
   final VoidCallback onRefresh; // Kabel pemicu refresh data database
@@ -24,7 +24,7 @@ class TombolMenuHome extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF138D75),
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [BoxShadow(color: const Color(0xFF138D75).withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4))],
+                boxShadow: [BoxShadow(color: const Color(0xFF138D75).withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +33,7 @@ class TombolMenuHome extends StatelessWidget {
                   const SizedBox(height: 8),
                   const Text('Catat Transaksi', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                   const SizedBox(height: 2),
-                  Text('Tambah data baru', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 9)),
+                  Text('Tambah data baru', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 9)),
                 ],
               ),
             ),
@@ -54,7 +54,7 @@ class TombolMenuHome extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: Colors.grey.shade200),
-                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

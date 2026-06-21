@@ -40,7 +40,7 @@ class KartuSaldo extends StatelessWidget {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: const Color(0xFF045C4A).withOpacity(0.3), spreadRadius: 2, blurRadius: 10, offset: const Offset(0, 5))],
+                boxShadow: [BoxShadow(color: const Color(0xFF045C4A).withValues(alpha: 0.3), spreadRadius: 2, blurRadius: 10, offset: const Offset(0, 5))],
               ),
               //STACK DIMULAI DI SINI 
               child: Stack(
@@ -81,7 +81,7 @@ class KartuSaldo extends StatelessWidget {
                           const SizedBox(height: 5),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
+                            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -104,7 +104,7 @@ class KartuSaldo extends StatelessWidget {
                           Expanded(
                             child: Row(
                               children: [
-                                CircleAvatar(backgroundColor: Colors.white.withOpacity(0.2), radius: 14, child: const Icon(Icons.arrow_downward, color: Colors.greenAccent, size: 16)),
+                                CircleAvatar(backgroundColor: Colors.white.withValues(alpha: 0.2), radius: 14, child: const Icon(Icons.arrow_downward, color: Colors.greenAccent, size: 16)),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Column(
@@ -123,12 +123,12 @@ class KartuSaldo extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Container(height: 25, width: 1, color: Colors.white.withOpacity(0.3)),
+                          Container(height: 25, width: 1, color: Colors.white.withValues(alpha: 0.3)),
                           const SizedBox(width: 15),
                           Expanded(
                             child: Row(
                               children: [
-                                CircleAvatar(backgroundColor: Colors.white.withOpacity(0.2), radius: 14, child: const Icon(Icons.arrow_upward, color: Colors.redAccent, size: 16)),
+                                CircleAvatar(backgroundColor: Colors.white.withValues(alpha: 0.2), radius: 14, child: const Icon(Icons.arrow_upward, color: Colors.redAccent, size: 16)),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Column(

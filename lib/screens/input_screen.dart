@@ -159,7 +159,7 @@ void _simpanData() async {
             borderRadius: BorderRadius.circular(20),// form bersudut bulatt
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF006D5B).withOpacity(0.1),
+                color: const Color(0xFF006D5B).withValues(alpha: 0.1),
                 spreadRadius: 2,
                 blurRadius: 8,
                 offset: const Offset(0, 4),

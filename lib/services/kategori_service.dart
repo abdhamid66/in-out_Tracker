@@ -6,6 +6,28 @@ import '../models/kategori.dart';
 class KategoriService {
   static const String _key = 'kategori_kustom_data';
 
+  // Daftar icon yang didukung (harus direferensikan secara statis agar tidak di-tree-shake)
+  static const List<IconData> availableIcons = [
+    Icons.account_balance_wallet_rounded,
+    Icons.card_giftcard_rounded,
+    Icons.storefront_rounded,
+    Icons.fastfood_rounded,
+    Icons.directions_car_rounded,
+    Icons.movie_creation_rounded,
+    Icons.shopping_bag_rounded,
+    Icons.receipt_long_rounded,
+    Icons.category_rounded,
+    Icons.pets_rounded,
+    Icons.flight_takeoff_rounded,
+    Icons.favorite_rounded,
+    Icons.local_hospital_rounded,
+    Icons.school_rounded,
+    Icons.sports_esports_rounded,
+    Icons.home_rounded,
+    Icons.laptop_chromebook_rounded,
+    Icons.fitness_center_rounded,
+  ];
+
   // Menyimpan daftar kategori di memori saat aplikasi jalan
   static List<KategoriItem> _kategoriCache = [];
 
@@ -74,7 +96,10 @@ class KategoriService {
       final item = _kategoriCache.firstWhere(
         (k) => k.nama == nama && k.isPemasukan == isPemasukan
       );
-      return IconData(item.iconCode, fontFamily: 'MaterialIcons');
+      return availableIcons.firstWhere(
+        (icon) => icon.codePoint == item.iconCode,
+        orElse: () => Icons.category_rounded,
+      );
     } catch (e) {
       // Fallback icon
       return Icons.category_rounded;

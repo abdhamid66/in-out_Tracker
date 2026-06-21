@@ -78,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           // Foto Profil
           CircleAvatar(
             radius: 60,
-            backgroundColor: primaryColor.withOpacity(0.1),
+            backgroundColor: primaryColor.withValues(alpha: 0.1),
             backgroundImage: user.photoURL != null ? NetworkImage(user.photoURL!) : null,
             child: user.photoURL == null
                 ? Icon(Icons.person, size: 60, color: primaryColor)
@@ -165,7 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           Container(
             padding: const EdgeInsets.all(30),
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.05),
+              color: primaryColor.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.account_circle, size: 80, color: primaryColor),

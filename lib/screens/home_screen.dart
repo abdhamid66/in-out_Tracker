@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/transaksi.dart';
 import 'input_screen.dart'; 
-import 'hystory_screen.dart';
+import 'history_screen.dart';
 import '../database/db_helper.dart'; 
 import 'dart:io';
 import 'package:intl/intl.dart';
@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               },
               leading: CircleAvatar(
-                backgroundColor: KategoriService.getColor(trx.kategori, trx.isPemasukan).withOpacity(0.15),
+                backgroundColor: KategoriService.getColor(trx.kategori, trx.isPemasukan).withValues(alpha: 0.15),
                 child: Icon(
                   KategoriService.getIcon(trx.kategori, trx.isPemasukan),
                   color: KategoriService.getColor(trx.kategori, trx.isPemasukan),

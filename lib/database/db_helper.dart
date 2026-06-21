@@ -98,6 +98,23 @@ class DBHelper {
     });
   }
 
+  // Fungsi untuk mencari transaksi berdasarkan kata kunci (judul atau kategori)
+  Future<List<Transaksi>> cariTransaksi(String keyword) async {
+    Database db = await database;
+    String searchPattern = '%$keyword%';
+
+    final List<Map<String, dynamic>> dataDariDb = await db.query(
+      'transaksi',
+      where: 'judul LIKE ? OR kategori LIKE ?',
+      whereArgs: [searchPattern, searchPattern],
+      orderBy: 'tanggal DESC, id DESC',
+    );
+
+    return List.generate(dataDariDb.length, (index) {
+      return Transaksi.fromMap(dataDariDb[index]);
+    });
+  }
+
   Future<int> deleteTransaksi(String id) async {
     Database db = await database;
     return await db.delete(

@@ -120,7 +120,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               Container(
                 height: 32,
                 decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.08), 
+                  color: primaryColor.withValues(alpha: 0.08), 
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Row(
@@ -211,10 +211,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         // Grafik Material 3 (Ringkas dan Bersih)
         Card(
           elevation: 0,
-          color: valueColor.withOpacity(0.05),
+          color: valueColor.withValues(alpha: 0.05),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: valueColor.withOpacity(0.1), width: 1),
+            side: BorderSide(color: valueColor.withValues(alpha: 0.1), width: 1),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),

@@ -69,7 +69,7 @@ class _LockScreenState extends State<LockScreen> {
                 padding: const EdgeInsets.all(25),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF006D5B).withOpacity(0.1),
+                  color: const Color(0xFF006D5B).withValues(alpha: 0.1),
                 ),
                 child: const Icon(Icons.lock_outline_rounded, size: 80, color: Color(0xFF006D5B)),
               ),

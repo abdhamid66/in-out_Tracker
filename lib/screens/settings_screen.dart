@@ -256,7 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 value: _isBiometricEnabled,
                 activeColor: const Color(0xFF006D5B),
-                activeTrackColor: const Color(0xFF006D5B).withOpacity(0.3),
+                activeTrackColor: const Color(0xFF006D5B).withValues(alpha: 0.3),
                 onChanged: _toggleBiometric,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -318,8 +318,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: onTap,
-            splashColor: iconColor.withOpacity(0.1),
-            highlightColor: iconColor.withOpacity(0.05),
+            splashColor: iconColor.withValues(alpha: 0.1),
+            highlightColor: iconColor.withValues(alpha: 0.05),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Row(
@@ -327,7 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: iconColor.withOpacity(0.1),
+                      color: iconColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(icon, color: iconColor, size: 26),

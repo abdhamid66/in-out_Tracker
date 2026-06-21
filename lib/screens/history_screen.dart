@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:out_tracker/database/db_helper.dart';
+import '../database/db_helper.dart';
 import '../models/transaksi.dart';
 import '../screens/input_screen.dart';
 import '../services/cloud_sync_service.dart';
 import '../services/kategori_service.dart';
+import '../utils/formatters.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -15,8 +15,9 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   List<Transaksi> riwayat = [];
-
   DateTime _bulanDipilih = DateTime.now(); 
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
 
   final List<String> namaBulan = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
@@ -30,7 +31,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _refreshRiwayat() async {
-    final data = await DBHelper().getTransaksiBulan(_bulanDipilih.month, _bulanDipilih.year);
+    final keyword = _searchController.text.trim();
+    List<Transaksi> data;
+    if (keyword.isNotEmpty) {
+      data = await DBHelper().cariTransaksi(keyword);
+    } else {
+      data = await DBHelper().getTransaksiBulan(_bulanDipilih.month, _bulanDipilih.year);
+    }
+    if (!mounted) return;
     setState(() {
       riwayat = data;
     });
@@ -75,13 +83,42 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Riwayat Transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Cari transaksi...',
+                  hintStyle: TextStyle(color: Colors.white70),
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) => _refreshRiwayat(),
+              )
+            : const Text('Riwayat Transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF006D5B),
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(_isSearching ? Icons.close : Icons.search),
+            onPressed: () {
+              setState(() {
+                if (_isSearching) {
+                  _isSearching = false;
+                  _searchController.clear();
+                  _refreshRiwayat();
+                } else {
+                  _isSearching = true;
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
+          if (!_isSearching)
           Container(
             color: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -116,7 +153,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         const SizedBox(height: 15),
                         const Text('Belum ada riwayat', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 18)),
                         const SizedBox(height: 5),
-                        Text('Tidak ada transaksi di bulan ${namaBulan[_bulanDipilih.month - 1]}', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                        Text(
+                          _isSearching ? 'Tidak ada transaksi yang cocok dengan pencarian' : 'Tidak ada transaksi di bulan ${namaBulan[_bulanDipilih.month - 1]}', 
+                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     ),
                   )
@@ -125,9 +166,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     itemCount: riwayat.length,
                     itemBuilder: (context, index) {
                       final item = riwayat[index];
-                      
-                      final formatter = NumberFormat('#,###', 'id_ID');
-                      final nominalRupiah = formatter.format(item.nominal);
+                      final nominalRupiah = formatRupiah(item.nominal);
 
                       return Dismissible(
                         key: Key(item.id),
@@ -169,7 +208,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           CloudSyncService().backupKeCloud();
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Transaksi berhasil dihapus'), backgroundColor: Color(0xFF006D5B)),
+                            SnackBar(
+                              content: const Text('Transaksi berhasil dihapus'),
+                              backgroundColor: const Color(0xFF006D5B),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              margin: const EdgeInsets.all(16),
+                            ),
                           );
                         },
                         child: Card(
@@ -188,7 +233,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             },
                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             leading: CircleAvatar(
-                              backgroundColor: KategoriService.getColor(item.kategori, item.isPemasukan).withOpacity(0.1),
+                              backgroundColor: KategoriService.getColor(item.kategori, item.isPemasukan).withValues(alpha: 0.1),
                               child: Icon(
                                 KategoriService.getIcon(item.kategori, item.isPemasukan),
                                 color: KategoriService.getColor(item.kategori, item.isPemasukan),
@@ -213,7 +258,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    DateFormat('dd MMM yyyy').format(item.tanggal),
+                                    '${item.tanggal.day} ${namaBulan[item.tanggal.month - 1]} ${item.tanggal.year}',
                                     style: const TextStyle(color: Colors.grey, fontSize: 11),
                                   ),
                                 ],

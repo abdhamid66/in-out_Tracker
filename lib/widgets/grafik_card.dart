@@ -80,7 +80,7 @@ class _GrafikCardState extends State<GrafikCard> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08), 
+            color: Colors.grey.withValues(alpha: 0.08), 
             spreadRadius: 5, 
             blurRadius: 15, 
             offset: const Offset(0, 5)
@@ -129,7 +129,7 @@ class _GrafikCardState extends State<GrafikCard> {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF006D5B).withOpacity(0.1),
+                        color: const Color(0xFF006D5B).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(
