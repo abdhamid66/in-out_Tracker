@@ -4,11 +4,7 @@ import '../models/transaksi.dart';
 import '../services/cloud_sync_service.dart';
 import 'profile_screen.dart';
 import 'kategori_screen.dart';
-import 'package:excel/excel.dart' hide Border;
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'dart:io';
-import 'package:intl/intl.dart';
+import '../services/export_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -101,10 +97,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(sukses ? 'Berhasil mencadangkan data ke Cloud! ☁️' : 'Gagal mencadangkan data.'),
-        backgroundColor: sukses ? const Color(0xFF006D5B) : Colors.red,
-      ),
+        SnackBar(
+          content: Text(sukses ? 'Berhasil mencadangkan data ke Cloud! ☁️' : 'Gagal mencadangkan data.'),
+          backgroundColor: sukses ? const Color(0xFF006D5B) : Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
     );
   }
 
@@ -119,78 +118,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(sukses ? 'Berhasil memulihkan data dari Cloud! 🎉' : 'Gagal memulihkan data.'),
-        backgroundColor: sukses ? const Color(0xFF006D5B) : Colors.red,
-      ),
+        SnackBar(
+          content: Text(sukses ? 'Berhasil mengembalikan data dari Cloud! ☁️' : 'Gagal mengembalikan data.'),
+          backgroundColor: sukses ? const Color(0xFF006D5B) : Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
     );
   }
 
   Future<void> _exportKeExcel() async {
     setState(() => _isLoading = true);
-    try {
-      // 1. Ambil data dari SQLite
-      List<Transaksi> daftarTransaksi = await DBHelper().getSemuaTransaksi();
-      
-      if (daftarTransaksi.isEmpty) {
-        setState(() => _isLoading = false);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Tidak ada data transaksi untuk diexport.')),
-        );
-        return;
-      }
-
-      // 2. Buat file Excel baru
-      var excel = Excel.createExcel();
-      Sheet sheetObject = excel['Sheet1'];
-
-      // Header kolom
-      sheetObject.appendRow([
-        TextCellValue('Tanggal'),
-        TextCellValue('Judul'),
-        TextCellValue('Kategori'),
-        TextCellValue('Jenis'),
-        TextCellValue('Nominal (Rp)')
-      ]);
-
-      // Isi data
-      final formatTanggal = DateFormat('dd MMM yyyy');
-      for (var trx in daftarTransaksi) {
-        sheetObject.appendRow([
-          TextCellValue(formatTanggal.format(trx.tanggal)),
-          TextCellValue(trx.judul),
-          TextCellValue(trx.kategori),
-          TextCellValue(trx.isPemasukan ? 'Pemasukan' : 'Pengeluaran'),
-          IntCellValue(trx.nominal.toInt()),
-        ]);
-      }
-
-      // 3. Simpan file sementara (Temporary)
-      var fileBytes = excel.save();
-      final directory = await getTemporaryDirectory();
-      final String filePath = '${directory.path}/Laporan_Keuangan_InOut.xlsx';
-      
-      File file = File(filePath);
-      await file.writeAsBytes(fileBytes!);
-
-      setState(() => _isLoading = false);
-
-      // 4. Munculkan dialog share
-      if (!mounted) return;
-      await Share.shareXFiles(
-        [XFile(filePath)],
-        text: 'Ini laporan keuangan bulanan In-Out Tracker.',
-      );
-
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal export: $e'), backgroundColor: Colors.red),
-      );
-    }
+    await ExportService.exportKeExcel(context);
+    if (mounted) setState(() => _isLoading = false);
   }
+
 
   @override
   Widget build(BuildContext context) {

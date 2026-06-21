@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../database/db_helper.dart';
 import '../models/transaksi.dart';
 import '../services/kategori_service.dart';
+import '../utils/formatters.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -20,11 +21,33 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   double _totalPemasukan = 0;
   bool _isLoading = true;
 
-  String bulanTerpilih = 'Bulan Ini';
+  DateTime _periodeTerpilih = DateTime.now();
   final List<String> daftarBulan = [
-    'Bulan Ini', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
   ];
+
+  String _getPeriodeLabel() {
+    final now = DateTime.now();
+    if (_periodeTerpilih.year == now.year && _periodeTerpilih.month == now.month) {
+      return 'Bulan Ini';
+    }
+    return '${daftarBulan[_periodeTerpilih.month - 1]} ${_periodeTerpilih.year}';
+  }
+
+  void _periodeSebelumnya() {
+    setState(() {
+      _periodeTerpilih = DateTime(_periodeTerpilih.year, _periodeTerpilih.month - 1, 1);
+    });
+    _loadData();
+  }
+
+  void _periodeBerikutnya() {
+    setState(() {
+      _periodeTerpilih = DateTime(_periodeTerpilih.year, _periodeTerpilih.month + 1, 1);
+    });
+    _loadData();
+  }
 
   final List<Color> _chartColors = [
     const Color(0xFFE57373), // M3-friendly softer colors
@@ -48,14 +71,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       _isLoading = true;
     });
 
-    List<Transaksi> data = [];
-    if (bulanTerpilih == 'Bulan Ini') {
-      data = await DBHelper().getTransaksiBulanIni();
-    } else {
-      int angkaBulan = daftarBulan.indexOf(bulanTerpilih);
-      int tahunSekarang = DateTime.now().year;
-      data = await DBHelper().getTransaksiBulan(angkaBulan, tahunSekarang);
-    }
+    List<Transaksi> data = await DBHelper().getTransaksiBulan(_periodeTerpilih.month, _periodeTerpilih.year);
     
     Map<String, double> hitungKategoriPengeluaran = {};
     Map<String, double> hitungKategoriPemasukan = {};
@@ -89,53 +105,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
-  void _tampilkanPilihBulan() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(width: 32, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Pilih Periode', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: primaryColor)),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: daftarBulan.length,
-                  itemBuilder: (context, index) {
-                    final bulan = daftarBulan[index];
-                    final isSelected = bulan == bulanTerpilih;
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-                      title: Text(bulan, style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? primaryColor : Colors.black87)),
-                      trailing: isSelected ? Icon(Icons.check_circle_rounded, color: primaryColor) : null,
-                      onTap: () {
-                        Navigator.pop(context);
-                        if (bulan != bulanTerpilih) {
-                          setState(() { bulanTerpilih = bulan; });
-                          _loadData();
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,37 +129,51 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 'Periode Laporan',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: Colors.black87),
               ),
-              ActionChip(
-                backgroundColor: primaryColor.withOpacity(0.08),
-                side: BorderSide.none,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                label: Row(
-                  mainAxisSize: MainAxisSize.min,
+              Container(
+                height: 32,
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.08), 
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
                   children: [
-                    Icon(Icons.calendar_month_rounded, size: 16, color: primaryColor),
-                    const SizedBox(width: 8),
-                    Text(
-                      bulanTerpilih,
-                      style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                    InkWell(
+                      onTap: _periodeSebelumnya,
+                      borderRadius: const BorderRadius.horizontal(left: Radius.circular(24)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        child: Icon(Icons.chevron_left_rounded, size: 20, color: primaryColor),
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.arrow_drop_down_rounded, size: 20, color: primaryColor),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        _getPeriodeLabel(),
+                        style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: _periodeBerikutnya,
+                      borderRadius: const BorderRadius.horizontal(right: Radius.circular(24)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        child: Icon(Icons.chevron_right_rounded, size: 20, color: primaryColor),
+                      ),
+                    ),
                   ],
                 ),
-                onPressed: _tampilkanPilihBulan,
               ),
             ],
           ),
           const SizedBox(height: 15),
           
           _buildStatSection(
-            bulanTerpilih == 'Bulan Ini' ? 'Pemasukan Bulan Ini' : 'Pemasukan $bulanTerpilih', 
+            _getPeriodeLabel() == 'Bulan Ini' ? 'Pemasukan Bulan Ini' : 'Pemasukan ${_getPeriodeLabel()}', 
             _pemasukanPerKategori, _totalPemasukan, const Color(0xFF388E3C), 'pemasukan'
           ),
           const SizedBox(height: 20),
           _buildStatSection(
-            bulanTerpilih == 'Bulan Ini' ? 'Pengeluaran Bulan Ini' : 'Pengeluaran $bulanTerpilih', 
+            _getPeriodeLabel() == 'Bulan Ini' ? 'Pengeluaran Bulan Ini' : 'Pengeluaran ${_getPeriodeLabel()}', 
             _pengeluaranPerKategori, _totalPengeluaran, const Color(0xFFD32F2F), 'pengeluaran'
           ),
           const SizedBox(height: 30),
@@ -219,7 +202,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     Icon(Icons.pie_chart_outline_rounded, size: 48, color: Colors.grey.shade400),
                     const SizedBox(height: 16),
                     Text(
-                      'Belum ada data $typeText ${bulanTerpilih == 'Bulan Ini' ? 'bulan ini' : bulanTerpilih.toLowerCase()}',
+                      'Belum ada data $typeText ${_getPeriodeLabel() == 'Bulan Ini' ? 'bulan ini' : _getPeriodeLabel().toLowerCase()}',
                       style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                   ],

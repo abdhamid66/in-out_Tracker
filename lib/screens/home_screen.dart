@@ -4,9 +4,7 @@ import 'input_screen.dart';
 import 'hystory_screen.dart';
 import '../database/db_helper.dart'; 
 import 'dart:io';
-import 'package:excel/excel.dart' hide Border;
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'dart:io';
 import 'package:intl/intl.dart';
 import '../widgets/kartu_saldo.dart';
 import '../widgets/grafik_card.dart';
@@ -39,11 +37,33 @@ class _HomeScreenState extends State<HomeScreen> {
   double saldo = 0;
 
   String waktuUpdate = "Memuat...";
-  String bulanTerpilih = 'Bulan Ini';
+  DateTime _periodeTerpilih = DateTime.now();
   final List<String> daftarBulan = [
-    'Bulan Ini', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
   ];
+
+  String _getPeriodeLabel() {
+    final now = DateTime.now();
+    if (_periodeTerpilih.year == now.year && _periodeTerpilih.month == now.month) {
+      return 'Bulan Ini';
+    }
+    return '${daftarBulan[_periodeTerpilih.month - 1]} ${_periodeTerpilih.year}';
+  }
+
+  void _periodeSebelumnya() {
+    setState(() {
+      _periodeTerpilih = DateTime(_periodeTerpilih.year, _periodeTerpilih.month - 1, 1);
+    });
+    _refreshData();
+  }
+
+  void _periodeBerikutnya() {
+    setState(() {
+      _periodeTerpilih = DateTime(_periodeTerpilih.year, _periodeTerpilih.month + 1, 1);
+    });
+    _refreshData();
+  }
 
   @override
   void initState() {
@@ -55,13 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _refreshData() async {
     List<Transaksi> data = [];
 
-    if (bulanTerpilih == 'Bulan Ini') {
-      data = await DBHelper().getTransaksiBulanIni();
-    } else {
-      int angkaBulan = daftarBulan.indexOf(bulanTerpilih);
-      int tahunSekarang = DateTime.now().year;
-      data = await DBHelper().getTransaksiBulan(angkaBulan, tahunSekarang);
-    }
+    // Ambil data berdasarkan bulan dan tahun pada _periodeTerpilih
+    data = await DBHelper().getTransaksiBulan(_periodeTerpilih.month, _periodeTerpilih.year);
 
     double hitungMasuk = 0;
     double hitungKeluar = 0;
@@ -90,53 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _eksporKeExcel() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sedang membuat file Excel...'), backgroundColor: Color(0xFF138D75)),
-    );
-
-    try {
-      final data = await DBHelper().getSemuaTransaksi();
-      if (data.isEmpty) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Belum ada transaksi untuk diekspor!'), backgroundColor: Colors.redAccent),
-        );
-        return;
-      }
-
-      var excel = Excel.createExcel();
-      Sheet sheet = excel['Laporan Keuangan'];
-      excel.setDefaultSheet('Laporan Keuangan');
-
-      sheet.appendRow([
-        TextCellValue('Tanggal'), TextCellValue('Judul Transaksi'), TextCellValue('Jenis'), TextCellValue('Nominal (Rp)'),
-      ]);
-
-      for (var item in data) {
-        String tanggalFormat = DateFormat('dd-MM-yyyy').format(item.tanggal);
-        String jenis = item.isPemasukan ? 'Pemasukan' : 'Pengeluaran';
-        sheet.appendRow([
-          TextCellValue(tanggalFormat), TextCellValue(item.judul), TextCellValue(jenis), IntCellValue(item.nominal.toInt()),
-        ]);
-      }
-
-      var fileBytes = excel.save();
-      var directory = await getTemporaryDirectory();
-      File file = File('${directory.path}/Laporan_InOutTracker.xlsx');
-      await file.writeAsBytes(fileBytes!);
-
-      if (!mounted) return;
-      await Share.shareXFiles([XFile(file.path)], text: 'Ini laporan keuanganku dari aplikasi In-Out Tracker!');
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal mengekspor: $e'), backgroundColor: Colors.redAccent),
-      );
-    }
-  }
-
-
+  // void _refreshData() async ...
   void _tampilkanDialogTentang() {
     showDialog(
       context: context,
@@ -322,35 +291,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 Container(
-                  height: 30,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  height: 32,
                   decoration: BoxDecoration(
-                    color: Colors.white, border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8),
+                    color: Colors.white, 
+                    border: Border.all(color: Colors.grey.shade300), 
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: bulanTerpilih,
-                      icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: Colors.grey),
-                      style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.bold),
-                      onChanged: (String? nilaiBaru) {
-                        if (nilaiBaru != null) {
-                          setState(() { bulanTerpilih = nilaiBaru; });
-                          _refreshData();
-                        }
-                      },
-                      items: daftarBulan.map<DropdownMenuItem<String>>((String namaBulan) {
-                        return DropdownMenuItem<String>(
-                          value: namaBulan,
-                          child: Row(
-                            children: [
-                              if (namaBulan == 'Bulan Ini') const Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey),
-                              if (namaBulan == 'Bulan Ini') const SizedBox(width: 4),
-                              Text(namaBulan),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                  child: Row(
+                    children: [
+                      InkWell(
+                        onTap: _periodeSebelumnya,
+                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Icon(Icons.chevron_left_rounded, size: 20, color: Color(0xFF006D5B)),
+                        ),
+                      ),
+                      Container(width: 1, height: 16, color: Colors.grey.shade300),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          _getPeriodeLabel(),
+                          style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Container(width: 1, height: 16, color: Colors.grey.shade300),
+                      InkWell(
+                        onTap: _periodeBerikutnya,
+                        borderRadius: const BorderRadius.horizontal(right: Radius.circular(20)),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF006D5B)),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

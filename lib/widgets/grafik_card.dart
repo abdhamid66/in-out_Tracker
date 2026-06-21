@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/transaksi.dart';
-import '../database/db_helper.dart'; 
+import '../utils/formatters.dart';
 
 class GrafikCard extends StatefulWidget {
   final List<Transaksi> daftarTransaksi;

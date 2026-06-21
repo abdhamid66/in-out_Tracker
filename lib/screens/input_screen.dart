@@ -60,7 +60,13 @@ void _simpanData() async {
 
     if (_judulController.text.isEmpty || _nominalController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Keterangan dan Nominal Harus Diisi!')),
+        SnackBar(
+          content: const Text('Keterangan dan Nominal Harus Diisi!', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
       );
       return;
     }
@@ -68,7 +74,13 @@ void _simpanData() async {
     double nominal = double.parse(_nominalController.text.replaceAll('.', ''));
     if (nominal > 1000000000) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maksimal nominal adalah Rp 1.000.000.000!')),
+        SnackBar(
+          content: const Text('Maksimal nominal adalah Rp 1.000.000.000!'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
       );
       return;
     }
@@ -107,10 +119,17 @@ void _simpanData() async {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(widget.transaksiLama == null
-            ? 'Data Berhasil Disimpan!!'
-            : 'Data Berhasil Diperbarui'),
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 10),
+            Text(widget.transaksiLama == null ? 'Data Berhasil Disimpan!!' : 'Data Berhasil Diperbarui'),
+          ],
+        ),
         backgroundColor: const Color(0xFF006D5B),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
       ),
     );
 
@@ -160,10 +179,19 @@ void _simpanData() async {
                   hintText: 'Contoh: Gaji Bulan Ini, Beli Makan, dll',
                   prefixIcon: Icon(Icons.description,color: const Color(0xFF006D5B)),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),// kolom input bersudut bulattt
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFF006D5B), width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
                   ),
                   filled: true,
-                  fillColor: Colors.grey[50],
+                  fillColor: Colors.grey.shade50,
                 ),
               ),
               const SizedBox(height: 20),
@@ -179,10 +207,19 @@ void _simpanData() async {
                   hintText: 'Contoh: 15.000',
                   prefixIcon: Icon(Icons.attach_money,color: const Color(0xFF006D5B)),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFF006D5B), width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
                   ),
                   filled: true,
-                  fillColor: Colors.grey[50],
+                  fillColor: Colors.grey.shade50,
                 ),
               ),
               const SizedBox(height: 20),
@@ -253,10 +290,19 @@ void _simpanData() async {
                           prefixIcon: const Icon(Icons.category, color: Color(0xFF006D5B)),
                           suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: Color(0xFF006D5B), width: 2),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
                           ),
                           filled: true,
-                          fillColor: Colors.grey[50],
+                          fillColor: Colors.grey.shade50,
                         ),
                       ),
                     ),

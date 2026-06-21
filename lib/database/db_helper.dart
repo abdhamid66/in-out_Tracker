@@ -73,25 +73,29 @@ class DBHelper {
     });
   }
 
-  Future<List<Transaksi>> getTransaksiBulanIni() async{
-    final semuaData = await getSemuaTransaksi();
-
+  Future<List<Transaksi>> getTransaksiBulanIni() async {
     final sekarang = DateTime.now();
-
-    final dataBulanIni = semuaData.where((transaksi) {
-      return transaksi.tanggal.month == sekarang.month &&
-              transaksi.tanggal.year == sekarang.year;
-    }).toList();
-
-    return dataBulanIni;
+    return await getTransaksiBulan(sekarang.month, sekarang.year);
   }
 
   Future<List<Transaksi>> getTransaksiBulan(int bulan, int tahun) async {
-    final semuaData = await getSemuaTransaksi();
+    Database db = await database;
+    
+    // Format bulan menjadi 2 digit (misal: 06)
+    String bulanStr = bulan.toString().padLeft(2, '0');
+    // Format pencarian untuk SQL LIKE (misal: '2026-06-%')
+    String searchPattern = '$tahun-$bulanStr-%';
 
-    return semuaData.where((transaksi){
-      return transaksi.tanggal.month == bulan && transaksi.tanggal.year == tahun;
-    }).toList();
+    final List<Map<String, dynamic>> dataDariDb = await db.query(
+      'transaksi',
+      where: 'tanggal LIKE ?',
+      whereArgs: [searchPattern],
+      orderBy: 'tanggal DESC, id DESC',
+    );
+
+    return List.generate(dataDariDb.length, (index) {
+      return Transaksi.fromMap(dataDariDb[index]);
+    });
   }
 
   Future<int> deleteTransaksi(String id) async {
@@ -120,13 +124,4 @@ class DBHelper {
     );
   }
 }
-// fungsi utkk mengedit or mmperbarui data
-String formatRupiah(double angka) {
-  final formatBaru = NumberFormat.currency(
-    // mmperbarui data di tble trnskasii brdsrkan id nya
-    locale: 'id_ID',
-    symbol: 'Rp ',
-    decimalDigits: 0,
-  );
-  return formatBaru.format(angka);
 }
