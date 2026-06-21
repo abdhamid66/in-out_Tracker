@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../database/db_helper.dart';
-import '../models/transaksi.dart';
 import '../services/cloud_sync_service.dart';
 import 'profile_screen.dart';
 import 'kategori_screen.dart';

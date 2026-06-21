@@ -14,7 +14,6 @@ class StatisticsScreen extends StatefulWidget {
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
   final Color primaryColor = const Color(0xFF006D5B);
-  List<Transaksi> _transaksiBulanIni = [];
   Map<String, double> _pengeluaranPerKategori = {};
   Map<String, double> _pemasukanPerKategori = {};
   double _totalPengeluaran = 0;
@@ -49,16 +48,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _loadData();
   }
 
-  final List<Color> _chartColors = [
-    const Color(0xFFE57373), // M3-friendly softer colors
-    const Color(0xFF64B5F6),
-    const Color(0xFFFFD54F),
-    const Color(0xFF81C784),
-    const Color(0xFFBA68C8),
-    const Color(0xFFFFB74D),
-    const Color(0xFF4DB6AC),
-    const Color(0xFFF06292),
-  ];
 
   @override
   void initState() {
@@ -96,7 +85,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
 
     setState(() {
-      _transaksiBulanIni = data;
       _pengeluaranPerKategori = sortedPengeluaran;
       _pemasukanPerKategori = sortedPemasukan;
       _totalPengeluaran = totalPengeluaran;
