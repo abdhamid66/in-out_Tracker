@@ -280,17 +280,26 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(8)),
-                      child: const Icon(Icons.bar_chart, color: Color(0xFF006D5B), size: 18),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text('Ringkasan Keuangan', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(8)),
+                        child: const Icon(Icons.bar_chart, color: Color(0xFF006D5B), size: 18),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Text(
+                          'Ringkasan Keuangan', 
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 5),
                 Container(
                   height: 32,
                   decoration: BoxDecoration(

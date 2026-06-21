@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaksi_provider.dart';
 import 'package:intl/intl.dart';
@@ -193,6 +194,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // --- BAGIAN PENGATURAN UMUM ---
           _buildSectionTitle('Pengaturan Umum'),
+          _buildSettingCard(
+            icon: Icons.person_rounded,
+            title: 'Profil & Akun',
+            subtitle: FirebaseAuth.instance.currentUser != null 
+                ? 'Login sebagai ${FirebaseAuth.instance.currentUser!.displayName ?? 'Pengguna'}'
+                : 'Kelola data Google dan status login',
+            iconColor: const Color(0xFF006D5B),
+            customIconWidget: (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser!.photoURL != null) 
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(FirebaseAuth.instance.currentUser!.photoURL!, width: 36, height: 36, fit: BoxFit.cover),
+                  ) 
+                : null,
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())).then((_) => setState((){}));
+            },
+            delay: 0,
+          ),
           Consumer<TransaksiProvider>(
             builder: (context, provider, child) {
               return _buildSettingCard(
@@ -206,16 +225,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 delay: 0,
               );
             }
-          ),
-          _buildSettingCard(
-            icon: Icons.person_rounded,
-            title: 'Profil & Akun',
-            subtitle: 'Kelola data Google dan status login',
-            iconColor: const Color(0xFF006D5B),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
-            },
-            delay: 0,
           ),
 
           _buildSettingCard(
@@ -347,6 +356,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Color iconColor = const Color(0xFF006D5B),
     required VoidCallback onTap,
     int delay = 0,
+    Widget? customIconWidget,
   }) {
     return TweenAnimationBuilder(
       duration: Duration(milliseconds: 500 + delay),
@@ -381,10 +391,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: iconColor.withValues(alpha: 0.1),
+                      color: customIconWidget == null ? iconColor.withValues(alpha: 0.1) : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(icon, color: iconColor, size: 26),
+                    child: customIconWidget ?? Icon(icon, color: iconColor, size: 26),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
