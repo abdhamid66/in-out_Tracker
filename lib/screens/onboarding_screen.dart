@@ -117,7 +117,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       // Kalau sudah di slide terakhir
                       if (_halamanSekarang == _dataOnboarding.length - 1) {
                         // SIMPAN MEMORI BAHWA USER SUDAH PERNAH LIHAT ONBOARDING
-                        if (!mounted) return;
+                        if (!context.mounted) return;
                         // Pindah ke Halaman Syarat dan Ketentuan (ToS)
                         Navigator.pushReplacement(
                           context,  

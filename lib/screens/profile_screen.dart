@@ -136,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             child: FilledButton.tonalIcon(
               onPressed: () async {
                 await AuthService().signOut();
-                if (!mounted) return;
+                if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Berhasil keluar'), backgroundColor: Colors.black87),
                 );
@@ -195,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   const SnackBar(content: Text('Memproses Login...')),
                 );
                 final user = await AuthService().signInWithGoogle();
-                if (!mounted) return;
+                if (!context.mounted) return;
                 
                 if (user != null) {
                   ScaffoldMessenger.of(context).showSnackBar(

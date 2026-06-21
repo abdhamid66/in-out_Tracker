@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart'; // 👇 INI YANG DITAMBAH
+import 'package:provider/provider.dart';
+import 'screens/splash_screen.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'services/kategori_service.dart';
+import 'providers/transaksi_provider.dart';
+import 'package:out_tracker/theme/app_theme.dart';
+
 void main() async {
   // Wajib dipanggil biar mesin Flutter siap menerima perintah mesin luar
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +18,14 @@ void main() async {
   await KategoriService.init();
 
   // Menjalankan aplikasimu
-  runApp(const MyApp()); // Pastikan nama MyApp() sesuai dengan nama class utama aplikasimu
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TransaksiProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -25,17 +36,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'In-Out Tracker',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF006D5B)),
+      theme: AppTheme.lightTheme.copyWith(
         textTheme: GoogleFonts.outfitTextTheme(Theme.of(context).textTheme),
-        useMaterial3: true,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF8F9FA),
-          foregroundColor: Color(0xFF006D5B),
-          elevation: 0,
-        ),
       ),
-      home: const SplashScreen(), // 👇 INI YANG DIGANTI
+      home: const SplashScreen(),
     );
   }
 }

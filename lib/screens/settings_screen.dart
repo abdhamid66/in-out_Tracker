@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/transaksi_provider.dart';
+import 'package:intl/intl.dart';
 import '../database/db_helper.dart';
 import '../services/cloud_sync_service.dart';
 import 'profile_screen.dart';
@@ -42,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final bool canAuthenticate = canAuthenticateWithBiometrics || await localAuth.isDeviceSupported();
       
       if (!canAuthenticate) {
-        if (!mounted) return;
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Perangkat ini tidak mendukung fitur biometrik/kunci layar.'), backgroundColor: Colors.red),
         );
@@ -55,6 +58,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _isBiometricEnabled = value;
     });
+  }
+
+  void _aturAnggaran() {
+    final provider = context.read<TransaksiProvider>();
+    final controller = TextEditingController(text: provider.anggaranBulanan == 0 ? '' : provider.anggaranBulanan.toInt().toString());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Atur Anggaran Bulanan'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Nominal (Rp)',
+            hintText: 'Contoh: 3000000',
+            prefixText: 'Rp ',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              double nominal = double.tryParse(controller.text) ?? 0;
+              provider.setAnggaran(nominal);
+              widget.onDataChanged?.call();
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF138D75)),
+            child: const Text('Simpan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _hapusSemuaData() async {
@@ -73,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () async {
               await DBHelper().deleteAllTransaksi();
               widget.onDataChanged?.call();
-              if (!mounted) return;
+              if (!context.mounted) return;
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Semua data berhasil dihapus dari HP.'), backgroundColor: Color(0xFF006D5B)),
@@ -94,7 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool sukses = await _cloudSync.backupKeCloud();
     setState(() => _isLoading = false);
     
-    if (!mounted) return;
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(sukses ? 'Berhasil mencadangkan data ke Cloud! ☁️' : 'Gagal mencadangkan data.'),
@@ -115,7 +155,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       widget.onDataChanged?.call();
     }
     
-    if (!mounted) return;
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(sukses ? 'Berhasil mengembalikan data dari Cloud! ☁️' : 'Gagal mengembalikan data.'),
@@ -130,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _exportKeExcel() async {
     setState(() => _isLoading = true);
     await ExportService.exportKeExcel(context);
-    if (mounted) setState(() => _isLoading = false);
+    if (context.mounted) setState(() => _isLoading = false);
   }
 
 
@@ -153,6 +193,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // --- BAGIAN PENGATURAN UMUM ---
           _buildSectionTitle('Pengaturan Umum'),
+          Consumer<TransaksiProvider>(
+            builder: (context, provider, child) {
+              return _buildSettingCard(
+                icon: Icons.account_balance_wallet_rounded,
+                title: 'Atur Anggaran Bulanan',
+                subtitle: provider.anggaranBulanan > 0 
+                  ? 'Saat ini: Rp ${NumberFormat('#,###', 'id_ID').format(provider.anggaranBulanan)}' 
+                  : 'Belum diatur',
+                iconColor: const Color(0xFF138D75),
+                onTap: _aturAnggaran,
+                delay: 0,
+              );
+            }
+          ),
           _buildSettingCard(
             icon: Icons.person_rounded,
             title: 'Profil & Akun',

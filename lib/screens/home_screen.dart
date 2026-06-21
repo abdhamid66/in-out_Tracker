@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 import '../models/transaksi.dart';
 import 'input_screen.dart'; 
 import 'history_screen.dart';
@@ -34,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double totalPemasukan = 0;
   double totalPengeluaran = 0;
   double saldo = 0;
+  double anggaranBulanan = 0;
 
   String waktuUpdate = "Memuat...";
   DateTime _periodeTerpilih = DateTime.now();
@@ -88,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     DateTime sekarang = DateTime.now();
     String jam = sekarang.hour.toString().padLeft(2, '0');
@@ -208,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Auto-sync ke Cloud (berjalan di background tanpa menghentikan layar)
             CloudSyncService().backupKeCloud();
 
-            if (!mounted) return;
+            if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Transaksi berhasil dihapus'), backgroundColor: Color(0xFF006D5B)),
             );
@@ -331,6 +333,53 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             KartuSaldo(saldo: saldo, totalPemasukan: totalPemasukan, totalPengeluaran: totalPengeluaran, waktuUpdate: waktuUpdate),
             const SizedBox(height: 15),
+            if (anggaranBulanan > 0) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [BoxShadow(color: AppTheme.primaryColor.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4))],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Anggaran Bulanan', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                        Text(
+                          'Sisa: ', 
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            color: (totalPengeluaran >= anggaranBulanan) ? Colors.red : AppTheme.primaryColor
+                          )
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: (totalPengeluaran / anggaranBulanan).clamp(0.0, 1.0),
+                        minHeight: 10,
+                        backgroundColor: Colors.grey.shade200,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          (totalPengeluaran >= anggaranBulanan) ? Colors.red : 
+                          (totalPengeluaran >= anggaranBulanan * 0.8) ? Colors.orange : AppTheme.primaryColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Terpakai \ dari ',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 15),
+            ],
             GrafikCard(
               daftarTransaksi: daftarTransaksi,
               onLihatSelengkapnya: () {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/input_screen.dart';
 import '../screens/history_screen.dart';
+import 'package:out_tracker/theme/app_theme.dart';
 
 class TombolMenuHome extends StatelessWidget {
   final VoidCallback onRefresh; // Kabel pemicu refresh data database
@@ -22,9 +23,9 @@ class TombolMenuHome extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12), 
               decoration: BoxDecoration(
-                color: const Color(0xFF138D75),
+                color: AppTheme.secondaryColor,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [BoxShadow(color: const Color(0xFF138D75).withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))],
+                boxShadow: [BoxShadow(color: AppTheme.secondaryColor.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +60,7 @@ class TombolMenuHome extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.history_rounded, color: const Color(0xFF138D75), size: 24),
+                  const Icon(Icons.history_rounded, color: AppTheme.secondaryColor, size: 24),
                   const SizedBox(height: 8),
                   const Text('Lihat Riwayat', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13)),
                   const SizedBox(height: 2),

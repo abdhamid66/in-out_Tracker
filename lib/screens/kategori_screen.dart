@@ -179,6 +179,7 @@ class _KategoriScreenState extends State<KategoriScreen> with SingleTickerProvid
                         }
 
                         _loadData();
+                        if (!context.mounted) return;
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -217,7 +218,7 @@ class _KategoriScreenState extends State<KategoriScreen> with SingleTickerProvid
             onPressed: () async {
               await KategoriService.hapusKategori(id);
               _loadData();
-              if (mounted) Navigator.pop(context);
+              if (context.mounted) Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Hapus', style: TextStyle(color: Colors.white)),

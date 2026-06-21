@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/transaksi.dart';
 import '../utils/formatters.dart';
+import 'package:out_tracker/theme/app_theme.dart';
 
 class GrafikCard extends StatefulWidget {
   final List<Transaksi> daftarTransaksi;
@@ -98,7 +99,7 @@ class _GrafikCardState extends State<GrafikCard> {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(8)),
-                    child: const Icon(Icons.pie_chart, color: Color(0xFF006D5B), size: 18),
+                    child: const Icon(Icons.pie_chart, color: AppTheme.primaryColor, size: 18),
                   ),
                   const SizedBox(width: 10),
                   const Text('Visualisasi Arus Kas', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
@@ -129,12 +130,12 @@ class _GrafikCardState extends State<GrafikCard> {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF006D5B).withValues(alpha: 0.1),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(
                         _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                        color: const Color(0xFF006D5B),
+                        color: AppTheme.primaryColor,
                         size: 20,
                       ),
                     ),
@@ -201,7 +202,7 @@ class _GrafikCardState extends State<GrafikCard> {
                                     Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: const [
-                                        Icon(Icons.show_chart, color: Color(0xFF006D5B), size: 16),
+                                        Icon(Icons.show_chart, color: AppTheme.primaryColor, size: 16),
                                         Text('Arus Kas', style: TextStyle(fontSize: 10, color: Colors.grey)),
                                       ],
                                     ),
@@ -227,7 +228,7 @@ class _GrafikCardState extends State<GrafikCard> {
                                   const SizedBox(height: 5),
                                   Text('${pctPemasukan.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87)),
                                   const SizedBox(height: 2),
-                                  Text(_formatSingkat(totalPemasukan), style: const TextStyle(fontSize: 11, color: Color(0xFF006D5B))),
+                                  Text(_formatSingkat(totalPemasukan), style: const TextStyle(fontSize: 11, color: AppTheme.primaryColor)),
                                 ],
                               ),
                             ),

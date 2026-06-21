@@ -1,7 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/transaksi.dart';
-import 'package:intl/intl.dart';
 
 class DBHelper {
   // Membuat singleton untuk memastikan hanya ada satu instance DBHelper yang digunakan di seluruh aplikasi
@@ -98,6 +97,41 @@ class DBHelper {
     });
   }
 
+  // Fungsi untuk mendapatkan total pemasukan dan pengeluaran secara optimal (langsung dari DB)
+  Future<Map<String, double>> getRingkasanBulan(int bulan, int tahun) async {
+    Database db = await database;
+    
+    String bulanStr = bulan.toString().padLeft(2, '0');
+    String searchPattern = '$tahun-$bulanStr-%';
+
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      '''
+      SELECT isPemasukan, SUM(nominal) as total 
+      FROM transaksi 
+      WHERE tanggal LIKE ? 
+      GROUP BY isPemasukan
+      ''',
+      [searchPattern],
+    );
+
+    double totalPemasukan = 0;
+    double totalPengeluaran = 0;
+
+    for (var row in result) {
+      double total = (row['total'] as num?)?.toDouble() ?? 0.0;
+      if (row['isPemasukan'] == 1) {
+        totalPemasukan = total;
+      } else {
+        totalPengeluaran = total;
+      }
+    }
+
+    return {
+      'pemasukan': totalPemasukan,
+      'pengeluaran': totalPengeluaran,
+    };
+  }
+
   // Fungsi untuk mencari transaksi berdasarkan kata kunci (judul atau kategori)
   Future<List<Transaksi>> cariTransaksi(String keyword) async {
     Database db = await database;
@@ -122,6 +156,36 @@ class DBHelper {
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<void> deleteSemuaKecuali(List<String> idsYangDisimpan) async {
+    Database db = await database;
+    if (idsYangDisimpan.isEmpty) {
+      await db.delete('transaksi');
+    } else {
+      String idList = idsYangDisimpan.map((id) => "'$id'").join(',');
+      await db.delete('transaksi', where: 'id NOT IN ($idList)');
+    }
+  }
+
+  // Fungsi aman untuk mengembalikan data dari Cloud (Restore)
+  // Menggunakan SQLite Transaction agar jika gagal, data lama dikembalikan (Rollback)
+  Future<void> restoreDataLokal(List<Transaksi> dataCloud) async {
+    Database db = await database;
+    
+    await db.transaction((txn) async {
+      // 1. Hapus semua data lokal dalam sesi transaksi ini
+      await txn.delete('transaksi');
+      
+      // 2. Masukkan data cloud ke database lokal
+      for (var trx in dataCloud) {
+        await txn.insert(
+          'transaksi',
+          trx.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    });
   }
 
   Future<int> deleteAllTransaksi() async {

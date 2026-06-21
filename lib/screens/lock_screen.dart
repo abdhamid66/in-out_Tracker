@@ -49,7 +49,7 @@ class _LockScreenState extends State<LockScreen> {
   }
 
   void _goToHome() {
-    if (!mounted) return;
+    if (!context.mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),

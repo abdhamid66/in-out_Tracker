@@ -115,7 +115,7 @@ class _TosScreenState extends State<TosScreen> {
                               SharedPreferences prefs = await SharedPreferences.getInstance();
                               await prefs.setBool('sudah_onboarding', true);
 
-                              if (!mounted) return;
+                              if (!context.mounted) return;
                               // Lempar ke Beranda
                               Navigator.pushReplacement(
                                 context,

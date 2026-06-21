@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/transaksi.dart';
-import '../database/db_helper.dart';
 import '../services/kategori_service.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import '../services/cloud_sync_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/transaksi_provider.dart';
+import 'package:out_tracker/theme/app_theme.dart';
 
 class InputScreen extends StatefulWidget {
   final Transaksi? transaksiLama;
@@ -17,7 +18,6 @@ class InputScreen extends StatefulWidget {
 class _InputScreenState extends State<InputScreen> {
   final TextEditingController _judulController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
-  // variabel untuk menyimpan jenis transaksi, defaultnya adalah pemasukan (true)
   bool _isPemasukan = true;
   String _kategori = 'Lainnya';
 
@@ -45,7 +45,6 @@ class _InputScreenState extends State<InputScreen> {
       kategoriPemasukan = KategoriService.getSemuaPemasukan().map((e) => e.nama).toList();
       kategoriPengeluaran = KategoriService.getSemuaPengeluaran().map((e) => e.nama).toList();
       
-      // Jika kategori tidak ditemukan di list yang baru, set ke 'Lainnya' atau yang pertama
       final currentList = _isPemasukan ? kategoriPemasukan : kategoriPengeluaran;
       if (!currentList.contains(_kategori)) {
         _kategori = currentList.isNotEmpty ? currentList.first : 'Lainnya';
@@ -53,7 +52,6 @@ class _InputScreenState extends State<InputScreen> {
     });
   }
 
-  // menbhkan asyncronos karena proses menyimpan ke brngks buth sedikit waktu
 void _simpanData() async {
   try {
     FocusScope.of(context).unfocus();
@@ -71,7 +69,35 @@ void _simpanData() async {
       return;
     }
 
-    double nominal = double.parse(_nominalController.text.replaceAll('.', ''));
+    double nominal = 0;
+    try {
+      nominal = double.parse(_nominalController.text.replaceAll('.', ''));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Format angka tidak valid!'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+      return;
+    }
+
+    if (nominal <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Nominal harus lebih dari 0!'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+      return;
+    }
+
     if (nominal > 1000000000) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -95,7 +121,7 @@ void _simpanData() async {
         kategori: _kategori,
       );
 
-      await DBHelper().insertTransaksi(transaksiBaru);
+      await context.read<TransaksiProvider>().tambahTransaksi(transaksiBaru);
 
     } else {
       final transaksiUpdate = Transaksi(
@@ -107,15 +133,12 @@ void _simpanData() async {
         kategori: _kategori,
       );
 
-      await DBHelper().updateTransaksi(transaksiUpdate);
+      await context.read<TransaksiProvider>().updateTransaksi(transaksiUpdate);
     }
-
-    // Auto-sync ke Cloud (berjalan di background tanpa menghentikan layar)
-    CloudSyncService().backupKeCloud();
 
     await Future.delayed(const Duration(milliseconds: 100));
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -126,7 +149,7 @@ void _simpanData() async {
             Text(widget.transaksiLama == null ? 'Data Berhasil Disimpan!!' : 'Data Berhasil Diperbarui'),
           ],
         ),
-        backgroundColor: const Color(0xFF006D5B),
+        backgroundColor: AppTheme.primaryColor,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -136,7 +159,7 @@ void _simpanData() async {
     Navigator.pop(context, true);
 
   } catch (e) {
-    print("Error simpan: $e");
+    // ignore
   }
 }
   @override
@@ -145,21 +168,20 @@ void _simpanData() async {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Catat Transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFF006D5B),
+        backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      // SingleChildScrollView berguna agar layar bisa di geser (scroll) saat keyboard muncul
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),// form bersudut bulatt
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF006D5B).withValues(alpha: 0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
                 spreadRadius: 2,
                 blurRadius: 8,
                 offset: const Offset(0, 4),
@@ -171,20 +193,19 @@ void _simpanData() async {
             children: [
               const Text('Detail Transaksi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
-              // KOlom judull dengan desain baru
               TextField(
                 controller: _judulController,
                 decoration: InputDecoration(
                   labelText: 'Keterangan',
                   hintText: 'Contoh: Gaji Bulan Ini, Beli Makan, dll',
-                  prefixIcon: Icon(Icons.description,color: const Color(0xFF006D5B)),
+                  prefixIcon: const Icon(Icons.description,color: AppTheme.primaryColor),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: Color(0xFF006D5B), width: 2),
+                    borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -195,7 +216,6 @@ void _simpanData() async {
                 ),
               ),
               const SizedBox(height: 20),
-                    // kolom nominaml dnbgn desain terbru dengan ikon uang dan warna yang lebih menarik
               TextField(
                 controller: _nominalController,
                 keyboardType: TextInputType.number,
@@ -205,14 +225,14 @@ void _simpanData() async {
                 decoration: InputDecoration(
                   labelText: 'Nominal (Rp)',
                   hintText: 'Contoh: 15.000',
-                  prefixIcon: Icon(Icons.attach_money,color: const Color(0xFF006D5B)),
+                  prefixIcon: const Icon(Icons.attach_money,color: AppTheme.primaryColor),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: Color(0xFF006D5B), width: 2),
+                    borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -223,7 +243,6 @@ void _simpanData() async {
                 ),
               ),
               const SizedBox(height: 20),
-              // tombol pilihsn pemasukan/pengeluaran dalam kotakk
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                 decoration: BoxDecoration(
@@ -246,7 +265,7 @@ void _simpanData() async {
                       onChanged: (nilaiBaru) {
                         setState(() {
                           _isPemasukan = nilaiBaru;
-                          _loadKategori(); // Refresh kategori
+                          _loadKategori();
                         });
                       },
                     ),
@@ -255,7 +274,6 @@ void _simpanData() async {
               ),
               const SizedBox(height: 20),
               
-              // KOLOM KATEGORI
               LayoutBuilder(
                 builder: (context, constraints) {
                   return PopupMenuButton<String>(
@@ -266,7 +284,7 @@ void _simpanData() async {
                       maxWidth: constraints.maxWidth,
                     ),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    offset: const Offset(0, 60), // Muncul ke bawah
+                    offset: const Offset(0, 60),
                     onSelected: (nilaiBaru) {
                       setState(() {
                         _kategori = nilaiBaru;
@@ -287,7 +305,7 @@ void _simpanData() async {
                         controller: TextEditingController(text: _kategori),
                         decoration: InputDecoration(
                           labelText: 'Kategori',
-                          prefixIcon: const Icon(Icons.category, color: Color(0xFF006D5B)),
+                          prefixIcon: const Icon(Icons.category, color: AppTheme.primaryColor),
                           suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -295,7 +313,7 @@ void _simpanData() async {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFF006D5B), width: 2),
+                            borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -310,17 +328,16 @@ void _simpanData() async {
                 }
               ),
               const SizedBox(height: 30),
-              // tombol simpan dengan desain baru yang lebih lebar dab warna yang lebih menarik
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   onPressed: _simpanData,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF006D5B),
+                    backgroundColor: AppTheme.primaryColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),// tombol simpan bersudut bulattt
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     elevation: 2,
                   ),
@@ -335,7 +352,6 @@ void _simpanData() async {
   }
 }
 
-// Class khusus untuk mencegat ketikan dan menambahkan titik otomatis
 class CurrencyFormat extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
@@ -345,10 +361,10 @@ class CurrencyFormat extends TextInputFormatter {
     }
 
     String angkaMurni = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (angkaMurni.isEmpty) return oldValue;
     
     int value = int.parse(angkaMurni);
 
-    // Batasi input maksimal 1 Miliar
     if (value > 1000000000) {
       return oldValue;
     }

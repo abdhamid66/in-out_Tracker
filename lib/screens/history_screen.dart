@@ -18,6 +18,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   DateTime _bulanDipilih = DateTime.now(); 
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
+  
+  String _filterType = 'Semua';
+  String _sortType = 'Terbaru';
 
   final List<String> namaBulan = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
@@ -38,7 +41,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
     } else {
       data = await DBHelper().getTransaksiBulan(_bulanDipilih.month, _bulanDipilih.year);
     }
-    if (!mounted) return;
+    if (!context.mounted) return;
+    
+    // Apply filter
+    if (_filterType == 'Pemasukan') {
+      data = data.where((item) => item.isPemasukan).toList();
+    } else if (_filterType == 'Pengeluaran') {
+      data = data.where((item) => !item.isPemasukan).toList();
+    }
+
+    // Apply sort
+    if (_sortType == 'Terbaru') {
+      data.sort((a, b) => b.tanggal.compareTo(a.tanggal));
+    } else if (_sortType == 'Terlama') {
+      data.sort((a, b) => a.tanggal.compareTo(b.tanggal));
+    } else if (_sortType == 'Terbesar') {
+      data.sort((a, b) => b.nominal.compareTo(a.nominal));
+    } else if (_sortType == 'Terkecil') {
+      data.sort((a, b) => a.nominal.compareTo(b.nominal));
+    }
+
     setState(() {
       riwayat = data;
     });
@@ -66,7 +88,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ElevatedButton(
             onPressed: () async {
               await DBHelper().deleteTransaksi(id);
-              if (!mounted) return;
+              if (!context.mounted) return;
               Navigator.pop(context);
               _refreshRiwayat();
             },
@@ -116,12 +138,62 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          if (!_isSearching)
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        body: Column(
+          children: [
+            if (!_isSearching)
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.filter_list, color: Color(0xFF006D5B), size: 20),
+                        const SizedBox(width: 5),
+                        DropdownButton<String>(
+                          value: _filterType,
+                          underline: const SizedBox(),
+                          style: const TextStyle(color: Color(0xFF006D5B), fontWeight: FontWeight.bold, fontSize: 13),
+                          items: ['Semua', 'Pemasukan', 'Pengeluaran'].map((String value) {
+                            return DropdownMenuItem<String>(value: value, child: Text(value));
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              _filterType = newValue!;
+                              _refreshRiwayat();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.sort, color: Color(0xFF006D5B), size: 20),
+                        const SizedBox(width: 5),
+                        DropdownButton<String>(
+                          value: _sortType,
+                          underline: const SizedBox(),
+                          style: const TextStyle(color: Color(0xFF006D5B), fontWeight: FontWeight.bold, fontSize: 13),
+                          items: ['Terbaru', 'Terlama', 'Terbesar', 'Terkecil'].map((String value) {
+                            return DropdownMenuItem<String>(value: value, child: Text(value));
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              _sortType = newValue!;
+                              _refreshRiwayat();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            if (!_isSearching)
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -206,7 +278,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           await DBHelper().deleteTransaksi(item.id);
                           _refreshRiwayat();
                           CloudSyncService().backupKeCloud();
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: const Text('Transaksi berhasil dihapus'),
