@@ -16,6 +16,8 @@ import '../screens/settings_screen.dart';
 import '../screens/calendar_screen.dart';
 import '../screens/tos_screen.dart';
 import '../screens/privacy_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../screens/auth_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,8 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String waktuUpdate = "Memuat...";
   DateTime _periodeTerpilih = DateTime.now();
   final List<String> daftarBulan = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
   ];
 
   String _getPeriodeLabel() {
@@ -431,111 +433,142 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> daftarHalaman = [
-      _buildBeranda(), // Index 0: Halaman Beranda Utama
-      const StatisticsScreen(), // Index 1: Halaman Statistik
-      SettingsScreen(onDataChanged: _refreshData), // Index 2: Halaman Pengaturan
-    ];
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        final isLoggedIn = snapshot.hasData && snapshot.data != null;
+        
+        // Handle _currentIndex bounds if we just logged in
+        if (isLoggedIn && _currentIndex == 3) {
+           WidgetsBinding.instance.addPostFrameCallback((_) {
+             if (mounted && _currentIndex == 3) {
+               setState(() => _currentIndex = 0);
+             }
+           });
+        }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FA),
-        elevation: 0,
-        toolbarHeight: 60,
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              icon: const Icon(Icons.menu, color: Color(0xFF006D5B), size: 24),
-              onPressed: () { Scaffold.of(context).openDrawer(); },
-            );
-          },
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('In-Out Tracker', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF006D5B), fontSize: 20)),
-            Text('Kelola keuanganmu dengan cerdas', style: TextStyle(color: Colors.grey, fontSize: 11)),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.calendar_month, color: Color(0xFF006D5B), size: 24),
-            tooltip: 'Kalender Transaksi',
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarScreen()));
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
+        final List<Widget> daftarHalaman = [
+          _buildBeranda(), // Index 0: Halaman Beranda Utama
+          const StatisticsScreen(), // Index 1: Halaman Statistik
+          SettingsScreen(onDataChanged: _refreshData), // Index 2: Halaman Pengaturan
+        ];
+        
+        if (!isLoggedIn) {
+          daftarHalaman.add(const AuthScreen()); // Index 3: Login
+        }
 
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF138D75)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Icon(Icons.account_balance_wallet, color: Colors.white, size: 40), SizedBox(height: 10),
-                  Text('In-Out Tracker', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text('Catatan Keuangan Pribadi', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                ],
+        int displayIndex = _currentIndex;
+        if (displayIndex >= daftarHalaman.length) {
+          displayIndex = 0; // fallback jika index out of range
+        }
+
+        final List<BottomNavigationBarItem> bottomNavItems = [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          const BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Statistik'),
+          const BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
+        ];
+        
+        if (!isLoggedIn) {
+          bottomNavItems.add(const BottomNavigationBarItem(icon: Icon(Icons.door_front_door), label: 'Login'));
+        }
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF8F9FA),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFFF8F9FA),
+            elevation: 0,
+            toolbarHeight: 60,
+            leading: Builder(
+              builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu, color: Color(0xFF006D5B), size: 24),
+                  onPressed: () { Scaffold.of(context).openDrawer(); },
+                );
+              },
+            ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text('In-Out Tracker', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF006D5B), fontSize: 20)),
+                Text('Kelola keuanganmu dengan cerdas', style: TextStyle(color: Colors.grey, fontSize: 11)),
+              ],
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.calendar_month, color: Color(0xFF006D5B), size: 24),
+                tooltip: 'Kalender Transaksi',
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarScreen()));
+                },
               ),
-            ),
-            
-            ListTile(
-              leading: const Icon(Icons.gavel_rounded, color: Color(0xFF006D5B)),
-              title: const Text('Syarat & Ketentuan'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const TosScreen(isFromSettings: true)));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.privacy_tip_rounded, color: Color(0xFF006D5B)),
-              title: const Text('Kebijakan Privasi'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyScreen()));
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.info_rounded, color: Color(0xFF006D5B)),
-              title: const Text('Tentang Aplikasi'),
-              onTap: () { Navigator.pop(context); _tampilkanDialogTentang(); },
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(width: 8),
+            ],
+          ),
 
-      // BODY AKAN OTOMATIS BERUBAH BERDASARKAN TOMBOL YANG DIPENCET
-      body: daftarHalaman[_currentIndex], 
+          drawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const DrawerHeader(
+                  decoration: BoxDecoration(color: Color(0xFF138D75)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Icon(Icons.account_balance_wallet, color: Colors.white, size: 40), SizedBox(height: 10),
+                      Text('In-Out Tracker', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                      Text('Catatan Keuangan Pribadi', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                
+                ListTile(
+                  leading: const Icon(Icons.gavel_rounded, color: Color(0xFF006D5B)),
+                  title: const Text('Syarat & Ketentuan'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const TosScreen(isFromSettings: true)));
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_rounded, color: Color(0xFF006D5B)),
+                  title: const Text('Kebijakan Privasi'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyScreen()));
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.info_rounded, color: Color(0xFF006D5B)),
+                  title: const Text('Tentang Aplikasi'),
+                  onTap: () { Navigator.pop(context); _tampilkanDialogTentang(); },
+                ),
+              ],
+            ),
+          ),
 
-      // NAVIGASI BAWAH
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 0 && _currentIndex != 0) {
-            _refreshData();
-          }
-          setState(() {
-            _currentIndex = index;
-          });
-        }, 
-        type: BottomNavigationBarType.fixed, 
-        selectedItemColor: const Color(0xFF006D5B), 
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Statistik'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
-        ],
-      ),
+          // BODY AKAN OTOMATIS BERUBAH BERDASARKAN TOMBOL YANG DIPENCET
+          body: daftarHalaman[displayIndex], 
+
+          // NAVIGASI BAWAH
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: displayIndex,
+            onTap: (index) {
+              if (index == 0 && _currentIndex != 0) {
+                _refreshData();
+              }
+              setState(() {
+                _currentIndex = index;
+              });
+            }, 
+            type: BottomNavigationBarType.fixed, 
+            selectedItemColor: const Color(0xFF006D5B), 
+            unselectedItemColor: Colors.grey,
+            items: bottomNavItems,
+          ),
+        );
+      }
     );
   }
 }

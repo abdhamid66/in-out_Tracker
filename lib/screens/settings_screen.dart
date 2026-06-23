@@ -10,6 +10,8 @@ import 'kategori_screen.dart';
 import '../services/export_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:local_auth/local_auth.dart';
+import '../services/auth_service.dart';
+import 'auth_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback? onDataChanged;
@@ -174,6 +176,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (context.mounted) setState(() => _isLoading = false);
   }
 
+  void _tampilkanDialogTerkunci(String fitur, String penjelasan) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Row(
+          children: [
+            const Icon(Icons.lock_outline, color: Colors.orange),
+            const SizedBox(width: 8),
+            Expanded(child: Text('Fitur Terkunci', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Fitur $fitur mengharuskan Anda untuk login terlebih dahulu.', style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Text(penjelasan, style: const TextStyle(color: Colors.black87)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AuthScreen()));
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF006D5B)),
+            child: const Text('Login Sekarang', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -192,26 +232,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- BAGIAN PENGATURAN UMUM ---
-          _buildSectionTitle('Pengaturan Umum'),
-          _buildSettingCard(
-            icon: Icons.person_rounded,
-            title: 'Profil & Akun',
-            subtitle: FirebaseAuth.instance.currentUser != null 
-                ? 'Login sebagai ${FirebaseAuth.instance.currentUser!.displayName ?? 'Pengguna'}'
-                : 'Kelola data Google dan status login',
-            iconColor: const Color(0xFF006D5B),
-            customIconWidget: (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser!.photoURL != null) 
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(FirebaseAuth.instance.currentUser!.photoURL!, width: 36, height: 36, fit: BoxFit.cover),
-                  ) 
-                : null,
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())).then((_) => setState((){}));
-            },
-            delay: 0,
-          ),
+          // --- BAGIAN PROFIL ---
+          if (FirebaseAuth.instance.currentUser != null) ...[
+            _buildSectionTitle('Profil Pengguna'),
+            _buildSettingCard(
+              icon: Icons.person_rounded,
+              title: FirebaseAuth.instance.currentUser!.displayName ?? 'Pengguna',
+              subtitle: FirebaseAuth.instance.currentUser!.email ?? 'Tidak ada email',
+              iconColor: const Color(0xFF006D5B),
+              customIconWidget: FirebaseAuth.instance.currentUser!.photoURL != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(FirebaseAuth.instance.currentUser!.photoURL!, width: 40, height: 40, fit: BoxFit.cover),
+                    )
+                  : const CircleAvatar(backgroundColor: Color(0xFFE8F5E9), child: Icon(Icons.person, color: Color(0xFF006D5B))),
+              onTap: null,
+              delay: 0,
+            ),
+            const SizedBox(height: 20),
+          ] else ...[
+            _buildSectionTitle('Pengaturan Umum'),
+            _buildSettingCard(
+              icon: Icons.person_rounded,
+              title: 'Profil & Akun',
+              subtitle: 'login untuk membuka semua fitur, kelola kategori dan lain nya',
+              iconColor: const Color(0xFF006D5B),
+              isLocked: false,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AuthScreen()));
+              },
+              delay: 0,
+            ),
+          ],
           Consumer<TransaksiProvider>(
             builder: (context, provider, child) {
               return _buildSettingCard(
@@ -232,10 +284,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Kelola Kategori',
             subtitle: 'Tambah atau ubah ikon & warna kategori',
             iconColor: const Color(0xFF006D5B),
+            isLocked: FirebaseAuth.instance.currentUser == null,
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const KategoriScreen())).then((_) {
-                widget.onDataChanged?.call();
-              });
+              if (FirebaseAuth.instance.currentUser == null) {
+                _tampilkanDialogTerkunci('Kelola Kategori', 'Dengan login, Anda dapat menyimpan kustomisasi kategori pengeluaran dan pemasukan dengan aman di akun Anda.');
+              } else {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const KategoriScreen())).then((_) {
+                  widget.onDataChanged?.call();
+                });
+              }
             },
             delay: 0,
           ),
@@ -248,7 +305,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Backup ke Cloud',
             subtitle: 'Simpan data lokal ke internet',
             iconColor: Colors.blue.shade600,
-            onTap: _prosesBackup,
+            isLocked: FirebaseAuth.instance.currentUser == null,
+            onTap: () {
+              if (FirebaseAuth.instance.currentUser == null) {
+                _tampilkanDialogTerkunci('Backup ke Cloud', 'Login diperlukan agar kami tahu ke akun mana data catatan keuangan ini harus dicadangkan secara online.');
+              } else {
+                _prosesBackup();
+              }
+            },
             delay: 100,
           ),
           _buildSettingCard(
@@ -256,7 +320,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Pulihkan dari Cloud',
             subtitle: 'Tarik data lama dari internet',
             iconColor: Colors.green.shade600,
-            onTap: _prosesRestore,
+            isLocked: FirebaseAuth.instance.currentUser == null,
+            onTap: () {
+              if (FirebaseAuth.instance.currentUser == null) {
+                _tampilkanDialogTerkunci('Pulihkan dari Cloud', 'Login diperlukan untuk mengambil kembali data catatan keuangan Anda yang sebelumnya telah dicadangkan di internet.');
+              } else {
+                _prosesRestore();
+              }
+            },
             delay: 200,
           ),
           const SizedBox(height: 20),
@@ -327,6 +398,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 20),
 
+          if (FirebaseAuth.instance.currentUser != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.logout_rounded, color: Colors.white),
+                  label: const Text('Keluar (Logout)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red.shade600,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onFocusChange: null,
+                  onHover: null,
+                  onPressed: () async {
+                    await AuthService().signOut();
+                    if (context.mounted) {
+                       // Refresh UI
+                       setState((){});
+                    }
+                  },
+                ),
+              ),
+            ),
+
           const SizedBox(height: 40),
         ],
       ),
@@ -354,9 +451,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     required String subtitle,
     Color iconColor = const Color(0xFF006D5B),
-    required VoidCallback onTap,
+    VoidCallback? onTap,
     int delay = 0,
     Widget? customIconWidget,
+    bool isLocked = false,
   }) {
     return TweenAnimationBuilder(
       duration: Duration(milliseconds: 500 + delay),
@@ -407,14 +505,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      shape: BoxShape.circle,
+                  if (onTap != null)
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(isLocked ? Icons.lock_outline_rounded : Icons.arrow_forward_ios_rounded, size: 14, color: isLocked ? Colors.orange : Colors.black38),
                     ),
-                    child: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.black38),
-                  ),
                 ],
               ),
             ),

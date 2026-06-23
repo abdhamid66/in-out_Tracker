@@ -22,8 +22,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   DateTime _periodeTerpilih = DateTime.now();
   final List<String> daftarBulan = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
   ];
 
   String _getPeriodeLabel() {

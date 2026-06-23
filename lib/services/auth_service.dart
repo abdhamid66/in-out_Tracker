@@ -33,6 +33,40 @@ class AuthService {
     }
   }
 
+  // Fungsi untuk Login dengan Email dan Password
+  Future<User?> signInWithEmailAndPassword(String email, String password) async {
+    try {
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email, 
+        password: password
+      );
+      return userCredential.user;
+    } catch (e) {
+      print("Error Login Email: $e");
+      rethrow; // Melempar error ke UI agar bisa ditampilkan Snackbar
+    }
+  }
+
+  // Fungsi untuk Daftar Akun Baru dengan Email dan Password
+  Future<User?> registerWithEmailAndPassword(String nama, String email, String password) async {
+    try {
+      final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email, 
+        password: password
+      );
+      
+      // Update display name
+      await userCredential.user?.updateDisplayName(nama);
+      // Reload user agar namanya terupdate
+      await userCredential.user?.reload();
+      
+      return _auth.currentUser;
+    } catch (e) {
+      print("Error Daftar Email: $e");
+      rethrow;
+    }
+  }
+
   // Fungsi untuk Logout nanti
   Future<void> signOut() async {
     await _googleSignIn.signOut();
