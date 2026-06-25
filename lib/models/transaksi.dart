@@ -7,6 +7,7 @@ class Transaksi {
   final bool isPemasukan;
   final DateTime tanggal;
   final String kategori; // Tambahan field kategori
+  final String dompetId; // Tambahan field dompetId
 
   Transaksi({
     required this.id,
@@ -15,6 +16,7 @@ class Transaksi {
     required this.isPemasukan,
     required this.tanggal,
     required this.kategori,
+    this.dompetId = 'default',
   });
 
   // PENERJEMAH 1: Dari Aplikasi ke Database (Menyimpan)
@@ -28,6 +30,7 @@ class Transaksi {
       // Ubah format waktu menjadi Teks (String) agar bisa disimpan
       'tanggal': tanggal.toIso8601String(), 
       'kategori': kategori, // Simpan kategori
+      'dompetId': dompetId, // Simpan dompetId
     };
   }
 
@@ -42,6 +45,7 @@ class Transaksi {
       // Ubah kembali Teks menjadi format Waktu (DateTime)
       tanggal: DateTime.parse(map['tanggal']), 
       kategori: map['kategori'] ?? 'Lainnya', // Ambil kategori, default 'Lainnya' jika null (misal dari data lama)
+      dompetId: map['dompetId'] ?? 'default', // Ambil dompetId, default 'default' untuk data lama
     );
   }
 

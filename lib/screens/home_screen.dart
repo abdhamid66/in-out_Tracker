@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/transaksi.dart';
+import '../models/dompet.dart';
+import '../widgets/dompet_dialog.dart';
 import 'input_screen.dart'; 
 import 'history_screen.dart';
 import '../database/db_helper.dart'; 
@@ -39,6 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
   double saldo = 0;
   double anggaranBulanan = 0;
 
+  List<Dompet> daftarDompet = [];
+  Dompet? dompetAktif;
+
   String waktuUpdate = "Memuat...";
   DateTime _periodeTerpilih = DateTime.now();
   final List<String> daftarBulan = [
@@ -76,10 +81,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // fungsi untuk mengambil data dari SQLite dan menghitung saldo
   void _refreshData() async {
+    // Ambil daftar dompet
+    daftarDompet = await DBHelper().getSemuaDompet();
+    if (daftarDompet.isNotEmpty) {
+      if (dompetAktif == null) {
+        dompetAktif = daftarDompet.first;
+      } else {
+        // Tetapkan dompet yang sama jika masih ada, atau default ke yang pertama
+        dompetAktif = daftarDompet.firstWhere((d) => d.id == dompetAktif!.id, orElse: () => daftarDompet.first);
+      }
+    }
+
     List<Transaksi> data = [];
 
-    // Ambil data berdasarkan bulan dan tahun pada _periodeTerpilih
-    data = await DBHelper().getTransaksiBulan(_periodeTerpilih.month, _periodeTerpilih.year);
+    // Ambil data berdasarkan bulan, tahun, dan dompet yang aktif
+    data = await DBHelper().getTransaksiBulan(
+      _periodeTerpilih.month, 
+      _periodeTerpilih.year,
+      dompetId: dompetAktif?.id,
+    );
 
     double hitungMasuk = 0;
     double hitungKeluar = 0;
@@ -108,7 +128,17 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // void _refreshData() async ...
+  void _tampilkanDialogTambahDompet() {
+    showDialog(
+      context: context,
+      builder: (context) => DompetDialog(
+        onDompetAdded: () {
+          _refreshData();
+        },
+      ),
+    );
+  }
+
   void _tampilkanDialogTentang() {
     showDialog(
       context: context,
@@ -229,7 +259,10 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () async {
                 final hasilEdit = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => InputScreen(transaksiLama: trx)),
+                  MaterialPageRoute(builder: (context) => InputScreen(
+                    transaksiLama: trx,
+                    dompetIdAktif: trx.dompetId,
+                  )),
                 );
                 if (hasilEdit == true) {
                   _refreshData();
@@ -341,8 +374,71 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            KartuSaldo(saldo: saldo, totalPemasukan: totalPemasukan, totalPengeluaran: totalPengeluaran, waktuUpdate: waktuUpdate),
+            const SizedBox(height: 15),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(10)),
+                  child: const Icon(Icons.account_balance_wallet, color: Color(0xFF006D5B), size: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: dompetAktif?.id,
+                        icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF006D5B)),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 14),
+                        onChanged: (String? newValue) {
+                          if (newValue == 'tambah_baru') {
+                            _tampilkanDialogTambahDompet();
+                          } else if (newValue != null) {
+                            setState(() {
+                              dompetAktif = daftarDompet.firstWhere((d) => d.id == newValue);
+                            });
+                            _refreshData();
+                          }
+                        },
+                        items: [
+                          ...daftarDompet.map((Dompet dompet) {
+                            return DropdownMenuItem<String>(
+                              value: dompet.id,
+                              child: Text(dompet.nama),
+                            );
+                          }),
+                          const DropdownMenuItem<String>(
+                            value: 'tambah_baru',
+                            child: Row(
+                              children: [
+                                Icon(Icons.add, size: 16, color: Color(0xFF006D5B)),
+                                SizedBox(width: 8),
+                                Text('Tambah Dompet Baru', style: TextStyle(color: Color(0xFF006D5B))),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            KartuSaldo(
+              saldo: saldo,
+              totalPemasukan: totalPemasukan, 
+              totalPengeluaran: totalPengeluaran, 
+              waktuUpdate: waktuUpdate,
+              namaDompet: dompetAktif?.nama ?? 'Memuat...',
+            ),
             const SizedBox(height: 15),
             if (anggaranBulanan > 0) ...[
               Container(

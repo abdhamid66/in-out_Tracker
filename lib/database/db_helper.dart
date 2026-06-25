@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/transaksi.dart';
+import '../models/dompet.dart';
 
 class DBHelper {
   // Membuat singleton untuk memastikan hanya ada satu instance DBHelper yang digunakan di seluruh aplikasi
@@ -22,7 +23,7 @@ class DBHelper {
     // mmbuka dtabase, dan jika belum ada filenya jalankan fungsi _onCreate
     return await openDatabase(
       path,
-      version: 2, // versi database diubah menjadi 2 karena ada tambahan kolom kategori
+      version: 3, // versi database diubah menjadi 3 karena ada tambahan tabel dompet
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -37,9 +38,24 @@ class DBHelper {
         nominal REAL,
         isPemasukan INTEGER,
         tanggal TEXT,
-        kategori TEXT
+        kategori TEXT,
+        dompetId TEXT DEFAULT 'default'
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE dompet (
+        id TEXT PRIMARY KEY,
+        nama TEXT,
+        saldo REAL
+      )
+    ''');
+
+    await db.insert('dompet', {
+      'id': 'default',
+      'nama': 'Dompet Utama',
+      'saldo': 0.0,
+    });
   }
 
   // Fungsi untuk meng-upgrade database dari versi lama ke versi baru
@@ -47,6 +63,21 @@ class DBHelper {
     if (oldVersion < 2) {
       // Jika versi lama kurang dari 2, tambahkan kolom kategori
       await db.execute("ALTER TABLE transaksi ADD COLUMN kategori TEXT DEFAULT 'Lainnya'");
+    }
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE dompet (
+          id TEXT PRIMARY KEY,
+          nama TEXT,
+          saldo REAL
+        )
+      ''');
+      await db.insert('dompet', {
+        'id': 'default',
+        'nama': 'Dompet Utama',
+        'saldo': 0.0,
+      });
+      await db.execute("ALTER TABLE transaksi ADD COLUMN dompetId TEXT DEFAULT 'default'");
     }
   }
   // --- FUNGSI UNTUK MENYIMPAN DATA TRANSAKSI ---
@@ -77,7 +108,7 @@ class DBHelper {
     return await getTransaksiBulan(sekarang.month, sekarang.year);
   }
 
-  Future<List<Transaksi>> getTransaksiBulan(int bulan, int tahun) async {
+  Future<List<Transaksi>> getTransaksiBulan(int bulan, int tahun, {String? dompetId}) async {
     Database db = await database;
     
     // Format bulan menjadi 2 digit (misal: 06)
@@ -85,10 +116,18 @@ class DBHelper {
     // Format pencarian untuk SQL LIKE (misal: '2026-06-%')
     String searchPattern = '$tahun-$bulanStr-%';
 
+    String whereClause = 'tanggal LIKE ?';
+    List<dynamic> whereArgs = [searchPattern];
+
+    if (dompetId != null) {
+      whereClause += ' AND dompetId = ?';
+      whereArgs.add(dompetId);
+    }
+
     final List<Map<String, dynamic>> dataDariDb = await db.query(
       'transaksi',
-      where: 'tanggal LIKE ?',
-      whereArgs: [searchPattern],
+      where: whereClause,
+      whereArgs: whereArgs,
       orderBy: 'tanggal DESC, id DESC',
     );
 
@@ -98,20 +137,28 @@ class DBHelper {
   }
 
   // Fungsi untuk mendapatkan total pemasukan dan pengeluaran secara optimal (langsung dari DB)
-  Future<Map<String, double>> getRingkasanBulan(int bulan, int tahun) async {
+  Future<Map<String, double>> getRingkasanBulan(int bulan, int tahun, {String? dompetId}) async {
     Database db = await database;
     
     String bulanStr = bulan.toString().padLeft(2, '0');
     String searchPattern = '$tahun-$bulanStr-%';
 
+    String whereClause = 'tanggal LIKE ?';
+    List<dynamic> whereArgs = [searchPattern];
+
+    if (dompetId != null) {
+      whereClause += ' AND dompetId = ?';
+      whereArgs.add(dompetId);
+    }
+
     final List<Map<String, dynamic>> result = await db.rawQuery(
       '''
       SELECT isPemasukan, SUM(nominal) as total 
       FROM transaksi 
-      WHERE tanggal LIKE ? 
+      WHERE $whereClause
       GROUP BY isPemasukan
       ''',
-      [searchPattern],
+      whereArgs,
     );
 
     double totalPemasukan = 0;
@@ -202,6 +249,39 @@ class DBHelper {
       transaksi.toMap(), 
       where: 'id = ?',
       whereArgs: [transaksi.id],
+    );
+  }
+
+  // --- FUNGSI UNTUK DOMPET ---
+  Future<int> insertDompet(Dompet dompet) async {
+    Database db = await database;
+    return await db.insert('dompet', dompet.toMap());
+  }
+
+  Future<List<Dompet>> getSemuaDompet() async {
+    Database db = await database;
+    final List<Map<String, dynamic>> dataDariDb = await db.query('dompet');
+    return List.generate(dataDariDb.length, (index) {
+      return Dompet.fromMap(dataDariDb[index]);
+    });
+  }
+
+  Future<int> updateDompet(Dompet dompet) async {
+    Database db = await database;
+    return await db.update(
+      'dompet',
+      dompet.toMap(),
+      where: 'id = ?',
+      whereArgs: [dompet.id],
+    );
+  }
+
+  Future<int> deleteDompet(String id) async {
+    Database db = await database;
+    return await db.delete(
+      'dompet',
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 }

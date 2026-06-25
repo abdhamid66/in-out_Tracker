@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/transaksi.dart';
+import '../models/dompet.dart';
+import '../database/db_helper.dart';
 import '../services/kategori_service.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +11,8 @@ import 'package:out_tracker/theme/app_theme.dart';
 
 class InputScreen extends StatefulWidget {
   final Transaksi? transaksiLama;
-  const InputScreen({super.key, this.transaksiLama});
+  final String? dompetIdAktif;
+  const InputScreen({super.key, this.transaksiLama, this.dompetIdAktif});
 
   @override
   State<InputScreen> createState() => _InputScreenState();
@@ -20,6 +23,8 @@ class _InputScreenState extends State<InputScreen> {
   final TextEditingController _nominalController = TextEditingController();
   bool _isPemasukan = true;
   String _kategori = 'Lainnya';
+  String _dompetId = 'default';
+  List<Dompet> _daftarDompet = [];
 
   List<String> kategoriPemasukan = [];
   List<String> kategoriPengeluaran = [];
@@ -38,6 +43,21 @@ class _InputScreenState extends State<InputScreen> {
     }
 
     _loadKategori();
+    _loadDompet();
+  }
+
+  void _loadDompet() async {
+    final dompet = await DBHelper().getSemuaDompet();
+    setState(() {
+      _daftarDompet = dompet;
+      if (widget.transaksiLama != null) {
+        _dompetId = widget.transaksiLama!.dompetId;
+      } else if (widget.dompetIdAktif != null) {
+        _dompetId = widget.dompetIdAktif!;
+      } else if (_daftarDompet.isNotEmpty) {
+        _dompetId = _daftarDompet.first.id;
+      }
+    });
   }
 
   void _loadKategori() {
@@ -119,6 +139,7 @@ void _simpanData() async {
         isPemasukan: _isPemasukan,
         tanggal: DateTime.now(),
         kategori: _kategori,
+        dompetId: _dompetId,
       );
 
       await context.read<TransaksiProvider>().tambahTransaksi(transaksiBaru);
@@ -131,6 +152,7 @@ void _simpanData() async {
         isPemasukan: _isPemasukan,
         tanggal: widget.transaksiLama!.tanggal,
         kategori: _kategori,
+        dompetId: _dompetId,
       );
 
       await context.read<TransaksiProvider>().updateTransaksi(transaksiUpdate);
@@ -272,6 +294,68 @@ void _simpanData() async {
                   ],
                 ),
               ),
+              const SizedBox(height: 20),
+              
+              if (_daftarDompet.isNotEmpty)
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    Dompet? dompetTerpilih = _daftarDompet.firstWhere((d) => d.id == _dompetId, orElse: () => _daftarDompet.first);
+                    return PopupMenuButton<String>(
+                      initialValue: _dompetId,
+                      color: Colors.white,
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth,
+                        maxWidth: constraints.maxWidth,
+                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      offset: const Offset(0, 60),
+                      onSelected: (nilaiBaru) {
+                        setState(() {
+                          _dompetId = nilaiBaru;
+                        });
+                      },
+                      itemBuilder: (context) {
+                        return _daftarDompet.map<PopupMenuEntry<String>>((Dompet dompet) {
+                          return PopupMenuItem<String>(
+                            value: dompet.id,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.account_balance_wallet, size: 16, color: AppTheme.primaryColor),
+                                const SizedBox(width: 8),
+                                Text(dompet.nama, style: const TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                          );
+                        }).toList();
+                      },
+                      child: AbsorbPointer(
+                        child: TextField(
+                          readOnly: true,
+                          controller: TextEditingController(text: dompetTerpilih.nama),
+                          decoration: InputDecoration(
+                            labelText: 'Dompet',
+                            prefixIcon: const Icon(Icons.account_balance_wallet, color: AppTheme.primaryColor),
+                            suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                ),
               const SizedBox(height: 20),
               
               LayoutBuilder(
