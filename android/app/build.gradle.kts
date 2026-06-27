@@ -47,7 +47,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         
         // 3. Kita ubah jadi angka langsung (Hardcode) biar KTS gak rewel
-        versionCode = 1
+        versionCode = 3
         versionName = "1.0"
         
         // 4. Obat tambahan untuk mesin database
