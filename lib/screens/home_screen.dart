@@ -375,69 +375,68 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 15),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.account_balance_wallet, color: Color(0xFF006D5B), size: 20),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: dompetAktif?.id,
-                        icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF006D5B)),
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 14),
-                        onChanged: (String? newValue) {
-                          if (newValue == 'tambah_baru') {
-                            _tampilkanDialogTambahDompet();
-                          } else if (newValue != null) {
-                            setState(() {
-                              dompetAktif = daftarDompet.firstWhere((d) => d.id == newValue);
-                            });
-                            _refreshData();
-                          }
-                        },
-                        items: [
-                          ...daftarDompet.map((Dompet dompet) {
-                            return DropdownMenuItem<String>(
-                              value: dompet.id,
-                              child: Text(dompet.nama),
-                            );
-                          }),
-                          const DropdownMenuItem<String>(
-                            value: 'tambah_baru',
-                            child: Row(
-                              children: [
-                                Icon(Icons.add, size: 16, color: Color(0xFF006D5B)),
-                                SizedBox(width: 8),
-                                Text('Tambah Dompet Baru', style: TextStyle(color: Color(0xFF006D5B))),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
             KartuSaldo(
               saldo: saldo,
               totalPemasukan: totalPemasukan, 
               totalPengeluaran: totalPengeluaran, 
               waktuUpdate: waktuUpdate,
               namaDompet: dompetAktif?.nama ?? 'Memuat...',
+              walletSelector: PopupMenuButton<String>(
+                padding: EdgeInsets.zero,
+                tooltip: 'Pilih Dompet',
+                position: PopupMenuPosition.under,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                onSelected: (String newValue) {
+                  if (newValue == 'tambah_baru') {
+                    _tampilkanDialogTambahDompet();
+                  } else {
+                    setState(() {
+                      dompetAktif = daftarDompet.firstWhere((d) => d.id == newValue);
+                    });
+                    _refreshData();
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  List<PopupMenuEntry<String>> menuItems = daftarDompet.map((Dompet dompet) {
+                    return PopupMenuItem<String>(
+                      value: dompet.id,
+                      child: Row(
+                        children: [
+                          Icon(
+                            dompetAktif?.id == dompet.id ? Icons.radio_button_checked : Icons.radio_button_unchecked, 
+                            color: const Color(0xFF006D5B), 
+                            size: 18
+                          ),
+                          const SizedBox(width: 10),
+                          Text(dompet.nama),
+                        ],
+                      ),
+                    );
+                  }).toList();
+                  
+                  menuItems.add(const PopupMenuDivider());
+                  menuItems.add(
+                    const PopupMenuItem<String>(
+                      value: 'tambah_baru',
+                      child: Row(
+                        children: [
+                          Icon(Icons.add, color: Color(0xFF006D5B), size: 18),
+                          SizedBox(width: 10),
+                          Text('Tambah Dompet Baru', style: TextStyle(color: Color(0xFF006D5B))),
+                        ],
+                      ),
+                    )
+                  );
+                  return menuItems;
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(dompetAktif?.nama ?? 'Memuat...', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                    const Icon(Icons.arrow_drop_down, color: Colors.white, size: 16),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 15),
             if (anggaranBulanan > 0) ...[
@@ -590,6 +589,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             actions: [
+              // PopupMenuButton removed from here
               IconButton(
                 icon: const Icon(Icons.calendar_month, color: Color(0xFF006D5B), size: 24),
                 tooltip: 'Kalender Transaksi',

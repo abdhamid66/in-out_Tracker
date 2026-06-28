@@ -8,6 +8,7 @@ class KartuSaldo extends StatelessWidget {
   final double totalPengeluaran;
   final String waktuUpdate;
   final String namaDompet;
+  final Widget? walletSelector;
 
   const KartuSaldo({
     super.key,
@@ -16,6 +17,7 @@ class KartuSaldo extends StatelessWidget {
     required this.totalPengeluaran,
     required this.waktuUpdate,
     required this.namaDompet,
+    this.walletSelector,
   });
 
   String _formatSingkat(double angka) {
@@ -68,7 +70,16 @@ class KartuSaldo extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Total Saldo • $namaDompet', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text('Total Saldo • ', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                              if (walletSelector != null) 
+                                walletSelector!
+                              else 
+                                Text(namaDompet, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.55, // Batasi lebar teks biar ga nabrak dompet
                             child: FittedBox(
