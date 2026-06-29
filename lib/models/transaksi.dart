@@ -31,7 +31,7 @@ class Transaksi {
       'tanggal': tanggal.toIso8601String(), 
       'kategori': kategori, // Simpan kategori
       'dompetId': dompetId, // Simpan dompetId
-    };
+    }; 
   }
 
   // PENERJEMAH 2: Dari Database ke Aplikasi (Membaca)
