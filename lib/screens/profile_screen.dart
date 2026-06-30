@@ -14,7 +14,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-
+ 
   @override
   void initState() {
     super.initState();
